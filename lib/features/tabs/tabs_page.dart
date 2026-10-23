@@ -96,7 +96,7 @@ class _TabsPageState extends ConsumerState<TabsPage>
   Future<void> _openTab(String id) async {
     if (_leaving) return;
     _leaving = true;
-    HapticFeedback.lightImpact();
+    unawaited(HapticFeedback.lightImpact());
     setState(() => _flying = id);
     final reduced = HorizontMotion.reduced(context);
     await _zoom.springTo(
@@ -112,7 +112,7 @@ class _TabsPageState extends ConsumerState<TabsPage>
     if (_leaving) return;
     final tab = ref.read(tabsProvider.notifier).open(activate: false);
     setState(() => _appearing = tab.id);
-    HapticFeedback.mediumImpact();
+    unawaited(HapticFeedback.mediumImpact());
     // The new card pops out first, then it opens.
     await Future<void>.delayed(const Duration(milliseconds: 260));
     if (!mounted) return;

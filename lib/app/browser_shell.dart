@@ -71,8 +71,9 @@ class _BrowserShellState extends ConsumerState<BrowserShell>
     _bridge = HorizontWebKit.events.listen((event) {
       if (event is OpenUrlEvent) {
         final uri = Uri.tryParse(event.url);
-        if (uri != null)
+        if (uri != null) {
           ref.read(tabsProvider.notifier).open(url: uri, private: false);
+        }
       }
     });
   }
@@ -207,7 +208,7 @@ class _BrowserShellState extends ConsumerState<BrowserShell>
       if (mounted) setState(() => _swiping = null);
       return;
     }
-    HapticFeedback.lightImpact();
+    unawaited(HapticFeedback.lightImpact());
     await _swipe.springTo(
       dir * width,
       motion: HorizontMotion.spatialFast,

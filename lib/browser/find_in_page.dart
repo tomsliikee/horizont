@@ -29,11 +29,13 @@ class _FindBarState extends ConsumerState<FindBar> {
   var _active = 0;
   var _count = 0;
 
-  WebEngine get _engine => ref.read(webEngineProvider);
+  /// The page being searched; kept, because `ref` is gone in [dispose].
+  late final WebEngine _engine;
 
   @override
   void initState() {
     super.initState();
+    _engine = ref.read(webEngineProvider);
     _sub = _engine.events.listen((event) {
       if (event is FindResultEvent && mounted) {
         setState(() {

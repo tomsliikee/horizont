@@ -199,7 +199,7 @@ class StartPage extends ConsumerWidget {
     Bookmark b,
   ) async {
     final l10n = AppLocalizations.of(context);
-    HapticFeedback.mediumImpact();
+    unawaited(HapticFeedback.mediumImpact());
     final action = await showModalBottomSheet<String>(
       context: context,
       builder: (context) => SafeArea(
@@ -232,8 +232,9 @@ class StartPage extends ConsumerWidget {
       ),
     );
     if (action == 'tab') onOpenInNewTab?.call(b.url);
-    if (action == 'remove')
+    if (action == 'remove') {
       await ref.read(libraryProvider).removeBookmark(b.id);
+    }
   }
 
   static String _host(Uri url) =>

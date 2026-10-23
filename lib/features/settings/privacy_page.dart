@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
@@ -198,7 +200,7 @@ class PrivacyPage extends ConsumerWidget {
                           await library.clearHistory();
                           await library.clearPermissions();
                           await HorizontWebKit.clearAllData(null);
-                          HapticFeedback.mediumImpact();
+                          unawaited(HapticFeedback.mediumImpact());
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text(l10n.cleared)),

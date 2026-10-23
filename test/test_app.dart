@@ -61,7 +61,15 @@ Future<void> pumpApp(
   WidgetTester tester,
   Widget home, {
   Settings settings = const Settings(colourway: Colourway.blue),
-}) => pumpAppWith(tester, home, settings: settings);
+  Library? library,
+  WebEngine Function(BrowserTab tab)? engineFactory,
+}) => pumpAppWith(
+  tester,
+  home,
+  settings: settings,
+  library: library,
+  engineFactory: engineFactory,
+);
 
 /// [pumpApp] with extra provider [overrides].
 Future<void> pumpAppWith(

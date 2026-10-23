@@ -276,4 +276,75 @@ void main() {
       expect(c.read(tabsProvider).tabs.map((t) => t.id), ['exact', 'front']);
     });
   });
+
+  group('private mode', () {
+    test('a private tab is in front of its own list', () async {
+      final c = await container();
+      final n = c.read(tabsProvider.notifier);
+      final normal = c.read(tabsProvider).active;
+      n.enterPrivate();
+      final state = c.read(tabsProvider);
+      expect(state.privateMode, isTrue);
+      expect(state.visible.single.isPrivate, isTrue);
+      expect(state.normalTabs.single.id, normal.id);
+      // A link from a private tab stays private.
+      final child = n.open(
+        url: Uri.parse('https://a.example'),
+        openerId: state.activeId,
+      );
+      expect(child.isPrivate, isTrue);
+    });
+
+    test(
+      'showNormal goes back to the normal tab and keeps the private ones',
+      () async {
+        final c = await container();
+        final n = c.read(tabsProvider.notifier);
+        final normal = c.read(tabsProvider).active;
+        n.enterPrivate();
+        n.showNormal();
+        expect(c.read(tabsProvider).activeId, normal.id);
+        expect(c.read(tabsProvider).privateTabs, hasLength(1));
+        // Entering again comes back to the same private tab.
+        final private = c.read(tabsProvider).privateTabs.single;
+        n.enterPrivate();
+        expect(c.read(tabsProvider).activeId, private.id);
+      },
+    );
+
+    test('closing the last private tab returns to the normal tabs', () async {
+      final c = await container();
+      final n = c.read(tabsProvider.notifier);
+      final normal = c.read(tabsProvider).active;
+      n.enterPrivate();
+      n.close(c.read(tabsProvider).activeId);
+      expect(c.read(tabsProvider).privateMode, isFalse);
+      expect(c.read(tabsProvider).activeId, normal.id);
+    });
+
+    test('leaving private mode closes every private tab', () async {
+      final c = await container();
+      final n = c.read(tabsProvider.notifier);
+      n.enterPrivate();
+      n.open(url: Uri.parse('https://a.example'));
+      n.leavePrivate();
+      expect(c.read(tabsProvider).privateTabs, isEmpty);
+      expect(c.read(tabsProvider).privateMode, isFalse);
+    });
+
+    test('private tabs are never written', () async {
+      final c = await container();
+      final n = c.read(tabsProvider.notifier);
+      n.enterPrivate();
+      n.updatePage(
+        c.read(tabsProvider).activeId,
+        url: Uri.parse('https://secret.example'),
+      );
+      await n.flush();
+      final stored = await repository.loadAll();
+      expect(stored.where((t) => t.isPrivate), isEmpty);
+      expect(stored.where((t) => t.url?.host == 'secret.example'), isEmpty);
+      expect(stored, hasLength(1));
+    });
+  });
 }

@@ -38,13 +38,15 @@ class PrivateLock extends Notifier<bool> with WidgetsBindingObserver {
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState lifecycle) {
-    if (lifecycle != AppLifecycleState.paused &&
-        lifecycle != AppLifecycleState.hidden) {
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.paused &&
+        state != AppLifecycleState.hidden) {
       return;
     }
     final lock = ref.read(settingsProvider).lockPrivateTabs;
-    if (lock && ref.read(tabsProvider).privateTabs.isNotEmpty) state = true;
+    if (lock && ref.read(tabsProvider).privateTabs.isNotEmpty) {
+      this.state = true;
+    }
   }
 
   Future<bool> unlock(String reason) async {

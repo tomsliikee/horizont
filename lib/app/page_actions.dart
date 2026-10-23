@@ -76,7 +76,7 @@ class PageActions {
     final folders = await _library.folders();
     final favourites = folders.firstWhere((f) => f.isFavorites);
     final id = await _library.addBookmark(favourites.id, url, _page.title);
-    HapticFeedback.lightImpact();
+    unawaited(HapticFeedback.lightImpact());
     if (!context.mounted) return;
     _say(
       l10n.bookmarkAdded(favourites.name),
@@ -108,7 +108,7 @@ class PageActions {
       ref.read(clockProvider)(),
       minutes: minutes,
     );
-    HapticFeedback.lightImpact();
+    unawaited(HapticFeedback.lightImpact());
     final dir = await getApplicationSupportDirectory();
     final offline = Directory('${dir.path}/offline');
     await offline.create(recursive: true);

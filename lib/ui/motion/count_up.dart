@@ -1,5 +1,3 @@
-import 'dart:ui' show FontVariation;
-
 import 'package:material_ui/material_ui.dart';
 import 'package:motor/motor.dart';
 

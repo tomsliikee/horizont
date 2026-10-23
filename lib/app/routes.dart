@@ -103,9 +103,16 @@ class _GrowSheetState extends State<_GrowSheet> with TickerProviderStateMixin {
     if (mounted) Navigator.of(context).pop(result);
   }
 
-  double get _height => _sheetKey.currentContext?.size?.height ?? 600;
+  /// The sheet's height from the last layout; drags are measured against it.
+  double _height = 600;
+
+  void _measure() {
+    final box = _sheetKey.currentContext?.findRenderObject();
+    if (box is RenderBox && box.hasSize) _height = box.size.height;
+  }
 
   void _onDragUpdate(DragUpdateDetails d) {
+    _measure();
     var next = _drag.value + d.delta.dy;
     // Pulled up past the top it stretches less and less (rubber band).
     if (next < 0) next = -math.sqrt(-next * 6);

@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:horizont/browser/search_engines.dart';
 import 'package:horizont/data/settings.dart';
 import 'package:horizont/theme/color_schemes.dart';
 import 'package:horizont/theme/extensions.dart';
@@ -96,5 +97,46 @@ void main() {
         const Settings(),
       );
     });
+  });
+
+  test('every setting survives a round trip', () {
+    const s = Settings(
+      barLayout: BarLayout.karte,
+      shrinkOnScroll: false,
+      hideBarAtPageEnd: true,
+      searchEngine: SearchEngine.duckDuckGo,
+      searchSuggestions: false,
+      blockTracking: false,
+      httpsOnly: false,
+      fraudWarning: false,
+      lockPrivateTabs: false,
+      askBeforeDownload: false,
+      forceZoom: true,
+      textZoomByHost: {'orf.at': 130},
+      startSections: {StartSection.favourites},
+    );
+    expect(Settings.fromJson(s.toJson()), s);
+  });
+
+  test('a stored object without the newer keys takes their defaults', () {
+    final old = Settings.fromJson(
+      '{"version":1,"themeMode":"dark","colourway":"green"}',
+    );
+    expect(old.themeMode, ThemeMode.dark);
+    expect(old.barLayout, BarLayout.kompakt);
+    expect(old.blockTracking, isTrue);
+    expect(old.startSections, StartSection.values.toSet());
+  });
+
+  test('text sizes per host stay within 50 to 200 and 100 is not stored', () {
+    var s = const Settings().withTextZoom('a.example', 250);
+    expect(s.textZoomFor('a.example'), 200);
+    s = s.withTextZoom('a.example', 100);
+    expect(s.textZoomByHost, isEmpty);
+    expect(
+      Settings.fromJson('{"version":1,"textZoomByHost":{"a":20,"b":120}}')
+          .textZoomByHost,
+      {'b': 120},
+    );
   });
 }

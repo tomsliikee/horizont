@@ -78,7 +78,7 @@ class PrivatePage extends ConsumerWidget {
       ),
     );
 
-    return ColoredBox(
+    return Material(
       color: colors.privateBackground,
       child: ListView(
         padding: EdgeInsets.fromLTRB(16, top + 52, 16, 150),
@@ -194,7 +194,7 @@ class PrivateLockCover extends ConsumerWidget {
     final colors = HorizontColors.of(context);
     final scheme = Theme.of(context).colorScheme;
     const ink = Color(0xFFFFFFFF);
-    return ColoredBox(
+    return Material(
       color: colors.privateBackground,
       child: SafeArea(
         child: Center(

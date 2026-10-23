@@ -126,7 +126,7 @@ class EngineRequests {
     }
     await ref.read(downloadsServiceProvider).download(event, private: private);
     if (!context.mounted) return;
-    HapticFeedback.lightImpact();
+    unawaited(HapticFeedback.lightImpact());
     _say(
       _l10n.downloadStarted,
       action: private

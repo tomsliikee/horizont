@@ -188,11 +188,7 @@ class Settings {
       }
       final rawSections = map['startSections'];
       final sections = rawSections is List
-          ? {
-              for (final s in rawSections)
-                if (StartSection.values.asNameMap()[s] case final section?)
-                  section,
-            }
+          ? {for (final s in rawSections) ?StartSection.values.asNameMap()[s]}
           : d.startSections;
       return Settings(
         themeMode: pick(ThemeMode.values, 'themeMode', d.themeMode),

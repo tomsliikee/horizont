@@ -350,9 +350,15 @@ class StatTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: 2,
         children: [
-          DefaultTextStyle.merge(
-            style: HorizontType.metricL.copyWith(color: ink),
-            child: metric,
+          // Long values ("24,0 MB") shrink rather than wrap.
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: DefaultTextStyle.merge(
+              style: HorizontType.metricL.copyWith(color: ink),
+              maxLines: 1,
+              child: metric,
+            ),
           ),
           Text(
             label,
