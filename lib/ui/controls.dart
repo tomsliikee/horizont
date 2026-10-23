@@ -96,9 +96,17 @@ class SegmentRow extends StatelessWidget {
     required this.selected,
     required this.onSelected,
     this.height = 48,
+    this.icons,
+    this.fill,
   });
 
   final List<String> labels;
+
+  /// An icon before each label (the library's tabs, the theme modes).
+  final List<IconData>? icons;
+
+  /// The unselected fill; `primaryContainer` by default.
+  final Color? fill;
   final int selected;
   final ValueChanged<int> onSelected;
   final double height;
@@ -137,7 +145,7 @@ class SegmentRow extends StatelessWidget {
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       color: Color.lerp(
-                        scheme.primaryContainer,
+                        fill ?? scheme.primaryContainer,
                         scheme.primary,
                         t,
                       ),
@@ -148,17 +156,42 @@ class SegmentRow extends StatelessWidget {
                         bottomRight: corner(last),
                       ),
                     ),
-                    child: Text(
-                      labels[i],
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: HorizontType.navLabel(t).copyWith(
-                        color: Color.lerp(
-                          scheme.onPrimaryContainer,
-                          scheme.onPrimary,
-                          t,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (icons != null) ...[
+                          Icon(
+                            icons![i],
+                            size: 20,
+                            fill: t,
+                            color: Color.lerp(
+                              fill == null
+                                  ? scheme.onPrimaryContainer
+                                  : scheme.onSurfaceVariant,
+                              scheme.onPrimary,
+                              t,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                        ],
+                        Flexible(
+                          child: Text(
+                            labels[i],
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: HorizontType.navLabel(t).copyWith(
+                              color: Color.lerp(
+                                fill == null
+                                    ? scheme.onPrimaryContainer
+                                    : scheme.onSurfaceVariant,
+                                scheme.onPrimary,
+                                t,
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                   );
                 },

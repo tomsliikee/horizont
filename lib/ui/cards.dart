@@ -154,3 +154,51 @@ class ScreenHeader extends StatelessWidget {
     );
   }
 }
+
+/// What a list says when it has nothing yet: a shape with an icon, a title
+/// and how to fill it.
+class EmptyState extends StatelessWidget {
+  const EmptyState({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.hint,
+  });
+
+  final IconData icon;
+  final String title;
+  final String hint;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 40, 20, 0),
+      child: Column(
+        spacing: 12,
+        children: [
+          ShapeBadge(
+            preset: ShapePreset.flower,
+            size: 96,
+            color: scheme.secondaryContainer,
+            child: SymbolIcon(
+              icon,
+              size: 36,
+              color: scheme.onSecondaryContainer,
+            ),
+          ),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: HorizontType.title.copyWith(color: scheme.onSurface),
+          ),
+          Text(
+            hint,
+            textAlign: TextAlign.center,
+            style: HorizontType.body.copyWith(color: scheme.onSurfaceVariant),
+          ),
+        ],
+      ),
+    );
+  }
+}

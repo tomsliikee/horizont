@@ -20,6 +20,7 @@ class BrowserTab {
     this.position = 0,
     this.scrollY,
     this.thumbnailPath,
+    this.isPrivate = false,
   });
 
   /// An empty tab showing the start page.
@@ -30,6 +31,7 @@ class BrowserTab {
     String? groupId,
     String? groupName,
     Uri? url,
+    bool isPrivate = false,
   }) => BrowserTab(
     id: newTabId(),
     createdAt: now,
@@ -39,6 +41,7 @@ class BrowserTab {
     groupId: groupId,
     groupName: groupName,
     url: url,
+    isPrivate: isPrivate,
   );
 
   final String id;
@@ -59,6 +62,9 @@ class BrowserTab {
   final DateTime lastActiveAt;
   final double? scrollY;
   final String? thumbnailPath;
+
+  /// Lives only in memory, on its own web profile (PLAN 4.4).
+  final bool isPrivate;
 
   String get host => url?.host ?? '';
 
@@ -97,6 +103,7 @@ class BrowserTab {
     lastActiveAt: lastActiveAt ?? this.lastActiveAt,
     scrollY: scrollY ?? this.scrollY,
     thumbnailPath: clearThumbnail ? null : thumbnailPath ?? this.thumbnailPath,
+    isPrivate: isPrivate,
   );
 
   @override
@@ -113,7 +120,8 @@ class BrowserTab {
       other.createdAt == createdAt &&
       other.lastActiveAt == lastActiveAt &&
       other.scrollY == scrollY &&
-      other.thumbnailPath == thumbnailPath;
+      other.thumbnailPath == thumbnailPath &&
+      other.isPrivate == isPrivate;
 
   @override
   int get hashCode => Object.hash(
@@ -129,6 +137,7 @@ class BrowserTab {
     lastActiveAt,
     scrollY,
     thumbnailPath,
+    isPrivate,
   );
 }
 

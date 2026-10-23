@@ -4,6 +4,7 @@ import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 
 import '../../browser/tabs/browser_tab.dart';
+import '../library.dart' show defaultFavourites;
 import '../repositories/tabs_repository.dart';
 
 part 'app_database.g.dart';
@@ -28,25 +29,176 @@ class Tabs extends Table {
   Set<Column> get primaryKey => {id};
 }
 
-@DriftDatabase(tables: [Tabs])
+@DataClassName('FolderRow')
+class BookmarkFolders extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get name => text()();
+  TextColumn get icon => text().withDefault(const Constant('folder'))();
+  TextColumn get tone => text().withDefault(const Constant('neutral'))();
+  IntColumn get position => integer().withDefault(const Constant(0))();
+  BoolColumn get isFavorites => boolean().withDefault(const Constant(false))();
+}
+
+@DataClassName('BookmarkRow')
+class Bookmarks extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get folderId =>
+      integer().references(BookmarkFolders, #id, onDelete: KeyAction.cascade)();
+  TextColumn get url => text()();
+  TextColumn get title => text().withDefault(const Constant(''))();
+  IntColumn get position => integer().withDefault(const Constant(0))();
+  DateTimeColumn get createdAt => dateTime()();
+}
+
+/// One row per page load (not in private mode).
+@DataClassName('VisitRow')
+class Visits extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get url => text()();
+  TextColumn get title => text().withDefault(const Constant(''))();
+  DateTimeColumn get visitedAt => dateTime()();
+}
+
+/// One row per address: counts for frecency (PLAN 1.5).
+@DataClassName('PageRow')
+class Pages extends Table {
+  TextColumn get url => text()();
+  TextColumn get title => text().withDefault(const Constant(''))();
+  IntColumn get visitCount => integer().withDefault(const Constant(0))();
+  DateTimeColumn get lastVisitAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {url};
+}
+
+@DataClassName('ReadingRow')
+class ReadingItems extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get url => text().unique()();
+  TextColumn get title => text().withDefault(const Constant(''))();
+  DateTimeColumn get addedAt => dateTime()();
+  RealColumn get readFraction => real().withDefault(const Constant(0))();
+  IntColumn get estimatedMinutes => integer().withDefault(const Constant(0))();
+  TextColumn get offlinePath => text().nullable()();
+}
+
+@DataClassName('DownloadRow')
+class Downloads extends Table {
+  TextColumn get taskId => text()();
+  TextColumn get url => text()();
+  TextColumn get fileName => text()();
+  TextColumn get mimeType => text().withDefault(const Constant(''))();
+  IntColumn get totalBytes => integer().nullable()();
+  IntColumn get receivedBytes => integer().withDefault(const Constant(0))();
+  TextColumn get status => text()();
+  DateTimeColumn get startedAt => dateTime()();
+  DateTimeColumn get finishedAt => dateTime().nullable()();
+  TextColumn get savedUri => text().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {taskId};
+}
+
+/// Trackers blocked per local day and page host.
+@DataClassName('TrackerDayRow')
+class TrackerDays extends Table {
+  TextColumn get day => text()();
+  TextColumn get host => text()();
+  IntColumn get blockedCount => integer().withDefault(const Constant(0))();
+
+  @override
+  Set<Column> get primaryKey => {day, host};
+}
+
+@DataClassName('PermissionRow')
+class SitePermissions extends Table {
+  TextColumn get origin => text()();
+  TextColumn get kind => text()();
+  BoolColumn get allowed => boolean()();
+
+  @override
+  Set<Column> get primaryKey => {origin, kind};
+}
+
+@DriftDatabase(
+  tables: [
+    Tabs,
+    BookmarkFolders,
+    Bookmarks,
+    Visits,
+    Pages,
+    ReadingItems,
+    Downloads,
+    TrackerDays,
+    SitePermissions,
+  ],
+)
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
 
   /// The database file in the app's private storage, on its own isolate.
   AppDatabase.open() : super(driftDatabase(name: 'horizont'));
 
+  /// 1: tabs (M4). 2: library, downloads, trackers, permissions (M6).
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-    onCreate: (m) => m.createAll(),
-    // One step per schema version goes here; each gets a test.
-    onUpgrade: (m, from, to) async {},
+    onCreate: (m) async {
+      await m.createAll();
+      await _seedFavourites();
+    },
+    // One step per schema version; each gets a test.
+    onUpgrade: (m, from, to) async {
+      if (from < 2) {
+        await m.createTable(bookmarkFolders);
+        await m.createTable(bookmarks);
+        await m.createTable(visits);
+        await m.createTable(pages);
+        await m.createTable(readingItems);
+        await m.createTable(downloads);
+        await m.createTable(trackerDays);
+        await m.createTable(sitePermissions);
+        await m.createIndex(
+          Index('visits_at', 'CREATE INDEX visits_at ON visits (visited_at)'),
+        );
+        await _seedFavourites();
+      }
+    },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
+      if (details.wasCreated) {
+        await customStatement(
+          'CREATE INDEX IF NOT EXISTS visits_at ON visits (visited_at)',
+        );
+      }
     },
   );
+
+  /// The favourites folder with the default favourites.
+  Future<void> _seedFavourites() async {
+    final folder = await into(bookmarkFolders).insert(
+      BookmarkFoldersCompanion.insert(
+        name: 'Favoriten',
+        icon: const Value('star'),
+        tone: const Value('primary'),
+        isFavorites: const Value(true),
+      ),
+    );
+    var i = 0;
+    for (final (title, url) in defaultFavourites) {
+      await into(bookmarks).insert(
+        BookmarksCompanion.insert(
+          folderId: folder,
+          url: url,
+          title: Value(title),
+          position: Value(i++),
+          createdAt: DateTime.now(),
+        ),
+      );
+    }
+  }
 }
 
 class DriftTabsRepository implements TabsRepository {

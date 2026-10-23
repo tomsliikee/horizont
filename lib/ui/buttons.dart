@@ -16,6 +16,9 @@ enum ButtonLook {
   /// No fill.
   plain,
 
+  /// `surfaceBright`, like the rows of a list.
+  bright,
+
   /// The one main action.
   primary,
 
@@ -37,6 +40,11 @@ enum ButtonLook {
     ),
     ButtonLook.highest => (
       fill: scheme.surfaceContainerHighest,
+      ink: scheme.onSurfaceVariant,
+      shadow: false,
+    ),
+    ButtonLook.bright => (
+      fill: scheme.surfaceBright,
       ink: scheme.onSurfaceVariant,
       shadow: false,
     ),
@@ -254,6 +262,29 @@ abstract final class HIcons {
   static const visibilityOff = Symbols.visibility_off_rounded;
   static const vpnLock = Symbols.vpn_lock_rounded;
   static const wifi = Symbols.wifi_rounded;
+
+  // Beyond the prototype: screens it only names (D18).
+  static const keyboardUp = Symbols.keyboard_arrow_up_rounded;
+  static const keyboardDown = Symbols.keyboard_arrow_down_rounded;
+  static const cloudOff = Symbols.cloud_off_rounded;
+  static const errorIcon = Symbols.error_rounded;
+  static const videocam = Symbols.videocam_rounded;
+  static const locationOn = Symbols.location_on_rounded;
+  static const openInNew = Symbols.open_in_new_rounded;
+  static const deleteIcon = Symbols.delete_rounded;
+  static const edit = Symbols.edit_rounded;
+  static const article = Symbols.article_rounded;
+  static const fileIcon = Symbols.draft_rounded;
+  static const audioFile = Symbols.audio_file_rounded;
+  static const videoFile = Symbols.video_file_rounded;
+  static const folderZip = Symbols.folder_zip_rounded;
+  static const playArrow = Symbols.play_arrow_rounded;
+  static const openInBrowser = Symbols.open_in_browser_rounded;
+  static const notifications = Symbols.notifications_rounded;
+  static const lockOpen = Symbols.lock_open_rounded;
+  static const zoomIn = Symbols.zoom_in_rounded;
+  static const gavel = Symbols.gavel_rounded;
+  static const swipe = Symbols.swipe_up_rounded;
 
   static const all = <IconData>[
     accessibilityNew,

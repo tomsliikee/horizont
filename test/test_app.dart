@@ -13,11 +13,16 @@ import 'package:horizont/browser/web_engine.dart';
 import 'package:horizont/browser/tabs/tabs_notifier.dart';
 import 'package:horizont/browser/tabs/thumbnail_store.dart';
 import 'package:horizont/data/repositories/tabs_repository.dart';
+import 'package:horizont/data/library.dart';
+import 'package:horizont/data/library_providers.dart';
 import 'package:horizont/data/settings.dart';
 import 'package:horizont/data/settings_store.dart';
 import 'package:horizont/theme/color_schemes.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+/// The time of every test: goldens must not change with the day.
+final testNow = DateTime(2026, 10, 23, 10, 30);
 
 /// The prototype's screen size.
 const prototypeSize = Size(412, 915);
@@ -67,6 +72,7 @@ Future<void> pumpAppWith(
 
   /// How tabs get their web view; fakes by default.
   WebEngine Function(BrowserTab tab)? engineFactory,
+  Library? library,
 }) async {
   await loadFonts();
   SharedPreferences.setMockInitialValues({'settings': settings.toJson()});
@@ -87,6 +93,8 @@ Future<void> pumpAppWith(
         thumbnailStoreProvider.overrideWithValue(
           ThumbnailStore(() async => Directory.systemTemp),
         ),
+        libraryProvider.overrideWithValue(library ?? MemoryLibrary()),
+        clockProvider.overrideWithValue(() => testNow),
         ...overrides,
       ],
       child: HorizontApp(home: home),

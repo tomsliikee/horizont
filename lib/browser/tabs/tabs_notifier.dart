@@ -18,12 +18,30 @@ final clockProvider = Provider<DateTime Function()>((ref) => DateTime.now);
 
 @immutable
 class TabsState {
-  const TabsState({required this.tabs, required this.activeId});
+  const TabsState({
+    required this.tabs,
+    required this.activeId,
+    this.lastNormalId,
+  });
 
+  /// Normal and private tabs, each kind in its own order.
   final List<BrowserTab> tabs;
   final String activeId;
 
+  /// The normal tab to come back to when private mode is left.
+  final String? lastNormalId;
+
   BrowserTab get active => tabs.firstWhere((t) => t.id == activeId);
+
+  /// Private mode is on while a private tab is in front (PLAN 1.4).
+  bool get privateMode => active.isPrivate;
+
+  /// The tabs of the mode in front, as the overview shows them.
+  List<BrowserTab> get visible =>
+      tabs.where((t) => t.isPrivate == privateMode).toList();
+
+  List<BrowserTab> get normalTabs => tabs.where((t) => !t.isPrivate).toList();
+  List<BrowserTab> get privateTabs => tabs.where((t) => t.isPrivate).toList();
 
   BrowserTab? byId(String id) {
     for (final tab in tabs) {
@@ -36,10 +54,11 @@ class TabsState {
   bool operator ==(Object other) =>
       other is TabsState &&
       other.activeId == activeId &&
+      other.lastNormalId == lastNormalId &&
       listEquals(other.tabs, tabs);
 
   @override
-  int get hashCode => Object.hash(activeId, Object.hashAll(tabs));
+  int get hashCode => Object.hash(activeId, lastNormalId, Object.hashAll(tabs));
 }
 
 final tabsProvider = NotifierProvider<TabsNotifier, TabsState>(
@@ -47,7 +66,8 @@ final tabsProvider = NotifierProvider<TabsNotifier, TabsState>(
 );
 
 /// The open tabs and which one is in front. The state starts with one empty
-/// tab so the first frame needs no database; [restore] replaces it.
+/// tab so the first frame needs no database; [restore] replaces it. Private
+/// tabs are never written (PLAN 1.6).
 class TabsNotifier extends Notifier<TabsState> {
   static const saveDelay = Duration(milliseconds: 500);
 
@@ -79,8 +99,16 @@ class TabsNotifier extends Notifier<TabsState> {
     final remembered = stored.any((t) => t.id == rememberedId)
         ? rememberedId!
         : stored.last.id;
-    // The tab of the first frame was never stored, so it just goes away.
-    state = TabsState(tabs: stored, activeId: remembered);
+    // The tab of the first frame was never stored, so it just goes away,
+    // unless it was given a page meanwhile (a link from another app).
+    final first = state.tabs.length == 1 ? state.tabs.single : null;
+    if (first != null && first.url != null) {
+      state = TabsState(tabs: [...stored, first], activeId: first.id);
+      _dirty.add(first.id);
+      _scheduleSave();
+    } else {
+      state = TabsState(tabs: stored, activeId: remembered);
+    }
     closeStale();
   }
 
@@ -100,10 +128,20 @@ class TabsNotifier extends Notifier<TabsState> {
   }
 
   /// Opens a tab. Opened from [openerId] it sits next to the opener and joins
-  /// its group (D13) while grouping is on.
-  BrowserTab open({Uri? url, String? openerId, bool activate = true}) {
+  /// its group (D13) while grouping is on. It is private when [private] says
+  /// so, else like its opener, else like the tab in front.
+  BrowserTab open({
+    Uri? url,
+    String? openerId,
+    bool activate = true,
+    bool? private,
+  }) {
     final opener = openerId == null ? null : state.byId(openerId);
-    final grouping = opener != null && ref.read(settingsProvider).groupTabs;
+    final isPrivate = private ?? opener?.isPrivate ?? state.privateMode;
+    final grouping =
+        opener != null &&
+        opener.isPrivate == isPrivate &&
+        ref.read(settingsProvider).groupTabs;
     final groupId = grouping ? opener.groupId ?? opener.id : null;
     final groupName = grouping
         ? opener.groupName ?? opener.displayTitle(opener.host)
@@ -114,6 +152,7 @@ class TabsNotifier extends Notifier<TabsState> {
       openerId: opener?.id,
       groupId: groupId,
       groupName: groupName,
+      isPrivate: isPrivate,
     );
     final tabs = [...state.tabs];
     if (grouping && opener.groupId == null) {
@@ -122,7 +161,7 @@ class TabsNotifier extends Notifier<TabsState> {
     }
     // Next to the opener's group, else at the end.
     var at = tabs.length;
-    if (opener != null) {
+    if (opener != null && opener.isPrivate == isPrivate) {
       final lastOfGroup = tabs.lastIndexWhere(
         (t) => t.id == opener.id || (groupId != null && t.groupId == groupId),
       );
@@ -143,36 +182,120 @@ class TabsNotifier extends Notifier<TabsState> {
     _commit(tabs, id, touched: {id});
   }
 
-  /// Closes [id]. The last tab is replaced by an empty one. Closing the one in
-  /// front brings its opener forward, else the next tab to the right, else the
-  /// one to the left.
-  void close(String id) {
-    final index = state.tabs.indexWhere((t) => t.id == id);
-    if (index < 0) return;
-    final closing = state.tabs[index];
-    final rest = [...state.tabs]..removeAt(index);
-    _deleted.add(id);
-    _dirty.remove(id);
-    if (rest.isEmpty) {
-      final fresh = BrowserTab.empty(now: _now());
-      _commit([fresh], fresh.id, touched: {fresh.id});
+  /// Switches to private mode: the private tab used last, or a new one.
+  void enterPrivate() {
+    if (state.privateMode) return;
+    final privateTabs = state.privateTabs;
+    if (privateTabs.isEmpty) {
+      open(private: true);
+    } else {
+      final last = privateTabs.reduce(
+        (a, b) => a.lastActiveAt.isAfter(b.lastActiveAt) ? a : b,
+      );
+      activate(last.id);
+    }
+  }
+
+  /// Switches back to the normal tabs, keeping the private ones.
+  void showNormal() {
+    if (!state.privateMode) return;
+    final back = state.lastNormalId;
+    if (back != null && state.byId(back) != null) {
+      activate(back);
       return;
     }
+    final normal = state.normalTabs;
+    if (normal.isEmpty) {
+      open(private: false);
+    } else {
+      activate(normal.last.id);
+    }
+  }
+
+  /// Closes every private tab: nothing of the session is left (`P:139`).
+  void leavePrivate() {
+    final private = state.privateTabs.map((t) => t.id).toList();
+    showNormal();
+    for (final id in private) {
+      close(id);
+    }
+  }
+
+  /// Closes [id]. Closing the one in front brings its opener forward, else
+  /// the next tab of the same kind to the right, else the one to the left.
+  /// The last normal tab is replaced by an empty one; after the last private
+  /// tab the normal tabs come back.
+  void close(String id) {
+    final closing = state.byId(id);
+    if (closing == null) return;
+    final rest = [...state.tabs]..removeWhere((t) => t.id == id);
+    _deleted.add(id);
+    _dirty.remove(id);
+    final sameKind = rest
+        .where((t) => t.isPrivate == closing.isPrivate)
+        .toList();
     var active = state.activeId;
     if (active == id) {
-      final opener = closing.openerId == null
-          ? null
-          : rest.where((t) => t.id == closing.openerId).firstOrNull;
-      active =
-          (opener ?? rest[index < rest.length ? index : rest.length - 1]).id;
+      if (sameKind.isEmpty) {
+        if (closing.isPrivate) {
+          final back = state.lastNormalId;
+          final normal = rest.where((t) => !t.isPrivate).toList();
+          if (normal.isEmpty) {
+            final fresh = BrowserTab.empty(now: _now());
+            _commit([...rest, fresh], fresh.id, touched: {fresh.id});
+            return;
+          }
+          active = back != null && normal.any((t) => t.id == back)
+              ? back
+              : normal.last.id;
+        } else {
+          final fresh = BrowserTab.empty(now: _now());
+          _commit([...rest, fresh], fresh.id, touched: {fresh.id});
+          return;
+        }
+      } else {
+        final kindIndex = state.tabs
+            .where((t) => t.isPrivate == closing.isPrivate)
+            .toList()
+            .indexWhere((t) => t.id == id);
+        final opener = closing.openerId == null
+            ? null
+            : sameKind.where((t) => t.id == closing.openerId).firstOrNull;
+        active =
+            (opener ??
+                    sameKind[kindIndex < sameKind.length
+                        ? kindIndex
+                        : sameKind.length - 1])
+                .id;
+      }
+    } else if (!closing.isPrivate && sameKind.isEmpty) {
+      // The last normal tab closed from private mode: keep one to return to.
+      final fresh = BrowserTab.empty(now: _now());
+      _commit([...rest, fresh], active, touched: {fresh.id});
+      return;
     }
     _commit(rest, active, touched: const {});
   }
 
-  /// Moves the tab at [from] to [to] (indices as shown, after the move).
+  /// Closes every tab of the mode in front.
+  void closeAll() {
+    final ids = state.visible.map((t) => t.id).toList();
+    for (final id in ids) {
+      close(id);
+    }
+  }
+
+  /// Moves the tab at [from] to [to] among the tabs of the mode in front
+  /// (indices as shown, after the move).
   void reorder(int from, int to) {
-    final tabs = [...state.tabs];
-    tabs.insert(to, tabs.removeAt(from));
+    final visible = state.visible;
+    if (from < 0 || from >= visible.length) return;
+    final moving = visible.removeAt(from);
+    visible.insert(to.clamp(0, visible.length), moving);
+    final others = state.tabs.where((t) => t.isPrivate != state.privateMode);
+    final tabs = state.privateMode
+        ? [...others, ...visible]
+        : [...visible, ...others];
     _commit(tabs, state.activeId, touched: tabs.map((t) => t.id).toSet());
   }
 
@@ -208,11 +331,14 @@ class TabsNotifier extends Notifier<TabsState> {
   }
 
   /// Writes what is pending now, for when the app goes to the background.
+  /// Private tabs are left out.
   Future<void> flush() async {
     _saveTimer?.cancel();
     _saveTimer = null;
     final repository = ref.read(tabsRepositoryProvider);
-    final dirty = state.tabs.where((t) => _dirty.contains(t.id)).toList();
+    final dirty = state.tabs
+        .where((t) => !t.isPrivate && _dirty.contains(t.id))
+        .toList();
     final deleted = _deleted.toList();
     _dirty.clear();
     _deleted.clear();
@@ -227,12 +353,15 @@ class TabsNotifier extends Notifier<TabsState> {
     String activeId, {
     required Set<String> touched,
   }) {
-    // Positions follow the order, and only changed positions are written.
+    // Positions follow the order within each kind; only changed positions
+    // are written.
     final numbered = <BrowserTab>[];
-    for (var i = 0; i < tabs.length; i++) {
-      final tab = tabs[i];
-      if (tab.position != i) {
-        numbered.add(tab.copyWith(position: i));
+    var normal = 0;
+    var private = 0;
+    for (final tab in tabs) {
+      final position = tab.isPrivate ? private++ : normal++;
+      if (tab.position != position) {
+        numbered.add(tab.copyWith(position: position));
         _dirty.add(tab.id);
       } else {
         numbered.add(tab);
@@ -240,8 +369,20 @@ class TabsNotifier extends Notifier<TabsState> {
     }
     _dirty.addAll(touched);
     final previous = state.activeId;
-    state = TabsState(tabs: numbered, activeId: activeId);
-    if (previous != activeId) {
+    final previousTab = state.byId(previous);
+    var lastNormal = state.lastNormalId;
+    if (previousTab != null && !previousTab.isPrivate) lastNormal = previous;
+    final activeTab = numbered.firstWhere((t) => t.id == activeId);
+    if (!activeTab.isPrivate) lastNormal = activeId;
+    if (lastNormal != null && !numbered.any((t) => t.id == lastNormal)) {
+      lastNormal = null;
+    }
+    state = TabsState(
+      tabs: numbered,
+      activeId: activeId,
+      lastNormalId: lastNormal,
+    );
+    if (previous != activeId && !activeTab.isPrivate) {
       unawaited(ref.read(settingsStoreProvider).saveActiveTabId(activeId));
     }
     _scheduleSave();

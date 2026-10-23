@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:material_ui/material_ui.dart';
 
 import '../theme/type.dart';
@@ -20,8 +18,7 @@ class TabCard extends StatelessWidget {
     required this.onClose,
     this.active = false,
     this.pageColor,
-    this.thumbnailPath,
-    this.previewCacheWidth,
+    this.thumbnail,
   });
 
   final String title;
@@ -33,10 +30,9 @@ class TabCard extends StatelessWidget {
 
   /// The colour at the top of the page, for the stand-in preview.
   final Color? pageColor;
-  final String? thumbnailPath;
 
-  /// Decode width in pixels, so a picture is not kept at full size.
-  final int? previewCacheWidth;
+  /// The picture of the page, decoded at card size by the caller.
+  final ImageProvider? thumbnail;
 
   static const previewHeight = 200.0;
 
@@ -62,11 +58,7 @@ class TabCard extends StatelessWidget {
                   child: SizedBox(
                     height: previewHeight,
                     width: double.infinity,
-                    child: _Preview(
-                      pageColor: pageColor,
-                      thumbnailPath: thumbnailPath,
-                      cacheWidth: previewCacheWidth,
-                    ),
+                    child: _Preview(pageColor: pageColor, thumbnail: thumbnail),
                   ),
                 ),
               ),
@@ -144,11 +136,10 @@ class TabCard extends StatelessWidget {
 /// The picture of the page, or a stand-in: a band in the page colour and
 /// three grey lines.
 class _Preview extends StatelessWidget {
-  const _Preview({this.pageColor, this.thumbnailPath, this.cacheWidth});
+  const _Preview({this.pageColor, this.thumbnail});
 
   final Color? pageColor;
-  final String? thumbnailPath;
-  final int? cacheWidth;
+  final ImageProvider? thumbnail;
 
   @override
   Widget build(BuildContext context) {
@@ -170,13 +161,12 @@ class _Preview extends StatelessWidget {
         ],
       ),
     );
-    final path = thumbnailPath;
-    if (path == null) return standIn();
-    return Image.file(
-      File(path),
+    final image = thumbnail;
+    if (image == null) return standIn();
+    return Image(
+      image: image,
       fit: BoxFit.cover,
       alignment: Alignment.topCenter,
-      cacheWidth: cacheWidth,
       gaplessPlayback: true,
       errorBuilder: (context, error, stack) => standIn(),
     );

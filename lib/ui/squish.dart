@@ -16,6 +16,7 @@ class Squish extends StatefulWidget {
     this.semanticLabel,
     this.pressedScale = 0.92,
     this.haptic = true,
+    this.turns = 0,
   });
 
   final Widget child;
@@ -26,6 +27,9 @@ class Squish extends StatefulWidget {
   final String? semanticLabel;
   final double pressedScale;
   final bool haptic;
+
+  /// How far it turns while pressed, in turns (favourites spin a little).
+  final double turns;
 
   @override
   State<Squish> createState() => _SquishState();
@@ -70,8 +74,16 @@ class _SquishState extends State<Squish> {
             HorizontMotion.spatialFast,
           ),
           child: widget.child,
-          builder: (context, scale, child) =>
-              Transform.scale(scale: scale, child: child),
+          builder: (context, scale, child) {
+            final scaled = Transform.scale(scale: scale, child: child);
+            if (widget.turns == 0) return scaled;
+            // How far into the press it is, 0 to 1 (overshoot included).
+            final pressed = (1 - scale) / (1 - widget.pressedScale);
+            return Transform.rotate(
+              angle: pressed * widget.turns * 2 * 3.141592653589793,
+              child: scaled,
+            );
+          },
         ),
       ),
     );

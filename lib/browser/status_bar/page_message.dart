@@ -37,7 +37,12 @@ sealed class PageMessage {
         final y = map['y'];
         final end = map['end'];
         if (y is! num || !y.isFinite || end is! bool) return null;
-        return ScrollMessage(y.toDouble().clamp(0, 1e9), end);
+        final dir = map['dir'];
+        return ScrollMessage(
+          y.toDouble().clamp(0, 1e9),
+          end,
+          down: dir == 'down',
+        );
     }
     return null;
   }
@@ -51,9 +56,11 @@ class ColorMessage extends PageMessage {
   final ColorSource source;
 }
 
-/// The page scrolled; [end] when the end of the page is reached.
+/// The page scrolled; [end] when the end of the page is reached, [down]
+/// while the reader moves down the page (the bar shrinks then).
 class ScrollMessage extends PageMessage {
-  const ScrollMessage(this.y, this.end);
+  const ScrollMessage(this.y, this.end, {this.down = false});
   final double y;
   final bool end;
+  final bool down;
 }

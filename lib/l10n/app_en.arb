@@ -12,6 +12,15 @@
       }
     }
   },
+  "fewerThanLastWeek": "{count} fewer than last week",
+  "@fewerThanLastWeek": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sameAsLastWeek": "As many as last week",
   "countedOnDevice": "Counted on this device.",
   "favourites": "Favourites",
   "frequentlyVisited": "Frequently visited",
@@ -38,6 +47,8 @@
   "reload": "Reload",
   "menu": "Menu",
   "searchOrEnterAddress": "Search or address",
+  "searchOrEnterAddressLong": "Search or enter address",
+  "privateSearchOrAddress": "Private · Search or address",
   "cancel": "Cancel",
   "linkNeedsOtherApp": "This link needs another app and was not opened.",
   "tabs": "Tabs",
@@ -72,5 +83,494 @@
       }
     }
   },
-  "startPage": "Start page"
+  "privateTabsCount": "{count, plural, =0{No private tabs} =1{1 private tab} other{{count} private tabs}}",
+  "@privateTabsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "startPage": "Start page",
+  "closeAllTabs": "Close all",
+  "closeAllTabsTitle": "Close all tabs?",
+  "tabClosed": "Tab closed",
+  "undo": "Undo",
+  "topHit": "Top hit",
+  "suggestionsFrom": "Search suggestions · {engine}",
+  "@suggestionsFrom": {
+    "placeholders": {
+      "engine": {
+        "type": "String"
+      }
+    }
+  },
+  "fromYourLibrary": "From your library",
+  "quickSearch": "Quick search",
+  "quickImages": "Images",
+  "quickMaps": "Maps",
+  "quickNews": "News",
+  "quickWeather": "Weather",
+  "weatherWord": "weather",
+  "clearInput": "Clear input",
+  "suggestionSearch": "Search",
+  "suggestionHistory": "History · {when}",
+  "@suggestionHistory": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "suggestionBookmark": "Bookmark · {folder}",
+  "@suggestionBookmark": {
+    "placeholders": {
+      "folder": {
+        "type": "String"
+      }
+    }
+  },
+  "suggestionReading": "{host} · in your reading list",
+  "@suggestionReading": {
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "suggestionVisited": "{host} · visited {count, plural, =1{once} other{{count} times}}",
+  "@suggestionVisited": {
+    "placeholders": {
+      "host": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "switchToTab": "Switch to tab",
+  "openAddress": "Open {address}",
+  "@openAddress": {
+    "placeholders": {
+      "address": {
+        "type": "String"
+      }
+    }
+  },
+  "insertSuggestion": "Take into the field",
+  "closeMenu": "Close menu",
+  "close": "Close",
+  "connectionSecure": "Connection secure",
+  "connectionInsecure": "Not secure",
+  "share": "Share",
+  "saveBookmark": "Save",
+  "saved": "Saved",
+  "addToReadingList": "Reading list",
+  "findInPage": "Find",
+  "readerView": "Reader view",
+  "textSize": "Text size",
+  "smaller": "Smaller",
+  "bigger": "Bigger",
+  "desktopSite": "Request desktop site",
+  "mobileSite": "Request mobile site",
+  "addToHomeScreen": "Add to home screen",
+  "tabsWithCount": "Tabs ({count})",
+  "@tabsWithCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "library": "Library",
+  "downloads": "Downloads",
+  "privateTab": "Private tab",
+  "bookmarkAdded": "Saved to {folder}",
+  "@bookmarkAdded": {
+    "placeholders": {
+      "folder": {
+        "type": "String"
+      }
+    }
+  },
+  "bookmarkRemoved": "Bookmark removed",
+  "readingAdded": "Added to the reading list",
+  "readingAddedOffline": "Added to the reading list, available offline",
+  "noArticle": "No reader view for this page",
+  "pinUnsupported": "The home screen does not take shortcuts",
+  "chooseFolder": "Save in folder",
+  "newFolder": "New folder",
+  "folderName": "Name",
+  "create": "Create",
+  "rename": "Rename",
+  "deleteFolder": "Delete folder",
+  "deleteFolderTitle": "Delete “{name}”?",
+  "@deleteFolderTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteFolderBody": "The folder and its bookmarks are deleted.",
+  "findPlaceholder": "Find on page",
+  "findCount": "{active} of {count}",
+  "@findCount": {
+    "placeholders": {
+      "active": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noMatches": "No matches",
+  "previousMatch": "Previous match",
+  "nextMatch": "Next match",
+  "closeFind": "Close find",
+  "bookmarks": "Bookmarks",
+  "history": "History",
+  "searchHistory": "Search history",
+  "searchBookmarks": "Search bookmarks",
+  "searchReadingList": "Search reading list",
+  "today": "Today",
+  "yesterday": "Yesterday",
+  "clearHistory": "Clear history …",
+  "clearHistoryTitle": "Clear history?",
+  "clearHistoryBody": "Every visited page on this device is deleted. Bookmarks and the reading list stay.",
+  "delete": "Delete",
+  "remove": "Remove",
+  "bookmarkCount": "{count, plural, =1{1 bookmark} other{{count} bookmarks}}",
+  "@bookmarkCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "readingUnread": "Unread",
+  "readingStarted": "Started",
+  "readingHalf": "Half read",
+  "readingAlmost": "Almost done",
+  "readingOffline": "Available offline",
+  "emptyHistory": "No history yet",
+  "emptyHistoryHint": "Pages you visit show up here, grouped by day.",
+  "emptyFolder": "No bookmarks in this folder",
+  "emptyFolderHint": "Tap “Save” in the menu of a page.",
+  "emptyReading": "Your reading list is empty",
+  "emptyReadingHint": "Tap “Reading list” in the menu to keep a page for later, offline too.",
+  "nothingFound": "Nothing found",
+  "removed": "Removed",
+  "savedInDownload": "Saved in “Download”",
+  "timeRemaining": "About {time} left",
+  "@timeRemaining": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "filesToday": "{count, plural, =0{No files today} =1{1 file today} other{{count} files today}}",
+  "@filesToday": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "includingRunning": "Including the running download.",
+  "nothingRunning": "Nothing running",
+  "allDone": "All done",
+  "pauseDownload": "Pause download",
+  "resumeDownload": "Resume download",
+  "cancelDownload": "Cancel download",
+  "openFile": "Open",
+  "clearList": "Clear list",
+  "noDownloads": "No downloads yet",
+  "noDownloadsHint": "Files you download land in the “Download” folder.",
+  "sizeOf": "{done} of {total}",
+  "@sizeOf": {
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "downloadFailed": "Failed",
+  "downloadCanceled": "Canceled",
+  "downloadPaused": "Paused",
+  "downloadWaiting": "Waiting …",
+  "downloadStarted": "Download started",
+  "downloadAsk": "Download this file?",
+  "download": "Download",
+  "privateDownloadWarning": "The file stays in “Download” after the private session.",
+  "openFailed": "No app can open this file",
+  "unknownSize": "Size unknown",
+  "showAll": "Show all",
+  "privateTitle": "Browse privately",
+  "privateBody": "Horizont does not keep visited pages, searches or form data. Close the last private tab and everything is gone.",
+  "lockedWithFingerprint": "Locked with fingerprint",
+  "whenLeavingApp": "When you leave the app",
+  "lockOff": "Not locked",
+  "lockOffSub": "Switch on in Privacy",
+  "strictTracking": "Tracker blocking",
+  "strictTrackingSub": "Known trackers are blocked, nothing is counted",
+  "leavePrivate": "Leave private mode",
+  "privateUnavailable": "Private tabs need a newer Android System WebView.",
+  "unlock": "Unlock",
+  "unlockReason": "Unlock private tabs",
+  "privateLocked": "Private tabs are locked",
+  "notStored": "Not stored",
+  "designAndColour": "Design & colour",
+  "designSummary": "{theme} · {colourway} · {layout}",
+  "@designSummary": {
+    "placeholders": {
+      "theme": {
+        "type": "String"
+      },
+      "colourway": {
+        "type": "String"
+      },
+      "layout": {
+        "type": "String"
+      }
+    }
+  },
+  "designHint": "6 bar layouts, 6 colourways",
+  "general": "General",
+  "searchEngine": "Search engine",
+  "startPageSections": "Favourites, frequent, reading list",
+  "startPageNothing": "Only the search",
+  "groupTabs": "Group tabs",
+  "groupTabsSub": "Tabs opened from a tab stay with it",
+  "autoCloseTabs": "Close tabs automatically",
+  "autoCloseNever": "Never",
+  "autoCloseDay": "After 1 day",
+  "autoCloseWeek": "After 1 week",
+  "autoCloseMonth": "After 1 month",
+  "autoCloseSub": "Tabs you have not looked at for that long close when Horizont starts.",
+  "privacy": "Privacy",
+  "privacySecurity": "Privacy & security",
+  "trackingOn": "Tracking protection on",
+  "trackingOff": "Tracking protection off",
+  "httpsOnlyShort": "HTTPS only",
+  "passwords": "Passwords & passkeys",
+  "passwordsSub": "Google Password Manager",
+  "siteSettings": "Site settings",
+  "siteSettingsSub": "Camera, microphone, location",
+  "advanced": "Advanced",
+  "askBeforeDownload": "Ask before saving",
+  "saveWithoutAsking": "Save without asking",
+  "accessibility": "Accessibility",
+  "accessibilitySub": "Text size, force zoom",
+  "about": "About Horizont",
+  "version": "Version {version}",
+  "@version": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "defaultBrowser": "Default browser",
+  "defaultBrowserSub": "Open links from other apps in Horizont",
+  "changesApplyNow": "Changes apply at once",
+  "mode": "Mode",
+  "colourway": "Colourway",
+  "barLayout": "Bar layout",
+  "bar": "Bar",
+  "tintFromPage": "Take the site colour",
+  "tintFromPageSub": "Tint the status bar in the colour of the page header",
+  "shrinkOnScroll": "Shrink while scrolling",
+  "shrinkOnScrollSub": "Shows only the domain",
+  "hideAtEnd": "Hide at the end of the page",
+  "hideAtEndSub": "The bar goes away when you reach the bottom",
+  "layoutKompakt": "Compact",
+  "layoutZweireihig": "Two rows",
+  "layoutExpressiv": "Expressive",
+  "layoutOben": "Top",
+  "layoutKarte": "Card",
+  "layoutMinimal": "Minimal",
+  "engineSub": "For the address bar and quick search",
+  "engineGoogleSub": "Default",
+  "engineEcosiaSub": "Plants trees with ad revenue",
+  "engineDdgSub": "Without personalisation",
+  "engineStartpageSub": "Google results, anonymised",
+  "engineBingSub": "Microsoft",
+  "suggestions": "Suggestions",
+  "searchSuggestions": "Search suggestions",
+  "searchSuggestionsSub": "What you type is sent to {engine}",
+  "@searchSuggestionsSub": {
+    "placeholders": {
+      "engine": {
+        "type": "String"
+      }
+    }
+  },
+  "thisWeekSites": "This week · {count, plural, =1{1 site} other{{count} sites}}",
+  "@thisWeekSites": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "protection": "Protection",
+  "blockTracking": "Prevent cross-site tracking",
+  "blockTrackingSub": "Ad networks do not follow you from site to site",
+  "httpsOnly": "HTTPS only",
+  "httpsOnlySub": "Insecure connections are reported first",
+  "fraudWarning": "Warn about fraudulent sites",
+  "fraudWarningSub": "Checks addresses against known phishing lists",
+  "lockPrivateTabs": "Lock private tabs",
+  "lockPrivateTabsSub": "Unlock with fingerprint",
+  "clearData": "Clear history and site data",
+  "clearDataTitle": "Clear history and site data?",
+  "clearDataBody": "Visited pages, cookies, logins on sites, the cache and site permissions are deleted. Bookmarks, the reading list and downloads stay.",
+  "cleared": "Deleted",
+  "showOnStartPage": "Show on the start page",
+  "camera": "Camera",
+  "microphone": "Microphone",
+  "location": "Location",
+  "allowed": "Allowed",
+  "blocked": "Blocked",
+  "noSitePermissions": "No site has asked yet",
+  "noSitePermissionsHint": "When a site asks for camera, microphone or location, your answer is kept here.",
+  "resetAll": "Reset all",
+  "forceZoom": "Force zoom",
+  "forceZoomSub": "Zoom pages that forbid it",
+  "textSizePerSite": "Text size per site",
+  "textSizePerSiteHint": "Set in the menu of a page; kept for its site.",
+  "aboutBody": "A browser for Android in Toms Expressive Design. Pages are shown by Android System WebView.",
+  "licences": "Licences",
+  "licencesSub": "Readability, EasyPrivacy, Google Sans Flex and the packages",
+  "bundledData": "Bundled data",
+  "offlineTitle": "No connection",
+  "offlineBody": "{host} cannot be reached right now. Check the connection and try again.",
+  "@offlineBody": {
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "certificateTitle": "Connection not secure",
+  "certificateBody": "The certificate of {host} is not valid, so Horizont did not load the page.",
+  "@certificateBody": {
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "insecureTitle": "No HTTPS",
+  "insecureBody": "{host} offers no secure connection. What you send could be read on the way.",
+  "@insecureBody": {
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "continueInsecure": "Open over HTTP anyway",
+  "failedTitle": "Page not loaded",
+  "failedBody": "{host} could not be shown.",
+  "@failedBody": {
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "tryAgain": "Try again",
+  "pageCrashed": "The page stopped and was loaded again.",
+  "pageSays": "{host} says",
+  "@pageSays": {
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "ok": "OK",
+  "signInTo": "Sign in to {host}",
+  "@signInTo": {
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "username": "User name",
+  "password": "Password",
+  "signIn": "Sign in",
+  "permissionAsk": "{host} wants to use {what}",
+  "@permissionAsk": {
+    "placeholders": {
+      "host": {
+        "type": "String"
+      },
+      "what": {
+        "type": "String"
+      }
+    }
+  },
+  "and": "and",
+  "allow": "Allow",
+  "dontAllow": "Don’t allow",
+  "openInOtherApp": "Open in another app?",
+  "openInOtherAppBody": "The page wants to open {target}.",
+  "@openInOtherAppBody": {
+    "placeholders": {
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "open": "Open",
+  "noAppForLink": "No app can open this link",
+  "chooseFiles": "Choose files",
+  "search": "Search",
+  "pageNav": "Page",
+  "startNav": "Start",
+  "secureSubtitle": "{title} · secure",
+  "@secureSubtitle": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "insecureSubtitle": "{title} · not secure",
+  "@insecureSubtitle": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "voiceSearch": "Voice search",
+  "showBar": "Show the bar",
+  "swipeForTabs": "Swipe for the next tab",
+  "scrollToTop": "Status bar, tap to scroll to the top",
+  "tabPosition": "{title}, tab {index} of {count}",
+  "@tabPosition": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "index": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "activeTab": "in front"
 }

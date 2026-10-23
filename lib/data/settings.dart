@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:material_ui/material_ui.dart' show ThemeMode;
 
+import '../browser/search_engines.dart';
 import '../theme/color_schemes.dart';
 
 /// After how long unused tabs close by themselves (PLAN 1.5).
@@ -15,15 +16,34 @@ enum AutoCloseTabs {
   final Duration? after;
 }
 
-/// All settings. Only the keys milestone 1 needs exist; later milestones add
-/// theirs under the same version rules.
+/// The six bar layouts of Design & Farbe (PLAN 3).
+enum BarLayout { kompakt, zweireihig, expressiv, oben, karte, minimal }
+
+/// The sections of the start page that can be switched off.
+enum StartSection { favourites, frequent, readingList, privacyReport }
+
+/// All settings (PLAN 1.5). New keys are added with a default, so older stored
+/// objects stay readable without a version bump.
 class Settings {
   const Settings({
     this.themeMode = ThemeMode.system,
     this.colourway = Colourway.wallpaper,
+    this.barLayout = BarLayout.kompakt,
     this.tintFromPage = true,
+    this.shrinkOnScroll = true,
+    this.hideBarAtPageEnd = false,
+    this.searchEngine = SearchEngine.google,
+    this.searchSuggestions = true,
     this.groupTabs = true,
     this.autoCloseTabs = AutoCloseTabs.month,
+    this.blockTracking = true,
+    this.httpsOnly = true,
+    this.fraudWarning = true,
+    this.lockPrivateTabs = true,
+    this.askBeforeDownload = true,
+    this.forceZoom = false,
+    this.textZoomByHost = const {},
+    this.startSections = const {...StartSection.values},
   });
 
   /// Bumped when a stored value changes meaning; [fromJson] migrates older
@@ -32,39 +52,119 @@ class Settings {
 
   final ThemeMode themeMode;
   final Colourway colourway;
+  final BarLayout barLayout;
 
   /// "Websitefarbe übernehmen": the status bar takes the colour of the page.
   final bool tintFromPage;
+
+  /// "Beim Scrollen verkleinern": the bar shrinks to the minimal pill.
+  final bool shrinkOnScroll;
+
+  /// "Am Seitenende ausblenden" (D4).
+  final bool hideBarAtPageEnd;
+  final SearchEngine searchEngine;
+
+  /// Typing is sent to the search engine for suggestions.
+  final bool searchSuggestions;
 
   /// Tabs opened from another tab join its group (D13).
   final bool groupTabs;
   final AutoCloseTabs autoCloseTabs;
 
+  /// "Websiteübergreifendes Tracking verhindern" (EasyPrivacy, D6).
+  final bool blockTracking;
+  final bool httpsOnly;
+
+  /// Safe Browsing.
+  final bool fraudWarning;
+  final bool lockPrivateTabs;
+  final bool askBeforeDownload;
+
+  /// Bedienungshilfen: pages may be zoomed even where they forbid it.
+  final bool forceZoom;
+
+  /// Text size per host in percent (50–200); hosts at 100 are not stored.
+  final Map<String, int> textZoomByHost;
+  final Set<StartSection> startSections;
+
+  int textZoomFor(String host) => textZoomByHost[host] ?? 100;
+
+  /// [textZoomByHost] with [host] set to [percent].
+  Settings withTextZoom(String host, int percent) {
+    final next = {...textZoomByHost};
+    if (percent == 100) {
+      next.remove(host);
+    } else {
+      next[host] = percent.clamp(50, 200);
+    }
+    return copyWith(textZoomByHost: next);
+  }
+
   Settings copyWith({
     ThemeMode? themeMode,
     Colourway? colourway,
+    BarLayout? barLayout,
     bool? tintFromPage,
+    bool? shrinkOnScroll,
+    bool? hideBarAtPageEnd,
+    SearchEngine? searchEngine,
+    bool? searchSuggestions,
     bool? groupTabs,
     AutoCloseTabs? autoCloseTabs,
+    bool? blockTracking,
+    bool? httpsOnly,
+    bool? fraudWarning,
+    bool? lockPrivateTabs,
+    bool? askBeforeDownload,
+    bool? forceZoom,
+    Map<String, int>? textZoomByHost,
+    Set<StartSection>? startSections,
   }) => Settings(
     themeMode: themeMode ?? this.themeMode,
     colourway: colourway ?? this.colourway,
+    barLayout: barLayout ?? this.barLayout,
     tintFromPage: tintFromPage ?? this.tintFromPage,
+    shrinkOnScroll: shrinkOnScroll ?? this.shrinkOnScroll,
+    hideBarAtPageEnd: hideBarAtPageEnd ?? this.hideBarAtPageEnd,
+    searchEngine: searchEngine ?? this.searchEngine,
+    searchSuggestions: searchSuggestions ?? this.searchSuggestions,
     groupTabs: groupTabs ?? this.groupTabs,
     autoCloseTabs: autoCloseTabs ?? this.autoCloseTabs,
+    blockTracking: blockTracking ?? this.blockTracking,
+    httpsOnly: httpsOnly ?? this.httpsOnly,
+    fraudWarning: fraudWarning ?? this.fraudWarning,
+    lockPrivateTabs: lockPrivateTabs ?? this.lockPrivateTabs,
+    askBeforeDownload: askBeforeDownload ?? this.askBeforeDownload,
+    forceZoom: forceZoom ?? this.forceZoom,
+    textZoomByHost: textZoomByHost ?? this.textZoomByHost,
+    startSections: startSections ?? this.startSections,
   );
 
   String toJson() => jsonEncode({
     'version': version,
     'themeMode': themeMode.name,
     'colourway': colourway.name,
+    'barLayout': barLayout.name,
     'tintFromPage': tintFromPage,
+    'shrinkOnScroll': shrinkOnScroll,
+    'hideBarAtPageEnd': hideBarAtPageEnd,
+    'searchEngine': searchEngine.name,
+    'searchSuggestions': searchSuggestions,
     'groupTabs': groupTabs,
     'autoCloseTabs': autoCloseTabs.name,
+    'blockTracking': blockTracking,
+    'httpsOnly': httpsOnly,
+    'fraudWarning': fraudWarning,
+    'lockPrivateTabs': lockPrivateTabs,
+    'askBeforeDownload': askBeforeDownload,
+    'forceZoom': forceZoom,
+    'textZoomByHost': textZoomByHost,
+    'startSections': [for (final s in startSections) s.name],
   });
 
   /// Reads [source]; anything unreadable, or from a newer version, gives the
-  /// defaults rather than a half-understood object.
+  /// defaults rather than a half-understood object. Missing or malformed keys
+  /// take their default one by one.
   static Settings fromJson(String? source) {
     if (source == null) return const Settings();
     try {
@@ -72,19 +172,51 @@ class Settings {
       if (map is! Map<String, dynamic>) return const Settings();
       final v = map['version'];
       if (v is! int || v > version) return const Settings();
+      const d = Settings();
+      bool flag(String key, bool fallback) =>
+          map[key] is bool ? map[key] as bool : fallback;
+      T pick<T extends Enum>(List<T> values, String key, T fallback) =>
+          values.asNameMap()[map[key]] ?? fallback;
+      final zoom = <String, int>{};
+      final rawZoom = map['textZoomByHost'];
+      if (rawZoom is Map) {
+        rawZoom.forEach((key, value) {
+          if (key is String && value is int && value >= 50 && value <= 200) {
+            zoom[key] = value;
+          }
+        });
+      }
+      final rawSections = map['startSections'];
+      final sections = rawSections is List
+          ? {
+              for (final s in rawSections)
+                if (StartSection.values.asNameMap()[s] case final section?)
+                  section,
+            }
+          : d.startSections;
       return Settings(
-        themeMode:
-            ThemeMode.values.asNameMap()[map['themeMode']] ?? ThemeMode.system,
-        colourway:
-            Colourway.values.asNameMap()[map['colourway']] ??
-            Colourway.wallpaper,
-        tintFromPage: map['tintFromPage'] is bool
-            ? map['tintFromPage'] as bool
-            : true,
-        groupTabs: map['groupTabs'] is bool ? map['groupTabs'] as bool : true,
-        autoCloseTabs:
-            AutoCloseTabs.values.asNameMap()[map['autoCloseTabs']] ??
-            AutoCloseTabs.month,
+        themeMode: pick(ThemeMode.values, 'themeMode', d.themeMode),
+        colourway: pick(Colourway.values, 'colourway', d.colourway),
+        barLayout: pick(BarLayout.values, 'barLayout', d.barLayout),
+        tintFromPage: flag('tintFromPage', d.tintFromPage),
+        shrinkOnScroll: flag('shrinkOnScroll', d.shrinkOnScroll),
+        hideBarAtPageEnd: flag('hideBarAtPageEnd', d.hideBarAtPageEnd),
+        searchEngine: pick(SearchEngine.values, 'searchEngine', d.searchEngine),
+        searchSuggestions: flag('searchSuggestions', d.searchSuggestions),
+        groupTabs: flag('groupTabs', d.groupTabs),
+        autoCloseTabs: pick(
+          AutoCloseTabs.values,
+          'autoCloseTabs',
+          d.autoCloseTabs,
+        ),
+        blockTracking: flag('blockTracking', d.blockTracking),
+        httpsOnly: flag('httpsOnly', d.httpsOnly),
+        fraudWarning: flag('fraudWarning', d.fraudWarning),
+        lockPrivateTabs: flag('lockPrivateTabs', d.lockPrivateTabs),
+        askBeforeDownload: flag('askBeforeDownload', d.askBeforeDownload),
+        forceZoom: flag('forceZoom', d.forceZoom),
+        textZoomByHost: zoom,
+        startSections: sections,
       );
     } on FormatException {
       return const Settings();
@@ -93,14 +225,8 @@ class Settings {
 
   @override
   bool operator ==(Object other) =>
-      other is Settings &&
-      other.themeMode == themeMode &&
-      other.colourway == colourway &&
-      other.tintFromPage == tintFromPage &&
-      other.groupTabs == groupTabs &&
-      other.autoCloseTabs == autoCloseTabs;
+      other is Settings && other.toJson() == toJson();
 
   @override
-  int get hashCode =>
-      Object.hash(themeMode, colourway, tintFromPage, groupTabs, autoCloseTabs);
+  int get hashCode => toJson().hashCode;
 }

@@ -16,7 +16,7 @@ void main() {
     testWidgets('start page $name', (tester) async {
       await pumpApp(
         tester,
-        const StartPage(),
+        StartPage(onOpen: (_) {}),
         settings: Settings(themeMode: mode, colourway: Colourway.blue),
       );
       await expectLater(
@@ -41,7 +41,7 @@ void main() {
     for (final way in Colourway.values.where((w) => w != Colourway.wallpaper)) {
       await pumpApp(
         tester,
-        const StartPage(),
+        StartPage(onOpen: (_) {}),
         settings: Settings(colourway: way),
       );
       expect(find.text('Horizont'), findsOneWidget, reason: way.name);

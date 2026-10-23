@@ -2,11 +2,12 @@ import 'package:material_ui/material_ui.dart';
 
 import '../theme/type.dart';
 import 'buttons.dart';
+import 'progress_line.dart';
 import 'squish.dart';
 
-/// The address in the middle of a bar: a lock or search icon and the domain,
-/// centred, with the page-load progress as a thin line along its bottom edge.
-/// A tap anywhere on it opens the search.
+/// The address in a bar: a lock or search icon and the domain, with the
+/// page-load progress as a thin line along its bottom edge. A tap anywhere on
+/// it opens the search.
 class AddressPill extends StatelessWidget {
   const AddressPill({
     super.key,
@@ -16,6 +17,10 @@ class AddressPill extends StatelessWidget {
     required this.onTap,
     this.progress,
     this.height = 48,
+    this.small = false,
+    this.centered = true,
+    this.icon,
+    this.iconColor,
   });
 
   /// The domain; empty on the start page, where [placeholder] shows.
@@ -28,10 +33,19 @@ class AddressPill extends StatelessWidget {
   final double? progress;
   final double height;
 
+  /// The 13/18 text of the minimal bar.
+  final bool small;
+  final bool centered;
+
+  /// Overrides the lock or search icon (private mode).
+  final IconData? icon;
+  final Color? iconColor;
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final empty = text.isEmpty;
+    final style = small ? HorizontType.addressSmall : HorizontType.address;
     return Squish(
       onTap: onTap,
       semanticLabel: empty ? placeholder : text,
@@ -44,12 +58,14 @@ class AddressPill extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: centered
+                    ? MainAxisAlignment.center
+                    : MainAxisAlignment.start,
                 children: [
                   SymbolIcon(
-                    secure && !empty ? HIcons.lock : HIcons.search,
-                    size: 16,
-                    color: scheme.onSurfaceVariant,
+                    icon ?? (secure && !empty ? HIcons.lock : HIcons.search),
+                    size: small ? 14 : 16,
+                    color: iconColor ?? scheme.onSurfaceVariant,
                   ),
                   const SizedBox(width: 6),
                   Flexible(
@@ -57,7 +73,7 @@ class AddressPill extends StatelessWidget {
                       empty ? placeholder : text,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: HorizontType.address.copyWith(
+                      style: style.copyWith(
                         color: empty
                             ? scheme.onSurfaceVariant
                             : scheme.onSurface,
@@ -67,21 +83,12 @@ class AddressPill extends StatelessWidget {
                 ],
               ),
             ),
-            if (progress != null)
-              Positioned(
-                left: 12,
-                right: 12,
-                bottom: 0,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(1.5),
-                  child: LinearProgressIndicator(
-                    value: progress,
-                    minHeight: 3,
-                    color: scheme.primary,
-                    backgroundColor: const Color(0x00000000),
-                  ),
-                ),
-              ),
+            Positioned(
+              left: 14,
+              right: 14,
+              bottom: 0,
+              child: ProgressLine(progress: progress),
+            ),
           ],
         ),
       ),

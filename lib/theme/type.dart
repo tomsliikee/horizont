@@ -110,3 +110,17 @@ TextTheme horizontTextTheme(Color onSurface) {
     labelSmall: c(HorizontType.label),
   );
 }
+
+/// Changes the weight of a role: the `wght` axis and `fontWeight` together,
+/// keeping the other axes (a plain `copyWith(fontWeight:)` would leave the
+/// axis where it was).
+extension TextStyleWeight on TextStyle {
+  TextStyle withWeight(double wght) => copyWith(
+    fontWeight: HorizontType.weightName(wght),
+    fontVariations: [
+      for (final v in fontVariations ?? const <FontVariation>[])
+        if (v.axis != 'wght') v,
+      FontVariation('wght', wght),
+    ],
+  );
+}

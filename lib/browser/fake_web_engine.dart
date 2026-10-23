@@ -10,7 +10,7 @@ import 'web_engine.dart';
 /// like a browser and records what was asked of it.
 class FakeWebEngine implements WebEngine {
   final _state = ValueNotifier(const PageState());
-  final _blocked = StreamController<Uri>.broadcast();
+  final _events = StreamController<EngineEvent>.broadcast();
   final _messages = StreamController<PageMessage>.broadcast();
   final _history = <Uri>[];
   var _index = -1;
@@ -26,13 +26,19 @@ class FakeWebEngine implements WebEngine {
   ValueListenable<PageState> get state => _state;
 
   @override
-  Stream<Uri> get blockedLinks => _blocked.stream;
+  Stream<EngineEvent> get events => _events.stream;
 
   @override
   Stream<PageMessage> get messages => _messages.stream;
 
+  @override
+  Future<void> get ready => Future.value();
+
   /// Lets a test pretend the page script reported [message].
   void report(PageMessage message) => _messages.add(message);
+
+  /// Lets a test pretend the page sent [event].
+  void raise(EngineEvent event) => _events.add(event);
 
   @override
   Future<void> scrollToTop() async => scrollsToTop++;
@@ -46,12 +52,18 @@ class FakeWebEngine implements WebEngine {
   @override
   Widget buildView() => const ColoredBox(color: Color(0xFFFFFFFF));
 
+  /// The title pages get when they load.
+  String Function(Uri url) titleFor = (url) => '';
+
   void _show() {
+    final url = _index < 0 ? null : _history[_index];
     _state.value = PageState(
-      url: _index < 0 ? null : _history[_index],
+      url: url,
+      title: url == null ? '' : titleFor(url),
       progress: 1,
       canGoBack: _index > 0,
       canGoForward: _index >= 0 && _index < _history.length - 1,
+      desktop: _state.value.desktop,
     );
   }
 
@@ -90,6 +102,14 @@ class FakeWebEngine implements WebEngine {
   @override
   Future<void> loadAsset(String key) async => assets.add(key);
 
+  final files = <String>[];
+
+  @override
+  Future<void> loadFile(String path) async {
+    files.add(path);
+    await load(Uri.file(path));
+  }
+
   @override
   Future<void> goBack() async {
     if (_index > 0) _index--;
@@ -116,16 +136,78 @@ class FakeWebEngine implements WebEngine {
   }
 
   /// Lets a test pretend the page asked to open [uri] elsewhere.
-  void blockLink(Uri uri) => _blocked.add(uri);
+  void blockLink(Uri uri) => _events.add(ExternalLinkEvent(uri));
 
   /// Lets a test set the page state directly (loading, title).
   void emit(PageState state) => _state.value = state;
 
+  int? textZoom;
+
+  @override
+  Future<void> setTextZoom(int percent) async => textZoom = percent;
+
+  @override
+  Future<void> setDesktopMode(bool on) async =>
+      _state.value = _state.value.copyWith(desktop: on);
+
+  final finds = <String>[];
+  var findNexts = 0;
+  var findClears = 0;
+
+  @override
+  Future<void> find(String text) async => finds.add(text);
+
+  @override
+  Future<void> findNext({bool forward = true}) async => findNexts++;
+
+  @override
+  Future<void> clearFind() async => findClears++;
+
+  /// Whether the page has an article for the reader view.
+  bool hasArticle = true;
+
+  @override
+  Future<bool> setReader(bool on, {ReaderStyle? style}) async {
+    if (on && !hasArticle) return false;
+    _state.value = _state.value.copyWith(reader: on);
+    return true;
+  }
+
+  PageInfo info = const PageInfo(words: 1600, readFraction: 0.5);
+
+  @override
+  Future<PageInfo> readPageInfo() async => info;
+
+  final archives = <String>[];
+
+  @override
+  Future<String?> saveArchive(String path) async {
+    archives.add(path);
+    return path;
+  }
+
+  ({bool blocking, bool safe})? protection;
+
+  @override
+  Future<void> setProtection({
+    required bool blocking,
+    required bool safe,
+  }) async => protection = (blocking: blocking, safe: safe);
+
+  final insecure = <Uri>[];
+
+  @override
+  Future<void> continueInsecure(Uri url) async {
+    insecure.add(url);
+    await load(url);
+  }
+
   @override
   void dispose() {
+    if (disposed) return;
     disposed = true;
     _state.dispose();
-    _blocked.close();
+    _events.close();
     _messages.close();
   }
 }

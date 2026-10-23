@@ -1,0 +1,8 @@
+easyprivacy_domains.txt is derived from EasyPrivacy (https://easylist.to/),
+reduced to its plain domain rules by tool/gen_blocklist.dart.
+
+EasyPrivacy is dual licensed under the GNU General Public License version 3
+(https://www.gnu.org/licenses/gpl-3.0.html) and the Creative Commons
+Attribution-ShareAlike 3.0 Unported licence
+(https://creativecommons.org/licenses/by-sa/3.0/), at the user's choice.
+Copyright the EasyList authors (https://easylist.to/pages/about.html).

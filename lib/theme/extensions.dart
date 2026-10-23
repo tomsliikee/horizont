@@ -19,6 +19,7 @@ class HorizontColors extends ThemeExtension<HorizontColors> {
     required this.scrim,
     required this.privateSurface,
     required this.privateOnSurfaceVariant,
+    this.privateBackground = const Color(0xFF101A38),
   });
 
   /// Built from the tokens; [glass] follows the scheme's highest container.
@@ -54,6 +55,9 @@ class HorizontColors extends ThemeExtension<HorizontColors> {
   final Color scrim;
   final Color privateSurface;
   final Color privateOnSurfaceVariant;
+
+  /// The page behind private tabs (`P:133`).
+  final Color privateBackground;
 
   static HorizontColors of(BuildContext context) =>
       Theme.of(context).extension<HorizontColors>()!;

@@ -43,3 +43,48 @@ class SystemUiRegion extends StatelessWidget {
     );
   }
 }
+
+/// The screen's surface behind the status bar, fading out below it, so
+/// content scrolled up does not run into the clock and icons (the soft edge
+/// of PLAN 5.1 for app screens).
+class StatusBand extends StatelessWidget {
+  const StatusBand({super.key, required this.child, this.color});
+
+  final Widget child;
+
+  /// Defaults to the scaffold background.
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) {
+    final top = MediaQuery.viewPaddingOf(context).top;
+    final c = color ?? Theme.of(context).scaffoldBackgroundColor;
+    return Stack(
+      children: [
+        Positioned.fill(child: child),
+        Positioned(
+          left: 0,
+          right: 0,
+          top: 0,
+          height: top + 16,
+          child: IgnorePointer(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  stops: [0, top / (top + 16), 1],
+                  colors: [
+                    c,
+                    c.withValues(alpha: 0.94),
+                    c.withValues(alpha: 0),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}

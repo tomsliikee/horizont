@@ -14,6 +14,8 @@
   var scroller = null;
   var scrolled = false;
   var atEnd = false;
+  var dir = 'up';
+  var pivot = 0;
 
   function send(message) {
     try { channel.postMessage(JSON.stringify(message)); } catch (e) {}
@@ -130,9 +132,19 @@
         frame = 0;
         var m = metrics();
         var nowScrolled = m.y > 6;
-        if (nowScrolled !== scrolled || m.end !== atEnd) {
-          scrolled = nowScrolled; atEnd = m.end;
-          send({ type: 'scroll', y: m.y, end: m.end });
+        // The direction turns only after 24 px against it, so a finger at
+        // rest does not flip the bar back and forth.
+        var nowDir = dir;
+        if (dir === 'down') {
+          if (m.y > pivot) pivot = m.y;
+          else if (m.y < pivot - 24) { nowDir = 'up'; pivot = m.y; }
+        } else {
+          if (m.y < pivot) pivot = m.y;
+          else if (m.y > pivot + 24) { nowDir = 'down'; pivot = m.y; }
+        }
+        if (nowScrolled !== scrolled || m.end !== atEnd || nowDir !== dir) {
+          scrolled = nowScrolled; atEnd = m.end; dir = nowDir;
+          send({ type: 'scroll', y: m.y, end: m.end, dir: dir });
         }
       });
     }
@@ -157,6 +169,15 @@
     // Where the page is scrolled to, for restoring a tab later.
     scrollY: function () {
       return scroller ? scroller.scrollTop : window.scrollY;
+    },
+    // Words and how far down the page is read, for the reading list.
+    info: function () {
+      var el = scroller || document.scrollingElement || document.documentElement;
+      var max = Math.max(1, el.scrollHeight - (scroller ? scroller.clientHeight : window.innerHeight));
+      var y = scroller ? scroller.scrollTop : window.scrollY;
+      var text = (document.body && document.body.innerText) || '';
+      var words = text.split(/\s+/).filter(Boolean).length;
+      return JSON.stringify({ w: words, f: Math.min(1, Math.max(0, y / max)) });
     },
     report: report,
   };

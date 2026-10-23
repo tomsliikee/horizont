@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:horizont/browser/bars/browser_bars.dart';
 import 'package:horizont/app/browser_shell.dart';
 import 'package:horizont/browser/fake_web_engine.dart';
 import 'package:horizont/browser/status_bar/page_message.dart';
@@ -13,6 +14,10 @@ import 'package:horizont/ui/tab_card.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../test_app.dart';
+
+/// [text] in the bar, not on the start page (which lists visited pages).
+Finder inBar(String text) =>
+    find.descendant(of: find.byType(BrowserBars), matching: find.text(text));
 
 void main() {
   late Map<String, FakeWebEngine> engines;
@@ -163,17 +168,17 @@ void main() {
       final first = c.read(tabsProvider).active;
       await engines[first.id]!.load(Uri.parse('https://a.example/'));
       await tester.pump();
-      expect(find.text('a.example'), findsOneWidget);
+      expect(inBar('a.example'), findsOneWidget);
 
       n.open();
       await tester.pump();
       expect(created, 2);
-      expect(find.text('a.example'), findsNothing);
-      expect(find.text('Search or address'), findsOneWidget);
+      expect(inBar('a.example'), findsNothing);
+      expect(inBar('Search or address'), findsOneWidget);
 
       n.activate(first.id);
       await tester.pump();
-      expect(find.text('a.example'), findsOneWidget);
+      expect(inBar('a.example'), findsOneWidget);
       expect(created, 2);
     });
 
