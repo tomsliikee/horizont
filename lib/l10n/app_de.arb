@@ -1,0 +1,62 @@
+{
+  "@@locale": "de",
+  "appName": "Horizont",
+  "settings": "Einstellungen",
+  "privacyReportLabel": "Datenschutzbericht · 7 Tage",
+  "trackersBlocked": "Tracker blockiert",
+  "moreThanLastWeek": "{count} mehr als letzte Woche",
+  "countedOnDevice": "Gezählt auf diesem Gerät.",
+  "favourites": "Favoriten",
+  "frequentlyVisited": "Häufig besucht",
+  "readingList": "Leseliste",
+  "readMinutes": "{count} Min.",
+  "back": "Zurück",
+  "themeLight": "Hell",
+  "themeDark": "Dunkel",
+  "themeSystem": "System",
+  "colourwayWallpaper": "Hintergrund",
+  "colourwayBlue": "Blau",
+  "colourwayViolet": "Violett",
+  "colourwayGreen": "Grün",
+  "colourwayOrange": "Orange",
+  "colourwayPink": "Pink",
+  "forward": "Vorwärts",
+  "reload": "Neu laden",
+  "menu": "Menü",
+  "searchOrEnterAddress": "Suchen oder Adresse",
+  "cancel": "Abbrechen",
+  "linkNeedsOtherApp": "Dieser Link braucht eine andere App und wurde nicht geöffnet.",
+  "tabs": "Tabs",
+  "tabsOpen": "{count} offen",
+  "@tabsOpen": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tabsOpenInGroup": "{count} offen · Gruppe „{group}“",
+  "@tabsOpenInGroup": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "newTab": "Neuer Tab",
+  "done": "Fertig",
+  "closeTab": "Tab schließen",
+  "privateMode": "Privat",
+  "tabsCount": "{count, plural, =1{1 Tab} other{{count} Tabs}}",
+  "@tabsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "startPage": "Startseite"
+}

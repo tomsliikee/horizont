@@ -1,0 +1,1033 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Horizont Browser</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,slnt,wdth,wght,ROND@6..144,-10..0,25..151,1..1000,0..100&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&amp;display=block">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="position: relative; width: 412px; height: 915px; overflow: hidden; background: {{c.sc}}; color: {{c.on}}; font-family: 'Google Sans Flex', 'Google Sans', system-ui, sans-serif; font-variation-settings: 'ROND' 100; font-size: 14px; line-height: 20px">
+
+<!-- ============ WEBSEITE (Seite + Menü darunter) ============ -->
+<sc-if value="{{show.web}}" hint-placeholder-val="{{ true }}">
+<div ref="{{webRef}}" onScroll="{{onWebScroll}}" style="position: absolute; inset: 0; overflow-y: auto; background: {{w.bg}}; color: {{w.text}}; font-family: Georgia, 'Times New Roman', serif">
+<div style="padding: {{webHeadPad}}px 20px 14px; display: flex; align-items: center; justify-content: space-between; background: {{w.head}}; color: {{w.headText}}">
+<a href="#bz-top" aria-label="Bergzeit – zur Startseite" style="font-family: Georgia, serif; font-size: 26px; line-height: 32px; font-weight: 700; letter-spacing: -0.5px; color: {{w.headText}}; text-decoration: none">Bergzeit<span style="color: {{w.headAccent}}">.</span></a>
+<span style="display: flex; gap: 18px; align-items: center; color: {{w.headText}}">
+<span aria-hidden="true" style="font: 24px/1 'Material Symbols Rounded'">search</span>
+<span aria-hidden="true" style="font: 24px/1 'Material Symbols Rounded'">menu</span>
+</span>
+</div>
+<svg width="100%" viewBox="0 0 412 236" role="img" aria-label="Illustration: Berge über einem See bei Sonnenaufgang" style="display: block">
+<rect x="0" y="0" width="412" height="236" fill="{{w.sky}}"></rect>
+<circle cx="300" cy="78" r="34" fill="{{w.sun}}"></circle>
+<path d="M0 170 L70 96 L120 140 L190 58 L262 150 L310 118 L412 176 L412 236 L0 236 Z" fill="{{w.m1}}"></path>
+<path d="M0 196 L60 160 L130 188 L210 132 L300 186 L360 162 L412 190 L412 236 L0 236 Z" fill="{{w.m2}}"></path>
+<rect x="0" y="206" width="412" height="30" fill="{{w.lake}}"></rect>
+<rect x="40" y="216" width="120" height="3" rx="1.5" fill="{{w.sky}}" opacity="0.6"></rect>
+<rect x="230" y="224" width="90" height="3" rx="1.5" fill="{{w.sky}}" opacity="0.5"></rect>
+</svg>
+<div style="padding: 20px 20px 0; display: flex; flex-direction: column; gap: 14px; font-size: {{webFont}}px; line-height: 1.55">
+<span style="font-family: system-ui, sans-serif; font-size: 12px; line-height: 16px; letter-spacing: 1.2px; text-transform: uppercase; font-weight: 700; color: {{w.accent}}">Wandern · Salzkammergut</span>
+<h1 style="margin: 0; font-size: 30px; line-height: 36px; font-weight: 700; letter-spacing: -0.4px">Herbst am Schafberg: Drei Wege über dem Wolfgangsee</h1>
+<span style="font-family: system-ui, sans-serif; font-size: 13px; line-height: 18px; color: {{w.muted}}">Von Lena Hofer · 14. Oktober 2026 · 8 Min. Lesezeit</span>
+<p style="margin: 0">Wenn sich am Morgen der Nebel über dem Wolfgangsee hebt, wird der Schafberg zur Aussichtsterrasse des Salzkammerguts. An klaren Tagen reicht der Blick vom Gipfel über ein Dutzend Seen, und im Oktober leuchten die Buchenwälder an den Flanken in Kupfer und Gold.</p>
+<div style="font-family: system-ui, sans-serif; background: {{w.box}}; border-radius: 6px; padding: 16px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<span style="display: flex; flex-direction: column"><span style="font-size: 20px; line-height: 26px; font-weight: 700">[KM]</span><span style="font-size: 12px; line-height: 16px; color: {{w.muted}}">Strecke</span></span>
+<span style="display: flex; flex-direction: column"><span style="font-size: 20px; line-height: 26px; font-weight: 700">[HM]</span><span style="font-size: 12px; line-height: 16px; color: {{w.muted}}">Höhenmeter</span></span>
+<span style="display: flex; flex-direction: column"><span style="font-size: 20px; line-height: 26px; font-weight: 700">[DAUER]</span><span style="font-size: 12px; line-height: 16px; color: {{w.muted}}">Gehzeit</span></span>
+</div>
+<h2 style="margin: 8px 0 0; font-size: 22px; line-height: 28px; font-weight: 700">Der Klassiker über die Schafbergalm</h2>
+<p style="margin: 0">Der Weg beginnt in St. Wolfgang und führt in gleichmäßiger Steigung durch den Wald hinauf zur Schafbergalm. Dort lohnt sich die Pause: Die Zahnradbahn kreuzt hier den Wanderweg, und mit etwas Glück schnauft gerade eine der historischen Lokomotiven vorbei.</p>
+<p style="margin: 0">Oberhalb der Alm wird es steiler. Der Pfad windet sich in Kehren über offene Wiesen, bis die Felsen der Gipfelregion beginnen. Trittsicherheit ist hier wichtiger als Tempo – vor allem, wenn das Laub nach einer kalten Nacht noch feucht ist.</p>
+<h2 style="margin: 8px 0 0; font-size: 22px; line-height: 28px; font-weight: 700">Über den Himmelspfortenweg</h2>
+<p style="margin: 0">Wer es luftiger mag, steigt von der Nordseite über den Himmelspfortenweg auf. Eine schmale Felsöffnung gibt den Blick auf den Mondsee frei, kurz bevor das Gipfelhaus auftaucht. Dieser Weg ist nur bei trockenem Wetter zu empfehlen.</p>
+<p style="margin: 0 0 160px">Zurück geht es bequem mit der Bahn – oder zu Fuß über die Suissensee-Runde, die an zwei kleinen Karseen vorbeiführt und im Herbst kaum begangen ist.</p>
+</div>
+</div>
+</sc-if>
+
+<!-- ============ STARTSEITE ============ -->
+<sc-if value="{{show.start}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; overflow-y: auto; box-sizing: border-box; padding: {{topPad}}px 16px 150px">
+<div style="padding: 8px 4px 0; display: flex; align-items: flex-end; justify-content: space-between">
+<span style="display: flex; flex-direction: column">
+<span style="font-size: 16px; line-height: 24px; font-weight: 450; color: {{c.onVar}}">Freitag, 16. Oktober</span>
+<span style="font-size: 36px; line-height: 44px; font-weight: 800; font-stretch: 108%">Horizont</span>
+</span>
+<button aria-label="Einstellungen" onClick="{{go.settings}}" style="width: 48px; height: 48px; border: 0; padding: 0; border-radius: 9999px; background: {{c.bright}}; color: {{c.onVar}}; display: flex; align-items: center; justify-content: center; cursor: pointer"><span aria-hidden="true" style="font: 24px/1 'Material Symbols Rounded'">settings</span></button>
+</div>
+
+<button onClick="{{go.privacy}}" style="margin-top: 20px; width: 100%; border: 0; cursor: pointer; text-align: left; font: inherit; background: {{c.pCont}}; color: {{c.onPCont}}; border-radius: 32px; padding: 20px; display: flex; align-items: center; gap: 20px; box-sizing: border-box">
+<span style="position: relative; width: 116px; height: 116px; flex: none">
+<svg width="116" height="116" viewBox="0 0 116 116" aria-hidden="true" style="position: absolute; inset: 0"><path d="{{shp.hero9}}" fill="{{c.primary}}"></path></svg>
+<span style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 32px; line-height: 36px; font-weight: 800; font-stretch: 112%; font-variant-numeric: tabular-nums; color: {{c.onPrimary}}">42</span>
+</span>
+<span style="display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 12px; line-height: 16px; font-weight: 450; font-stretch: 88%">Datenschutzbericht · 7 Tage</span>
+<span style="font-size: 17px; line-height: 24px; font-weight: 750; font-stretch: 108%">Tracker blockiert</span>
+<span style="font-size: 14px; line-height: 20px; font-weight: 700">8 mehr als letzte Woche</span>
+<span style="font-size: 12px; line-height: 16px; font-style: oblique 10deg">Gezählt auf diesem Gerät.</span>
+</span>
+</button>
+
+<h2 style="margin: 28px 4px 12px; font-size: 24px; line-height: 32px; font-weight: 750; font-stretch: 108%">Favoriten</h2>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px 8px">
+<sc-for list="{{favs}}" as="f" hint-placeholder-count="8">
+<button onClick="{{go.page}}" style="border: 0; padding: 0; background: none; cursor: pointer; font: inherit; color: {{c.on}}; display: flex; flex-direction: column; align-items: center; gap: 6px">
+<span style="position: relative; width: 64px; height: 64px">
+<svg width="64" height="64" viewBox="0 0 64 64" aria-hidden="true" style="position: absolute; inset: 0"><path d="{{f.path}}" fill="{{f.fill}}"></path></svg>
+<span style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 22px; line-height: 28px; font-weight: 800; font-stretch: 110%; color: {{f.ink}}">{{f.l}}</span>
+</span>
+<span style="font-size: 12px; line-height: 16px; font-weight: 450; font-stretch: 88%; color: {{c.onVar}}">{{f.t}}</span>
+</button>
+</sc-for>
+</div>
+
+<h2 style="margin: 28px 4px 12px; font-size: 24px; line-height: 32px; font-weight: 750; font-stretch: 108%">Häufig besucht</h2>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<sc-for list="{{frequent}}" as="r" hint-placeholder-count="3">
+<button onClick="{{go.page}}" style="border: 0; cursor: pointer; font: inherit; text-align: left; color: {{c.on}}; background: {{c.bright}}; border-radius: {{r.radius}}; min-height: 64px; padding: 12px 16px; display: flex; align-items: center; gap: 16px; box-sizing: border-box; width: 100%">
+<span aria-hidden="true" style="flex: none; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: {{c.high}}; color: {{c.onVar}}; font-size: 16px; font-weight: 800">{{r.l}}</span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column">
+<span style="font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{r.t}}</span>
+<span style="font-size: 12px; line-height: 16px; color: {{c.onVar}}">{{r.u}}</span>
+</span>
+<span aria-hidden="true" style="font: 20px/1 'Material Symbols Rounded'; color: {{c.onVar}}">north_west</span>
+</button>
+</sc-for>
+</div>
+
+<h2 style="margin: 28px 4px 12px; font-size: 24px; line-height: 32px; font-weight: 750; font-stretch: 108%">Leseliste</h2>
+<div style="display: flex; gap: 12px; overflow-x: auto; margin: 0 -16px; padding: 0 16px">
+<button onClick="{{go.page}}" style="flex: none; width: 240px; border: 0; cursor: pointer; font: inherit; text-align: left; color: {{c.on}}; background: {{c.bright}}; border-radius: 24px; padding: 0; overflow: hidden; display: flex; flex-direction: column">
+<span style="display: block; height: 96px; background: {{c.sCont}}"></span>
+<span style="padding: 12px 16px 16px; display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 17px; line-height: 24px; font-weight: 750; font-stretch: 108%">Herbst am Schafberg</span>
+<span style="font-size: 12px; line-height: 16px; color: {{c.onVar}}">bergzeit.at · 8 Min.</span>
+</span>
+</button>
+<button onClick="{{go.page}}" style="flex: none; width: 240px; border: 0; cursor: pointer; font: inherit; text-align: left; color: {{c.on}}; background: {{c.bright}}; border-radius: 24px; padding: 0; overflow: hidden; display: flex; flex-direction: column">
+<span style="display: block; height: 96px; background: {{c.tCont}}"></span>
+<span style="padding: 12px 16px 16px; display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 17px; line-height: 24px; font-weight: 750; font-stretch: 108%">Was Material 3 Expressive anders macht</span>
+<span style="font-size: 12px; line-height: 16px; color: {{c.onVar}}">m3.material.io · 12 Min.</span>
+</span>
+</button>
+</div>
+</div>
+</sc-if>
+
+<!-- ============ PRIVAT ============ -->
+<sc-if value="{{show.private}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; overflow-y: auto; box-sizing: border-box; padding: {{topPad}}px 16px 150px; background: #101a38; color: #ffffff">
+<div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 16px; padding: 96px 12px 0">
+<span style="position: relative; width: 116px; height: 116px">
+<svg width="116" height="116" viewBox="0 0 116 116" aria-hidden="true" style="position: absolute; inset: 0"><path d="{{shp.hero6}}" fill="{{c.tCont}}"></path></svg>
+<span aria-hidden="true" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font: 48px/1 'Material Symbols Rounded'; color: {{c.onTCont}}">visibility_off</span>
+</span>
+<span style="font-size: 36px; line-height: 44px; font-weight: 450">Privat surfen</span>
+<span style="font-size: 16px; line-height: 24px; color: #c9d1ee; max-width: 320px">Horizont merkt sich keine besuchten Seiten, Suchen oder Formulardaten. Schließt du den letzten privaten Tab, ist alles weg.</span>
+</div>
+<div style="margin-top: 32px; display: flex; flex-direction: column; gap: 4px">
+<div style="background: #1b2650; border-radius: 24px 24px 8px 8px; padding: 14px 16px; display: flex; align-items: center; gap: 16px">
+<span aria-hidden="true" style="flex: none; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: {{c.tCont}}; color: {{c.onTCont}}; font: 20px/1 'Material Symbols Rounded'">fingerprint</span>
+<span style="flex: 1; display: flex; flex-direction: column"><span style="font-weight: 500">Mit Fingerabdruck gesperrt</span><span style="font-size: 12px; line-height: 16px; color: #c9d1ee">Wenn du die App verlässt</span></span>
+</div>
+<div style="background: #1b2650; border-radius: 8px 8px 24px 24px; padding: 14px 16px; display: flex; align-items: center; gap: 16px">
+<span aria-hidden="true" style="flex: none; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: {{c.tCont}}; color: {{c.onTCont}}; font: 20px/1 'Material Symbols Rounded'">shield</span>
+<span style="flex: 1; display: flex; flex-direction: column"><span style="font-weight: 500">Strenger Trackingschutz</span><span style="font-size: 12px; line-height: 16px; color: #c9d1ee">Bekannte Fingerprinting-Skripte werden blockiert</span></span>
+</div>
+</div>
+<button onClick="{{go.start}}" style="margin: 24px auto 0; display: flex; align-items: center; gap: 8px; height: 48px; padding: 0 20px; border: 0; border-radius: 9999px; cursor: pointer; font: inherit; font-weight: 700; background: #1b2650; color: #ffffff"><span aria-hidden="true" style="font: 20px/1 'Material Symbols Rounded'">close</span>Privaten Modus verlassen</button>
+</div>
+</sc-if>
+
+<!-- ============ FLOATING BARS ============ -->
+<sc-if value="{{show.bar}}" hint-placeholder-val="{{ true }}">
+
+<!-- 1 · Kompakt (wie Safari kompakt) -->
+<sc-if value="{{L.kompakt}}" hint-placeholder-val="{{ true }}">
+<div style="position: absolute; left: 16px; right: 16px; bottom: 28px; display: flex; align-items: center; gap: 8px">
+<button aria-label="Zurück" onClick="{{go.back}}" style="flex: none; width: 56px; height: 56px; border: 0; padding: 0; border-radius: 9999px; background: {{c.glass}}; backdrop-filter: blur(24px); color: {{c.on}}; box-shadow: 0 3px 8px rgba(0,0,0,0.16), 0 1px 3px rgba(0,0,0,0.12); display: flex; align-items: center; justify-content: center; cursor: pointer"><span aria-hidden="true" style="font: 24px/1 'Material Symbols Rounded'">arrow_back</span></button>
+<div style="flex: 1; min-width: 0; height: 56px; border-radius: 9999px; background: {{c.glass}}; backdrop-filter: blur(24px); box-shadow: 0 3px 8px rgba(0,0,0,0.16), 0 1px 3px rgba(0,0,0,0.12); display: flex; align-items: center; padding: 0 4px; box-sizing: border-box">
+<button aria-label="Reader-Ansicht" onClick="{{tg.reader.toggle}}" style="flex: none; width: 48px; height: 48px; border: 0; padding: 0; border-radius: 9999px; background: {{readerBg}}; color: {{readerFg}}; display: flex; align-items: center; justify-content: center; cursor: pointer"><span aria-hidden="true" style="font: 22px/1 'Material Symbols Rounded'">chrome_reader_mode</span></button>
+<button onClick="{{go.search}}" style="flex: 1; min-width: 0; height: 48px; border: 0; padding: 0 4px; background: none; cursor: pointer; font: inherit; color: {{c.on}}; display: flex; align-items: center; justify-content: center; gap: 6px">
+<span aria-hidden="true" style="font: 16px/1 'Material Symbols Rounded'; color: {{c.onVar}}">{{addrIcon}}</span>
+<span style="font-size: 15px; line-height: 20px; font-weight: 600; font-stretch: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{addr}}</span>
+</button>
+<button aria-label="Neu laden" style="flex: none; width: 48px; height: 48px; border: 0; padding: 0; border-radius: 9999px; background: none; color: {{c.on}}; display: flex; align-items: center; justify-content: center; cursor: pointer"><span aria-hidden="true" style="font: 22px/1 'Material Symbols Rounded'">refresh</span></button>
+</div>
+<button aria-label="Menü" onClick="{{go.menu}}" style="flex: none; width: 56px; height: 56px; border: 0; padding: 0; border-radius: 9999px; background: {{c.glass}}; backdrop-filter: blur(24px); color: {{c.on}}; box-shadow: 0 3px 8px rgba(0,0,0,0.16), 0 1px 3px rgba(0,0,0,0.12); display: flex; align-items: center; justify-content: center; cursor: pointer"><span aria-hidden="true" style="font: 24px/1 'Material Symbols Rounded'">more_horiz</span></button>
+</div>
+</sc-if>
+
+<!-- 2 · Zweireihig (Adresse + Werkzeugleiste) -->
+<sc-if value="{{L.zweireihig}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 16px; right: 16px; bottom: 24px; display: flex; flex-direction: column; gap: 8px">
+<button onClick="{{go.search}}" style="height: 52px; border: 0; border-radius: 9999px; cursor: pointer; font: inherit; color: {{c.on}}; background: {{c.glass}}; backdrop-filter: blur(24px); box-shadow: 0 3px 8px rgba(0,0,0,0.16), 0 1px 3px rgba(0,0,0,0.12); display: flex; align-items: center; justify-content: center; gap: 8px; padding: 0 20px">
+<span aria-hidden="true" style="font: 18px/1 'Material Symbols Rounded'; color: {{c.onVar}}">{{addrIcon}}</span>
+<span style="font-size: 15px; line-height: 20px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{addr}}</span>
+</button>
+<div style="height: 64px; border-radius: 32px; background: {{c.glass}}; backdrop-filter: blur(24px); box-shadow: 0 3px 8px rgba(0,0,0,0.16), 0 1px 3px rgba(0,0,0,0.12); display: flex; align-items: center; justify-content: space-between; padding: 0 8px">
+<button aria-label="Zurück" onClick="{{go.back}}" style="width: 48px; height: 48px; border: 0; padding: 0; border-radius: 9999px; background: none; color: {{c.on}}; display: flex; align-items: center; justify-content: center; cursor: pointer"><span aria-hidden="true" style="font: 24px/1 'Material Symbols Rounded'">arrow_back</span></button>
+<button aria-label="Vor" onClick="{{go.page}}" style="width: 48px; height: 48px; border: 0; padding: 0; border-radius: 9999px; background: none; color: {{c.on}}; display: flex; align-items: center; justify-content: center; cursor: pointer"><span aria-hidden="true" style="font: 24px/1 'Material Symbols Rounded'">arrow_forward</span></button>
+<button aria-label="Menü" onClick="{{go.menu}}" style="width: 48px; height: 48px; border: 0; padding: 0; border-radius: 9999px; background: none; color: {{c.on}}; display: flex; align-items: center; justify-content: center; cursor: pointer"><span aria-hidden="true" style="font: 24px/1 'Material Symbols Rounded'">ios_share</span></button>
+<button aria-label="Mediathek" onClick="{{go.library}}" style="width: 48px; height: 48px; border: 0; padding: 0; border-radius: 9999px; background: none; color: {{c.on}}; display: flex; align-items: center; justify-content: center; cursor: pointer"><span aria-hidden="true" style="font: 24px/1 'Material Symbols Rounded'">book_2</span></button>
+<button aria-label="Tabs" onClick="{{go.tabs}}" style="width: 48px; height: 48px; border: 0; padding: 0; border-radius: 9999px; background: none; color: {{c.on}}; display: flex; align-items: center; justify-content: center; cursor: pointer; font: inherit"><span style="min-width: 24px; height: 24px; border: 2px solid currentColor; border-radius: 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 12px; line-height: 12px; font-weight: 800">{{tabCount}}</span></button>
+</div>
+</div>
+</sc-if>
+
+<!-- 3 · Expressiv (Toolbar + FAB, Adress-Chip oben) -->
+<sc-if value="{{L.expressiv}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; top: 48px; left: 0; right: 0; display: flex; justify-content: center">
+<button onClick="{{go.search}}" style="height: 44px; max-width: 280px; border: 0; border-radius: 9999px; cursor: pointer; font: inherit; color: {{c.on}}; background: {{c.glass}}; backdrop-filter: blur(24px); box-shadow: 0 2px 6px rgba(0,0,0,0.18); display: flex; align-items: center; gap: 6px; padding: 0 16px">
+<span aria-hidden="true" style="font: 16px/1 'Material Symbols Rounded'; color: {{c.onVar}}">{{addrIcon}}</span>
+<span style="font-size: 14px; line-height: 20px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{addr}}</span>
+</button>
+</div>
+<div style="position: absolute; left: 16px; right: 16px; bottom: 28px; display: flex; align-items: center; gap: 8px">
+<div style="flex: 1; height: 64px; border-radius: 32px; background: {{c.glass}}; backdrop-filter: blur(24px); box-shadow: 0 3px 8px rgba(0,0,0,0.16), 0 1px 3px rgba(0,0,0,0.12); display: flex; align-items: center; justify-content: space-around; padding: 0 8px">
+<button aria-label="Zurück" onClick="{{go.back}}" style="width: 48px; height: 48px; border: 0; padding: 0; border-radius: 9999px; background: none; color: {{c.on}}; display: flex; align-items: center; justify-content: center; cursor: pointer"><span aria-hidden="true" style="font: 24px/1 'Material Symbols Rounded'">arrow_back</span></button>
+<button aria-label="Vor" onClick="{{go.page}}" style="width: 48px; height: 48px; border: 0; padding: 0; border-radius: 9999px; background: none; color: {{c.on}}; display: flex; align-items: center; justify-content: center; cursor: pointer"><span aria-hidden="true" style="font: 24px/1 'Material Symbols Rounded'">arrow_forward</span></button>
+<button aria-label="Tabs" onClick="{{go.tabs}}" style="width: 48px; height: 48px; border: 0; padding: 0; border-radius: 9999px; background: none; color: {{c.on}}; display: flex; align-items: center; justify-content: center; cursor: pointer; font: inherit"><span style="min-width: 24px; height: 24px; border: 2px solid currentColor; border-radius: 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 12px; line-height: 12px; font-weight: 800">{{tabCount}}</span></button>
+<button aria-label="Menü" onClick="{{go.menu}}" style="width: 48px; height: 48px; border: 0; padding: 0; border-radius: 9999px; background: none; color: {{c.on}}; display: flex; align-items: center; justify-content: center; cursor: pointer"><span aria-hidden="true" style="font: 24px/1 'Material Symbols Rounded'">more_vert</span></button>
+</div>
+<button aria-label="Suchen" onClick="{{go.search}}" style="flex: none; width: 64px; height: 64px; border: 0; padding: 0; border-radius: 20px; background: {{c.tCont}}; color: {{c.onTCont}}; box-shadow: 0 3px 8px rgba(0,0,0,0.16), 0 1px 3px rgba(0,0,0,0.12); display: flex; align-items: center; justify-content: center; cursor: pointer"><span aria-hidden="true" style="font: 28px/1 'Material Symbols Rounded'">search</span></button>
+</div>
+</sc-if>
+
+<!-- 4 · Oben (Adresse oben, Navigationsleiste unten) -->
+<sc-if value="{{L.oben}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; top: 48px; left: 16px; right: 16px">
+<button onClick="{{go.search}}" style="width: 100%; height: 56px; border: 0; border-radius: 9999px; cursor: pointer; font: inherit; color: {{c.on}}; background: {{c.glass}}; backdrop-filter: blur(24px); box-shadow: 0 3px 8px rgba(0,0,0,0.16), 0 1px 3px rgba(0,0,0,0.12); display: flex; align-items: center; gap: 12px; padding: 0 8px 0 20px; box-sizing: border-box">
+<span aria-hidden="true" style="font: 18px/1 'Material Symbols Rounded'; color: {{c.onVar}}">{{addrIcon}}</span>
+<span style="flex: 1; text-align: left; font-size: 15px; line-height: 20px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{addr}}</span>
+<span aria-hidden="true" style="width: 40px; height: 40px; border-radius: 9999px; display: flex; align-items: center; justify-content: center; background: {{c.high}}; font: 20px/1 'Material Symbols Rounded'">mic</span>
+</button>
+</div>
+<div style="position: absolute; left: 16px; right: 16px; bottom: 28px; height: 64px; border-radius: 32px; background: {{c.glass}}; backdrop-filter: blur(24px); box-shadow: 0 3px 8px rgba(0,0,0,0.16), 0 1px 3px rgba(0,0,0,0.12); display: flex; align-items: center; justify-content: space-between; padding: 0 8px">
+<button onClick="{{go.start}}" style="height: 48px; border: 0; border-radius: 9999px; padding: 0 18px 0 14px; cursor: pointer; font: inherit; background: {{c.primary}}; color: {{c.onPrimary}}; display: flex; align-items: center; gap: 8px"><span aria-hidden="true" style="font: 24px/1 'Material Symbols Rounded'; font-variation-settings: 'FILL' 1">{{navFirstIcon}}</span><span style="font-size: 15px; line-height: 20px; font-weight: 800; font-stretch: 112%">{{navFirst}}</span></button>
+<button aria-label="Tabs" onClick="{{go.tabs}}" style="width: 56px; height: 48px; border: 0; padding: 0; border-radius: 9999px; background: none; color: {{c.onVar}}; display: flex; align-items: center; justify-content: center; cursor: pointer"><span aria-hidden="true" style="font: 24px/1 'Material Symbols Rounded'">tab</span></button>
+<button aria-label="Mediathek" onClick="{{go.library}}" style="width: 56px; height: 48px; border: 0; padding: 0; border-radius: 9999px; background: none; color: {{c.onVar}}; display: flex; align-items: center; justify-content: center; cursor: pointer"><span aria-hidden="true" style="font: 24px/1 'Material Symbols Rounded'">bookmarks</span></button>
+<button aria-label="Menü" onClick="{{go.menu}}" style="width: 56px; height: 48px; border: 0; padding: 0; border-radius: 9999px; background: none; color: {{c.onVar}}; display: flex; align-items: center; justify-content: center; cursor: pointer"><span aria-hidden="true" style="font: 24px/1 'Material Symbols Rounded'">menu</span></button>
+</div>
+</sc-if>
+
+<!-- 5 · Karte (gruppierte Leiste) -->
+<sc-if value="{{L.karte}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 16px; right: 16px; bottom: 24px; display: flex; flex-direction: column; gap: 4px; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.16))">
+<button onClick="{{go.search}}" style="height: 56px; border: 0; border-radius: 24px 24px 8px 8px; cursor: pointer; font: inherit; color: {{c.on}}; background: {{c.glass}}; backdrop-filter: blur(24px); display: flex; align-items: center; gap: 12px; padding: 0 20px">
+<span aria-hidden="true" style="font: 20px/1 'Material Symbols Rounded'; color: {{c.primary}}">{{addrIcon}}</span>
+<span style="flex: 1; text-align: left; display: flex; flex-direction: column; min-width: 0">
+<span style="font-size: 15px; line-height: 20px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{addr}}</span>
+<span style="font-size: 12px; line-height: 16px; font-weight: 450; font-stretch: 88%; color: {{c.onVar}}">{{addrSub}}</span>
+</span>
+<span aria-hidden="true" style="font: 22px/1 'Material Symbols Rounded'; color: {{c.onVar}}">refresh</span>
+</button>
+<div style="height: 56px; border-radius: 8px 8px 24px 24px; background: {{c.glass}}; backdrop-filter: blur(24px); display: flex; align-items: center; justify-content: space-between; padding: 0 8px">
+<button aria-label="Zurück" onClick="{{go.back}}" style="width: 48px; height: 48px; border: 0; padding: 0; border-radius: 9999px; background: none; color: {{c.on}}; display: flex; align-items: center; justify-content: center; cursor: pointer"><span aria-hidden="true" style="font: 24px/1 'Material Symbols Rounded'">arrow_back</span></button>
+<button aria-label="Vor" onClick="{{go.page}}" style="width: 48px; height: 48px; border: 0; padding: 0; border-radius: 9999px; background: none; color: {{c.on}}; display: flex; align-items: center; justify-content: center; cursor: pointer"><span aria-hidden="true" style="font: 24px/1 'Material Symbols Rounded'">arrow_forward</span></button>
+<button aria-label="Neuer Tab" onClick="{{go.start}}" style="width: 64px; height: 44px; border: 0; padding: 0; border-radius: 9999px; background: {{c.primary}}; color: {{c.onPrimary}}; display: flex; align-items: center; justify-content: center; cursor: pointer"><span aria-hidden="true" style="font: 24px/1 'Material Symbols Rounded'">add</span></button>
+<button aria-label="Tabs" onClick="{{go.tabs}}" style="width: 48px; height: 48px; border: 0; padding: 0; border-radius: 9999px; background: none; color: {{c.on}}; display: flex; align-items: center; justify-content: center; cursor: pointer; font: inherit"><span style="min-width: 24px; height: 24px; border: 2px solid currentColor; border-radius: 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 12px; line-height: 12px; font-weight: 800">{{tabCount}}</span></button>
+<button aria-label="Menü" onClick="{{go.menu}}" style="width: 48px; height: 48px; border: 0; padding: 0; border-radius: 9999px; background: none; color: {{c.on}}; display: flex; align-items: center; justify-content: center; cursor: pointer"><span aria-hidden="true" style="font: 24px/1 'Material Symbols Rounded'">more_horiz</span></button>
+</div>
+</div>
+</sc-if>
+
+<!-- 6 · Minimal (beim Scrollen verkleinert) -->
+<sc-if value="{{L.minimal}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 0; right: 0; bottom: 20px; display: flex; justify-content: center; align-items: center; gap: 8px">
+<button onClick="{{go.search}}" style="height: 44px; min-width: 200px; max-width: 260px; border: 0; border-radius: 9999px; cursor: pointer; font: inherit; color: {{c.on}}; background: {{c.glass}}; backdrop-filter: blur(24px); box-shadow: 0 2px 6px rgba(0,0,0,0.18); display: flex; align-items: center; justify-content: center; gap: 6px; padding: 0 18px">
+<span aria-hidden="true" style="font: 14px/1 'Material Symbols Rounded'; color: {{c.onVar}}">{{addrIcon}}</span>
+<span style="font-size: 13px; line-height: 18px; font-weight: 600; font-stretch: 96%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{addr}}</span>
+</button>
+<button aria-label="Menü" onClick="{{go.menu}}" style="width: 44px; height: 44px; border: 0; padding: 0; border-radius: 9999px; background: {{c.glass}}; backdrop-filter: blur(24px); color: {{c.on}}; box-shadow: 0 2px 6px rgba(0,0,0,0.18); display: flex; align-items: center; justify-content: center; cursor: pointer"><span aria-hidden="true" style="font: 20px/1 'Material Symbols Rounded'">more_horiz</span></button>
+</div>
+</sc-if>
+
+</sc-if>
+
+<!-- ============ MENÜ (Bottom Sheet) ============ -->
+<sc-if value="{{show.menu}}" hint-placeholder-val="{{ false }}">
+<button aria-label="Menü schließen" onClick="{{go.page}}" style="position: absolute; inset: 0; border: 0; padding: 0; background: rgba(0,0,0,0.36); cursor: pointer"></button>
+<div style="position: absolute; left: 8px; right: 8px; bottom: 8px; max-height: 820px; overflow-y: auto; border-radius: 32px; background: {{c.sc}}; box-shadow: 0 3px 8px rgba(0,0,0,0.16), 0 1px 3px rgba(0,0,0,0.12); padding: 8px 12px 16px; box-sizing: border-box">
+<div style="display: flex; justify-content: center; padding: 6px 0 12px"><span style="width: 36px; height: 4px; border-radius: 2px; background: {{c.outline}}"></span></div>
+<div style="display: flex; align-items: center; gap: 12px; padding: 0 8px 14px">
+<span aria-hidden="true" style="flex: none; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: {{c.high}}; font-family: Georgia, serif; font-size: 20px; font-weight: 700">B</span>
+<span style="flex: 1; display: flex; flex-direction: column; min-width: 0">
+<span style="font-size: 17px; line-height: 24px; font-weight: 750; font-stretch: 108%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Herbst am Schafberg</span>
+<span style="display: flex; align-items: center; gap: 4px; font-size: 12px; line-height: 16px; color: {{c.onVar}}"><span aria-hidden="true" style="font: 14px/1 'Material Symbols Rounded'; color: {{c.good}}">lock</span>bergzeit.at · Verbindung sicher</span>
+</span>
+<button aria-label="Schließen" onClick="{{go.page}}" style="flex: none; width: 44px; height: 44px; border: 0; padding: 0; border-radius: 9999px; background: {{c.highest}}; color: {{c.on}}; display: flex; align-items: center; justify-content: center; cursor: pointer"><span aria-hidden="true" style="font: 22px/1 'Material Symbols Rounded'">close</span></button>
+</div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px">
+<button style="border: 0; cursor: pointer; font: inherit; color: {{c.onPCont}}; background: {{c.pCont}}; border-radius: 24px; height: 84px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px"><span aria-hidden="true" style="font: 24px/1 'Material Symbols Rounded'">ios_share</span><span style="font-size: 12px; line-height: 16px; font-weight: 600; font-stretch: 92%">Teilen</span></button>
+<button style="border: 0; cursor: pointer; font: inherit; color: {{c.on}}; background: {{c.bright}}; border-radius: 24px; height: 84px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px"><span aria-hidden="true" style="font: 24px/1 'Material Symbols Rounded'">bookmark_add</span><span style="font-size: 12px; line-height: 16px; font-weight: 600; font-stretch: 92%">Merken</span></button>
+<button style="border: 0; cursor: pointer; font: inherit; color: {{c.on}}; background: {{c.bright}}; border-radius: 24px; height: 84px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px"><span aria-hidden="true" style="font: 24px/1 'Material Symbols Rounded'">eyeglasses</span><span style="font-size: 12px; line-height: 16px; font-weight: 600; font-stretch: 92%">Leseliste</span></button>
+<button style="border: 0; cursor: pointer; font: inherit; color: {{c.on}}; background: {{c.bright}}; border-radius: 24px; height: 84px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px"><span aria-hidden="true" style="font: 24px/1 'Material Symbols Rounded'">find_in_page</span><span style="font-size: 12px; line-height: 16px; font-weight: 600; font-stretch: 92%">Suchen</span></button>
+</div>
+
+<div style="margin-top: 12px; display: flex; flex-direction: column; gap: 4px">
+<div style="background: {{c.bright}}; border-radius: 24px 24px 8px 8px; min-height: 60px; padding: 8px 12px 8px 16px; display: flex; align-items: center; gap: 16px; box-sizing: border-box">
+<span aria-hidden="true" style="font: 22px/1 'Material Symbols Rounded'; color: {{c.onVar}}">chrome_reader_mode</span>
+<span style="flex: 1; font-weight: 500">Reader-Ansicht</span>
+<button role="switch" aria-checked="{{tg.reader.on}}" aria-label="Reader-Ansicht" onClick="{{tg.reader.toggle}}" style="position: relative; flex: none; width: 52px; height: 32px; border-radius: 9999px; box-sizing: border-box; padding: 0; cursor: pointer; {{tg.reader.track}}"><span style="position: absolute; top: 50%; transform: translateY(-50%); border-radius: 9999px; {{tg.reader.knob}}"></span></button>
+</div>
+<div style="background: {{c.bright}}; border-radius: 8px; min-height: 60px; padding: 6px 8px 6px 16px; display: flex; align-items: center; gap: 16px; box-sizing: border-box">
+<span aria-hidden="true" style="font: 22px/1 'Material Symbols Rounded'; color: {{c.onVar}}">format_size</span>
+<span style="flex: 1; font-weight: 500">Textgröße</span>
+<span style="display: flex; align-items: center; gap: 4px; background: {{c.high}}; border-radius: 9999px; padding: 2px">
+<button aria-label="Kleiner" onClick="{{textSmaller}}" style="width: 44px; height: 44px; border: 0; padding: 0; border-radius: 9999px; background: none; color: {{c.on}}; display: flex; align-items: center; justify-content: center; cursor: pointer"><span aria-hidden="true" style="font: 20px/1 'Material Symbols Rounded'">remove</span></button>
+<span style="min-width: 52px; text-align: center; font-size: 15px; font-weight: 800; font-stretch: 106%; font-variant-numeric: tabular-nums">{{textSize}} %</span>
+<button aria-label="Größer" onClick="{{textBigger}}" style="width: 44px; height: 44px; border: 0; padding: 0; border-radius: 9999px; background: none; color: {{c.on}}; display: flex; align-items: center; justify-content: center; cursor: pointer"><span aria-hidden="true" style="font: 20px/1 'Material Symbols Rounded'">add</span></button>
+</span>
+</div>
+<button style="border: 0; cursor: pointer; font: inherit; text-align: left; color: {{c.on}}; background: {{c.bright}}; border-radius: 8px; min-height: 56px; padding: 0 16px; display: flex; align-items: center; gap: 16px"><span aria-hidden="true" style="font: 22px/1 'Material Symbols Rounded'; color: {{c.onVar}}">translate</span><span style="flex: 1; font-weight: 500">Seite übersetzen</span><span style="font-size: 12px; color: {{c.onVar}}">Deutsch</span></button>
+<button style="border: 0; cursor: pointer; font: inherit; text-align: left; color: {{c.on}}; background: {{c.bright}}; border-radius: 8px; min-height: 56px; padding: 0 16px; display: flex; align-items: center; gap: 16px"><span aria-hidden="true" style="font: 22px/1 'Material Symbols Rounded'; color: {{c.onVar}}">desktop_windows</span><span style="flex: 1; font-weight: 500">Desktop-Website anfordern</span></button>
+<button style="border: 0; cursor: pointer; font: inherit; text-align: left; color: {{c.on}}; background: {{c.bright}}; border-radius: 8px 8px 24px 24px; min-height: 56px; padding: 0 16px; display: flex; align-items: center; gap: 16px"><span aria-hidden="true" style="font: 22px/1 'Material Symbols Rounded'; color: {{c.onVar}}">add_to_home_screen</span><span style="flex: 1; font-weight: 500">Zum Startbildschirm</span></button>
+</div>
+
+<div style="margin-top: 12px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px">
+<button onClick="{{go.tabs}}" style="border: 0; cursor: pointer; font: inherit; text-align: left; color: {{c.on}}; background: {{c.bright}}; border-radius: 24px 8px 8px 8px; height: 60px; padding: 0 16px; display: flex; align-items: center; gap: 12px"><span aria-hidden="true" style="font: 22px/1 'Material Symbols Rounded'; color: {{c.onVar}}">tab</span><span style="font-weight: 500">Tabs ({{tabCount}})</span></button>
+<button onClick="{{go.library}}" style="border: 0; cursor: pointer; font: inherit; text-align: left; color: {{c.on}}; background: {{c.bright}}; border-radius: 8px 24px 8px 8px; height: 60px; padding: 0 16px; display: flex; align-items: center; gap: 12px"><span aria-hidden="true" style="font: 22px/1 'Material Symbols Rounded'; color: {{c.onVar}}">bookmarks</span><span style="font-weight: 500">Mediathek</span></button>
+<button onClick="{{go.downloads}}" style="border: 0; cursor: pointer; font: inherit; text-align: left; color: {{c.on}}; background: {{c.bright}}; border-radius: 8px; height: 60px; padding: 0 16px; display: flex; align-items: center; gap: 12px"><span aria-hidden="true" style="font: 22px/1 'Material Symbols Rounded'; color: {{c.onVar}}">download</span><span style="font-weight: 500">Downloads</span></button>
+<button onClick="{{go.private}}" style="border: 0; cursor: pointer; font: inherit; text-align: left; color: {{c.on}}; background: {{c.bright}}; border-radius: 8px; height: 60px; padding: 0 16px; display: flex; align-items: center; gap: 12px"><span aria-hidden="true" style="font: 22px/1 'Material Symbols Rounded'; color: {{c.onVar}}">visibility_off</span><span style="font-weight: 500">Privater Tab</span></button>
+<button onClick="{{go.start}}" style="border: 0; cursor: pointer; font: inherit; text-align: left; color: {{c.on}}; background: {{c.bright}}; border-radius: 8px 8px 8px 24px; height: 60px; padding: 0 16px; display: flex; align-items: center; gap: 12px"><span aria-hidden="true" style="font: 22px/1 'Material Symbols Rounded'; color: {{c.onVar}}">add</span><span style="font-weight: 500">Neuer Tab</span></button>
+<button onClick="{{go.settings}}" style="border: 0; cursor: pointer; font: inherit; text-align: left; color: {{c.on}}; background: {{c.bright}}; border-radius: 8px 8px 24px 8px; height: 60px; padding: 0 16px; display: flex; align-items: center; gap: 12px"><span aria-hidden="true" style="font: 22px/1 'Material Symbols Rounded'; color: {{c.onVar}}">settings</span><span style="font-weight: 500">Einstellungen</span></button>
+</div>
+</div>
+</sc-if>
+
+<!-- ============ SUCHE / ADRESSE ============ -->
+<sc-if value="{{show.search}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; overflow-y: auto; box-sizing: border-box; padding: {{searchTop}}px 16px {{searchBottom}}px; display: flex; flex-direction: column; gap: 4px">
+<span style="padding: 0 4px 8px; font-size: 12px; line-height: 16px; font-weight: 450; font-stretch: 88%; color: {{c.onVar}}">Top-Treffer</span>
+<button onClick="{{go.page}}" style="border: 0; cursor: pointer; font: inherit; text-align: left; color: {{c.onPCont}}; background: {{c.pCont}}; border-radius: 28px; padding: 16px; display: flex; align-items: center; gap: 16px">
+<span aria-hidden="true" style="flex: none; width: 48px; height: 48px; border-radius: 16px; display: flex; align-items: center; justify-content: center; background: {{c.primary}}; color: {{c.onPrimary}}; font-family: Georgia, serif; font-size: 22px; font-weight: 700">B</span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column">
+<span style="font-size: 17px; line-height: 24px; font-weight: 750; font-stretch: 108%">Herbst am Schafberg</span>
+<span style="font-size: 12px; line-height: 16px">bergzeit.at · in deiner Leseliste</span>
+</span>
+<span aria-hidden="true" style="font: 22px/1 'Material Symbols Rounded'">arrow_outward</span>
+</button>
+<span style="padding: 20px 4px 8px; font-size: 12px; line-height: 16px; font-weight: 450; font-stretch: 88%; color: {{c.onVar}}">Suchvorschläge · {{engineName}}</span>
+<sc-for list="{{suggestions}}" as="s" hint-placeholder-count="4">
+<button onClick="{{go.page}}" style="border: 0; cursor: pointer; font: inherit; text-align: left; color: {{c.on}}; background: {{c.bright}}; border-radius: {{s.radius}}; min-height: 56px; padding: 0 12px 0 16px; display: flex; align-items: center; gap: 16px">
+<span aria-hidden="true" style="font: 22px/1 'Material Symbols Rounded'; color: {{c.onVar}}">{{s.icon}}</span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-weight: 500">{{s.t}}</span><span style="font-size: 12px; line-height: 16px; color: {{c.onVar}}">{{s.sub}}</span></span>
+<span aria-hidden="true" style="font: 20px/1 'Material Symbols Rounded'; color: {{c.onVar}}">north_west</span>
+</button>
+</sc-for>
+<span style="padding: 20px 4px 8px; font-size: 12px; line-height: 16px; font-weight: 450; font-stretch: 88%; color: {{c.onVar}}">Schnellsuche</span>
+<div style="display: flex; gap: 8px; flex-wrap: wrap">
+<span style="height: 36px; display: flex; align-items: center; gap: 6px; padding: 0 14px; border-radius: 12px; background: {{c.sCont}}; color: {{c.onSCont}}; font-weight: 600"><span aria-hidden="true" style="font: 18px/1 'Material Symbols Rounded'">image</span>Bilder</span>
+<span style="height: 36px; display: flex; align-items: center; gap: 6px; padding: 0 14px; border-radius: 12px; background: {{c.bright}}; font-weight: 600"><span aria-hidden="true" style="font: 18px/1 'Material Symbols Rounded'">map</span>Karten</span>
+<span style="height: 36px; display: flex; align-items: center; gap: 6px; padding: 0 14px; border-radius: 12px; background: {{c.bright}}; font-weight: 600"><span aria-hidden="true" style="font: 18px/1 'Material Symbols Rounded'">newspaper</span>News</span>
+<span style="height: 36px; display: flex; align-items: center; gap: 6px; padding: 0 14px; border-radius: 12px; background: {{c.bright}}; font-weight: 600"><span aria-hidden="true" style="font: 18px/1 'Material Symbols Rounded'">partly_cloudy_day</span>Wetter</span>
+</div>
+</div>
+<div style="position: absolute; left: 16px; right: 16px; {{searchFieldPos}}; display: flex; align-items: center; gap: 8px">
+<label style="flex: 1; min-width: 0; height: 56px; border-radius: 9999px; background: {{c.highest}}; box-shadow: 0 3px 8px rgba(0,0,0,0.16), 0 1px 3px rgba(0,0,0,0.12); outline: 2px solid {{c.primary}}; display: flex; align-items: center; gap: 8px; padding: 0 6px 0 8px; box-sizing: border-box">
+<span style="flex: none; height: 40px; padding: 0 10px; border-radius: 9999px; background: {{c.pCont}}; color: {{c.onPCont}}; display: flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 700"><span aria-hidden="true" style="font: 18px/1 'Material Symbols Rounded'">search</span>{{engineName}}</span>
+<span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Suchen oder Adresse eingeben</span>
+<input value="schafberg" style="flex: 1; min-width: 0; border: 0; outline: 0; background: none; font: inherit; font-size: 16px; font-weight: 500; color: {{c.on}}; caret-color: {{c.primary}}">
+<button aria-label="Eingabe löschen" style="flex: none; width: 44px; height: 44px; border: 0; padding: 0; border-radius: 9999px; background: none; color: {{c.onVar}}; display: flex; align-items: center; justify-content: center; cursor: pointer"><span aria-hidden="true" style="font: 20px/1 'Material Symbols Rounded'">cancel</span></button>
+</label>
+<button onClick="{{go.cancelSearch}}" style="flex: none; height: 48px; padding: 0 16px; border: 0; border-radius: 9999px; cursor: pointer; font: inherit; font-weight: 700; color: {{c.primary}}; background: {{c.highest}}; box-shadow: 0 2px 6px rgba(0,0,0,0.18)">Abbrechen</button>
+</div>
+</sc-if>
+
+<!-- ============ TABS ============ -->
+<sc-if value="{{show.tabs}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; overflow-y: auto; box-sizing: border-box; padding: 52px 16px 140px">
+<div style="padding: 0 4px 16px; display: flex; flex-direction: column">
+<span style="font-size: 36px; line-height: 44px; font-weight: 450">Tabs</span>
+<span style="font-size: 16px; line-height: 24px; color: {{c.onVar}}">{{tabCount}} offen · Gruppe „Schafberg“</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="6">
+<div style="display: flex; flex-direction: column; gap: 4px; border-radius: 26px; {{t.ring}}">
+<button aria-label="{{t.title}}" onClick="{{go.page}}" style="border: 0; padding: 0; cursor: pointer; height: 200px; border-radius: 24px 24px 8px 8px; overflow: hidden; background: {{t.bg}}; display: flex; flex-direction: column; align-items: stretch">
+<span style="display: block; height: 92px; background: {{t.c1}}"></span>
+<span style="display: block; margin: 14px 14px 8px; height: 10px; width: 75%; border-radius: 5px; background: {{t.c2}}"></span>
+<span style="display: block; margin: 0 14px 8px; height: 8px; width: 60%; border-radius: 4px; background: {{t.c3}}"></span>
+<span style="display: block; margin: 0 14px 8px; height: 8px; width: 68%; border-radius: 4px; background: {{t.c3}}"></span>
+<span style="display: block; margin: 0 14px; height: 8px; width: 40%; border-radius: 4px; background: {{t.c3}}"></span>
+</button>
+<div style="display: flex; align-items: center; gap: 8px; padding: 4px 2px 4px 10px; background: {{c.bright}}; border-radius: 8px 8px 24px 24px">
+<span aria-hidden="true" style="flex: none; width: 24px; height: 24px; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: {{c.high}}; font-size: 12px; font-weight: 800">{{t.l}}</span>
+<span style="flex: 1; min-width: 0; font-size: 13px; line-height: 18px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{t.title}}</span>
+<button aria-label="Tab schließen" onClick="{{t.close}}" style="flex: none; width: 44px; height: 44px; border: 0; padding: 0; border-radius: 9999px; background: none; color: {{c.onVar}}; display: flex; align-items: center; justify-content: center; cursor: pointer"><span aria-hidden="true" style="font: 18px/1 'Material Symbols Rounded'">close</span></button>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+<div style="position: absolute; left: 16px; right: 16px; bottom: 28px; display: flex; align-items: center; gap: 8px">
+<button aria-label="Neuer Tab" onClick="{{go.start}}" style="flex: none; width: 56px; height: 56px; border: 0; padding: 0; border-radius: 9999px; background: {{c.glass}}; backdrop-filter: blur(24px); color: {{c.on}}; box-shadow: 0 3px 8px rgba(0,0,0,0.16), 0 1px 3px rgba(0,0,0,0.12); display: flex; align-items: center; justify-content: center; cursor: pointer"><span aria-hidden="true" style="font: 26px/1 'Material Symbols Rounded'">add</span></button>
+<div style="flex: 1; height: 56px; border-radius: 9999px; background: {{c.glass}}; backdrop-filter: blur(24px); box-shadow: 0 3px 8px rgba(0,0,0,0.16), 0 1px 3px rgba(0,0,0,0.12); display: flex; align-items: center; padding: 4px; gap: 4px; box-sizing: border-box">
+<button onClick="{{go.private}}" style="flex: 1; height: 48px; border: 0; border-radius: 9999px; cursor: pointer; font: inherit; font-weight: 500; font-stretch: 96%; background: none; color: {{c.onVar}}">Privat</button>
+<button style="flex: 1.3; height: 48px; border: 0; border-radius: 9999px; cursor: pointer; font: inherit; font-size: 15px; font-weight: 800; font-stretch: 112%; background: {{c.primary}}; color: {{c.onPrimary}}">{{tabCount}} Tabs</button>
+</div>
+<button onClick="{{go.page}}" style="flex: none; height: 56px; padding: 0 20px; border: 0; border-radius: 9999px; cursor: pointer; font: inherit; font-weight: 700; color: {{c.on}}; background: {{c.glass}}; backdrop-filter: blur(24px); box-shadow: 0 3px 8px rgba(0,0,0,0.16), 0 1px 3px rgba(0,0,0,0.12)">Fertig</button>
+</div>
+</sc-if>
+
+<!-- ============ MEDIATHEK ============ -->
+<sc-if value="{{show.library}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; overflow-y: auto; box-sizing: border-box; padding: 52px 16px 48px">
+<div style="display: flex; align-items: center; justify-content: space-between; padding: 0 4px">
+<span style="font-size: 36px; line-height: 44px; font-weight: 450">Mediathek</span>
+<button onClick="{{go.page}}" style="height: 48px; padding: 0 20px; border: 0; border-radius: 9999px; cursor: pointer; font: inherit; font-weight: 700; color: {{c.on}}; background: {{c.highest}}">Fertig</button>
+</div>
+<div role="tablist" style="margin-top: 16px; display: flex; gap: 2px">
+<sc-for list="{{libTabs}}" as="lt" hint-placeholder-count="3">
+<button role="tab" aria-selected="{{lt.sel}}" onClick="{{lt.pick}}" style="flex: 1; height: 48px; border: 0; cursor: pointer; font: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; {{lt.style}}"><span aria-hidden="true" style="font: 20px/1 'Material Symbols Rounded'">{{lt.icon}}</span>{{lt.t}}</button>
+</sc-for>
+</div>
+<label style="margin-top: 12px; height: 52px; border-radius: 9999px; background: {{c.highest}}; display: flex; align-items: center; gap: 12px; padding: 0 16px; color: {{c.onVar}}">
+<span aria-hidden="true" style="font: 22px/1 'Material Symbols Rounded'">search</span>
+<span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Mediathek durchsuchen</span>
+<input placeholder="{{libPlaceholder}}" style="flex: 1; min-width: 0; border: 0; outline: 0; background: none; font: inherit; font-size: 15px; color: {{c.on}}">
+</label>
+
+<sc-if value="{{lib.history}}" hint-placeholder-val="{{ true }}">
+<sc-for list="{{history}}" as="g" hint-placeholder-count="2">
+<h2 style="margin: 28px 4px 12px; font-size: 24px; line-height: 32px; font-weight: 750; font-stretch: 108%">{{g.day}}</h2>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<sc-for list="{{g.rows}}" as="r" hint-placeholder-count="3">
+<button onClick="{{go.page}}" style="border: 0; cursor: pointer; font: inherit; text-align: left; color: {{c.on}}; background: {{c.bright}}; border-radius: {{r.radius}}; min-height: 64px; padding: 10px 16px; display: flex; align-items: center; gap: 16px">
+<span aria-hidden="true" style="flex: none; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: {{c.high}}; color: {{c.onVar}}; font-size: 16px; font-weight: 800">{{r.l}}</span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{r.t}}</span><span style="font-size: 12px; line-height: 16px; color: {{c.onVar}}">{{r.u}}</span></span>
+<span style="font-size: 12px; line-height: 16px; font-weight: 450; font-stretch: 88%; color: {{c.onVar}}; font-variant-numeric: tabular-nums">{{r.time}}</span>
+</button>
+</sc-for>
+</div>
+</sc-for>
+<button style="margin-top: 20px; width: 100%; height: 52px; border: 0; border-radius: 9999px; cursor: pointer; font: inherit; font-weight: 700; color: {{c.onErrCont}}; background: {{c.errCont}}">Verlauf löschen …</button>
+</sc-if>
+
+<sc-if value="{{lib.bookmarks}}" hint-placeholder-val="{{ false }}">
+<div style="margin-top: 20px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<sc-for list="{{folders}}" as="fo" hint-placeholder-count="4">
+<button style="border: 0; cursor: pointer; font: inherit; text-align: left; color: {{fo.fg}}; background: {{fo.bg}}; border-radius: 28px; height: 124px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between">
+<span aria-hidden="true" style="width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: {{fo.badge}}; color: {{fo.badgeFg}}; font: 20px/1 'Material Symbols Rounded'">{{fo.icon}}</span>
+<span style="display: flex; flex-direction: column"><span style="font-size: 17px; line-height: 24px; font-weight: 750; font-stretch: 108%">{{fo.t}}</span><span style="font-size: 12px; line-height: 16px; font-weight: 450; font-stretch: 88%">{{fo.n}} Lesezeichen</span></span>
+</button>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{lib.reading}}" hint-placeholder-val="{{ false }}">
+<div style="margin-top: 20px; display: flex; flex-direction: column; gap: 12px">
+<sc-for list="{{reading}}" as="rd" hint-placeholder-count="3">
+<button onClick="{{go.page}}" style="border: 0; cursor: pointer; font: inherit; text-align: left; color: {{c.on}}; background: {{c.bright}}; border-radius: 28px; padding: 12px; display: flex; gap: 14px; align-items: center">
+<span style="flex: none; width: 88px; height: 88px; border-radius: 20px; background: {{rd.c}}"></span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 17px; line-height: 24px; font-weight: 750; font-stretch: 108%">{{rd.t}}</span>
+<span style="font-size: 12px; line-height: 16px; color: {{c.onVar}}">{{rd.u}}</span>
+<span style="font-size: 14px; line-height: 20px; font-weight: 700; color: {{c.primary}}">{{rd.state}}</span>
+</span>
+</button>
+</sc-for>
+</div>
+</sc-if>
+</div>
+</sc-if>
+
+<!-- ============ DOWNLOADS ============ -->
+<sc-if value="{{show.downloads}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; overflow-y: auto; box-sizing: border-box; padding: 52px 16px 48px">
+<button aria-label="Zurück" onClick="{{go.page}}" style="width: 48px; height: 48px; border: 0; padding: 0; border-radius: 9999px; background: {{c.highest}}; color: {{c.on}}; display: flex; align-items: center; justify-content: center; cursor: pointer"><span aria-hidden="true" style="font: 24px/1 'Material Symbols Rounded'">arrow_back</span></button>
+<div style="padding: 12px 4px 0; display: flex; flex-direction: column">
+<span style="font-size: 36px; line-height: 44px; font-weight: 450">Downloads</span>
+<span style="font-size: 16px; line-height: 24px; color: {{c.onVar}}">Gespeichert in „Download“</span>
+</div>
+<div style="margin-top: 20px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<div style="background: {{c.pCont}}; color: {{c.onPCont}}; border-radius: 32px; padding: 20px; display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 34px; line-height: 40px; font-weight: 800; font-stretch: 112%; font-variant-numeric: tabular-nums">69 %</span>
+<span style="font-size: 12px; line-height: 16px; font-weight: 450; font-stretch: 88%">ADS_Folien_Kapitel3.pdf</span>
+<span style="margin-top: 8px; font-size: 14px; line-height: 20px; font-weight: 700">Noch etwa 20 s</span>
+</div>
+<div style="background: {{c.bright}}; border-radius: 32px; padding: 20px; display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 34px; line-height: 40px; font-weight: 800; font-stretch: 112%; font-variant-numeric: tabular-nums">24 MB</span>
+<span style="font-size: 12px; line-height: 16px; font-weight: 450; font-stretch: 88%; color: {{c.onVar}}">3 Dateien heute</span>
+<span style="margin-top: 8px; font-size: 12px; line-height: 16px; font-style: oblique 10deg; color: {{c.onVar}}">Inklusive laufendem Download.</span>
+</div>
+</div>
+<h2 style="margin: 28px 4px 12px; font-size: 24px; line-height: 32px; font-weight: 750; font-stretch: 108%">Heute</h2>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<div style="background: {{c.bright}}; border-radius: 24px 24px 8px 8px; padding: 14px 8px 14px 16px; display: flex; align-items: center; gap: 16px">
+<span aria-hidden="true" style="flex: none; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: {{c.primary}}; color: {{c.onPrimary}}; font: 20px/1 'Material Symbols Rounded'">picture_as_pdf</span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px">
+<span style="font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">ADS_Folien_Kapitel3.pdf</span>
+<span style="display: block; height: 6px; border-radius: 3px; background: {{c.pCont}}; overflow: hidden"><span style="display: block; width: 69%; height: 6px; border-radius: 3px; background: {{c.primary}}"></span></span>
+<span style="font-size: 12px; line-height: 16px; color: {{c.onVar}}; font-variant-numeric: tabular-nums">12,4 MB von 18,0 MB</span>
+</span>
+<button aria-label="Download pausieren" style="flex: none; width: 44px; height: 44px; border: 0; padding: 0; border-radius: 9999px; background: {{c.high}}; color: {{c.on}}; display: flex; align-items: center; justify-content: center; cursor: pointer"><span aria-hidden="true" style="font: 20px/1 'Material Symbols Rounded'">pause</span></button>
+</div>
+<div style="background: {{c.bright}}; border-radius: 8px; padding: 14px 8px 14px 16px; display: flex; align-items: center; gap: 16px">
+<span aria-hidden="true" style="flex: none; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: {{c.sCont}}; color: {{c.onSCont}}; font: 20px/1 'Material Symbols Rounded'">map</span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-weight: 500">Schafberg_Tourenkarte.pdf</span><span style="font-size: 12px; line-height: 16px; color: {{c.onVar}}">4,8 MB · bergzeit.at · 10:44</span></span>
+<button aria-label="Ordner öffnen" style="flex: none; width: 44px; height: 44px; border: 0; padding: 0; border-radius: 9999px; background: none; color: {{c.onVar}}; display: flex; align-items: center; justify-content: center; cursor: pointer"><span aria-hidden="true" style="font: 20px/1 'Material Symbols Rounded'">folder_open</span></button>
+</div>
+<div style="background: {{c.bright}}; border-radius: 8px 8px 24px 24px; padding: 14px 8px 14px 16px; display: flex; align-items: center; gap: 16px">
+<span aria-hidden="true" style="flex: none; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: {{c.tCont}}; color: {{c.onTCont}}; font: 20px/1 'Material Symbols Rounded'">image</span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-weight: 500">Kuerbissuppe.jpg</span><span style="font-size: 12px; line-height: 16px; color: {{c.onVar}}">1,2 MB · chefkoch.de · 08:12</span></span>
+<button aria-label="Ordner öffnen" style="flex: none; width: 44px; height: 44px; border: 0; padding: 0; border-radius: 9999px; background: none; color: {{c.onVar}}; display: flex; align-items: center; justify-content: center; cursor: pointer"><span aria-hidden="true" style="font: 20px/1 'Material Symbols Rounded'">folder_open</span></button>
+</div>
+</div>
+<button style="margin-top: 20px; width: 100%; height: 52px; border: 0; border-radius: 9999px; cursor: pointer; font: inherit; font-weight: 700; color: {{c.on}}; background: {{c.highest}}">Liste leeren</button>
+</div>
+</sc-if>
+
+<!-- ============ EINSTELLUNGEN ============ -->
+<sc-if value="{{show.settings}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; overflow-y: auto; box-sizing: border-box; padding: 52px 16px 48px">
+<button aria-label="Zurück" onClick="{{go.settingsBack}}" style="width: 48px; height: 48px; border: 0; padding: 0; border-radius: 9999px; background: {{c.highest}}; color: {{c.on}}; display: flex; align-items: center; justify-content: center; cursor: pointer"><span aria-hidden="true" style="font: 24px/1 'Material Symbols Rounded'">arrow_back</span></button>
+<div style="padding: 12px 4px 0"><span style="font-size: 36px; line-height: 44px; font-weight: 450">Einstellungen</span></div>
+
+<button onClick="{{go.appearance}}" style="margin-top: 20px; width: 100%; border: 0; cursor: pointer; font: inherit; text-align: left; background: {{c.pCont}}; color: {{c.onPCont}}; border-radius: 32px; padding: 20px; display: flex; align-items: center; gap: 16px; box-sizing: border-box">
+<span style="flex: none; position: relative; width: 72px; height: 72px">
+<svg width="72" height="72" viewBox="0 0 72 72" aria-hidden="true" style="position: absolute; inset: 0"><path d="{{shp.flower}}" fill="{{c.primary}}"></path></svg>
+<span aria-hidden="true" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font: 32px/1 'Material Symbols Rounded'; color: {{c.onPrimary}}">palette</span>
+</span>
+<span style="flex: 1; display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 17px; line-height: 24px; font-weight: 750; font-stretch: 108%">Design & Farbe</span>
+<span style="font-size: 14px; line-height: 20px; font-weight: 700">{{themeLabel}} · {{colorwayLabel}} · {{layoutLabel}}</span>
+<span style="font-size: 12px; line-height: 16px; font-weight: 450; font-stretch: 88%">6 Leistenlayouts, 5 Farbwelten</span>
+</span>
+<span aria-hidden="true" style="font: 24px/1 'Material Symbols Rounded'">chevron_right</span>
+</button>
+
+<h2 style="margin: 28px 4px 12px; font-size: 24px; line-height: 32px; font-weight: 750; font-stretch: 108%">Allgemein</h2>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<button onClick="{{go.engine}}" style="border: 0; cursor: pointer; font: inherit; text-align: left; color: {{c.on}}; background: {{c.bright}}; border-radius: 24px 24px 8px 8px; min-height: 72px; padding: 12px 16px; display: flex; align-items: center; gap: 16px">
+<span aria-hidden="true" style="flex: none; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: {{c.sCont}}; color: {{c.onSCont}}; font: 20px/1 'Material Symbols Rounded'">search</span>
+<span style="flex: 1; display: flex; flex-direction: column"><span style="font-weight: 500">Suchmaschine</span><span style="font-size: 12px; line-height: 16px; color: {{c.onVar}}">{{engineName}}</span></span>
+<span aria-hidden="true" style="font: 22px/1 'Material Symbols Rounded'; color: {{c.onVar}}">chevron_right</span>
+</button>
+<button style="border: 0; cursor: pointer; font: inherit; text-align: left; color: {{c.on}}; background: {{c.bright}}; border-radius: 8px; min-height: 72px; padding: 12px 16px; display: flex; align-items: center; gap: 16px">
+<span aria-hidden="true" style="flex: none; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: {{c.sCont}}; color: {{c.onSCont}}; font: 20px/1 'Material Symbols Rounded'">home</span>
+<span style="flex: 1; display: flex; flex-direction: column"><span style="font-weight: 500">Startseite</span><span style="font-size: 12px; line-height: 16px; color: {{c.onVar}}">Favoriten, Häufig besucht, Leseliste</span></span>
+<span aria-hidden="true" style="font: 22px/1 'Material Symbols Rounded'; color: {{c.onVar}}">chevron_right</span>
+</button>
+<div style="color: {{c.on}}; background: {{c.bright}}; border-radius: 8px; min-height: 72px; padding: 12px 16px; display: flex; align-items: center; gap: 16px; box-sizing: border-box">
+<span aria-hidden="true" style="flex: none; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: {{c.sCont}}; color: {{c.onSCont}}; font: 20px/1 'Material Symbols Rounded'">tab</span>
+<span style="flex: 1; display: flex; flex-direction: column"><span style="font-weight: 500">Tabs gruppieren</span><span style="font-size: 12px; line-height: 16px; color: {{c.onVar}}">Ähnliche Tabs automatisch bündeln</span></span>
+<button role="switch" aria-checked="{{tg.groups.on}}" aria-label="Tabs gruppieren" onClick="{{tg.groups.toggle}}" style="position: relative; flex: none; width: 52px; height: 32px; border-radius: 9999px; box-sizing: border-box; padding: 0; cursor: pointer; {{tg.groups.track}}"><span style="position: absolute; top: 50%; transform: translateY(-50%); border-radius: 9999px; {{tg.groups.knob}}"></span></button>
+</div>
+<button style="border: 0; cursor: pointer; font: inherit; text-align: left; color: {{c.on}}; background: {{c.bright}}; border-radius: 8px 8px 24px 24px; min-height: 72px; padding: 12px 16px; display: flex; align-items: center; gap: 16px">
+<span aria-hidden="true" style="flex: none; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: {{c.sCont}}; color: {{c.onSCont}}; font: 20px/1 'Material Symbols Rounded'">auto_delete</span>
+<span style="flex: 1; display: flex; flex-direction: column"><span style="font-weight: 500">Tabs automatisch schließen</span><span style="font-size: 12px; line-height: 16px; color: {{c.onVar}}">Nach 1 Monat</span></span>
+<span aria-hidden="true" style="font: 22px/1 'Material Symbols Rounded'; color: {{c.onVar}}">chevron_right</span>
+</button>
+</div>
+
+<h2 style="margin: 28px 4px 12px; font-size: 24px; line-height: 32px; font-weight: 750; font-stretch: 108%">Datenschutz</h2>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<button onClick="{{go.privacy}}" style="border: 0; cursor: pointer; font: inherit; text-align: left; color: {{c.on}}; background: {{c.bright}}; border-radius: 24px 24px 8px 8px; min-height: 72px; padding: 12px 16px; display: flex; align-items: center; gap: 16px">
+<span aria-hidden="true" style="flex: none; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: {{c.tCont}}; color: {{c.onTCont}}; font: 20px/1 'Material Symbols Rounded'">shield</span>
+<span style="flex: 1; display: flex; flex-direction: column"><span style="font-weight: 500">Datenschutz & Sicherheit</span><span style="font-size: 12px; line-height: 16px; color: {{c.onVar}}">Tracking-Schutz an · Nur HTTPS</span></span>
+<span aria-hidden="true" style="font: 22px/1 'Material Symbols Rounded'; color: {{c.onVar}}">chevron_right</span>
+</button>
+<button style="border: 0; cursor: pointer; font: inherit; text-align: left; color: {{c.on}}; background: {{c.bright}}; border-radius: 8px; min-height: 72px; padding: 12px 16px; display: flex; align-items: center; gap: 16px">
+<span aria-hidden="true" style="flex: none; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: {{c.tCont}}; color: {{c.onTCont}}; font: 20px/1 'Material Symbols Rounded'">password</span>
+<span style="flex: 1; display: flex; flex-direction: column"><span style="font-weight: 500">Passwörter & Passkeys</span><span style="font-size: 12px; line-height: 16px; color: {{c.onVar}}">Google Passwortmanager</span></span>
+<span aria-hidden="true" style="font: 22px/1 'Material Symbols Rounded'; color: {{c.onVar}}">chevron_right</span>
+</button>
+<button style="border: 0; cursor: pointer; font: inherit; text-align: left; color: {{c.on}}; background: {{c.bright}}; border-radius: 8px 8px 24px 24px; min-height: 72px; padding: 12px 16px; display: flex; align-items: center; gap: 16px">
+<span aria-hidden="true" style="flex: none; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: {{c.tCont}}; color: {{c.onTCont}}; font: 20px/1 'Material Symbols Rounded'">tune</span>
+<span style="flex: 1; display: flex; flex-direction: column"><span style="font-weight: 500">Website-Einstellungen</span><span style="font-size: 12px; line-height: 16px; color: {{c.onVar}}">Kamera, Standort, Mitteilungen</span></span>
+<span aria-hidden="true" style="font: 22px/1 'Material Symbols Rounded'; color: {{c.onVar}}">chevron_right</span>
+</button>
+</div>
+
+<h2 style="margin: 28px 4px 12px; font-size: 24px; line-height: 32px; font-weight: 750; font-stretch: 108%">Erweitert</h2>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<button onClick="{{go.downloads}}" style="border: 0; cursor: pointer; font: inherit; text-align: left; color: {{c.on}}; background: {{c.bright}}; border-radius: 24px 24px 8px 8px; min-height: 72px; padding: 12px 16px; display: flex; align-items: center; gap: 16px">
+<span aria-hidden="true" style="flex: none; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: {{c.high}}; color: {{c.onVar}}; font: 20px/1 'Material Symbols Rounded'">download</span>
+<span style="flex: 1; display: flex; flex-direction: column"><span style="font-weight: 500">Downloads</span><span style="font-size: 12px; line-height: 16px; color: {{c.onVar}}">Vor dem Speichern fragen</span></span>
+<span aria-hidden="true" style="font: 22px/1 'Material Symbols Rounded'; color: {{c.onVar}}">chevron_right</span>
+</button>
+<button style="border: 0; cursor: pointer; font: inherit; text-align: left; color: {{c.on}}; background: {{c.bright}}; border-radius: 8px; min-height: 72px; padding: 12px 16px; display: flex; align-items: center; gap: 16px">
+<span aria-hidden="true" style="flex: none; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: {{c.high}}; color: {{c.onVar}}; font: 20px/1 'Material Symbols Rounded'">accessibility_new</span>
+<span style="flex: 1; display: flex; flex-direction: column"><span style="font-weight: 500">Bedienungshilfen</span><span style="font-size: 12px; line-height: 16px; color: {{c.onVar}}">Textgröße, Zoom erzwingen</span></span>
+<span aria-hidden="true" style="font: 22px/1 'Material Symbols Rounded'; color: {{c.onVar}}">chevron_right</span>
+</button>
+<button style="border: 0; cursor: pointer; font: inherit; text-align: left; color: {{c.on}}; background: {{c.bright}}; border-radius: 8px 8px 24px 24px; min-height: 72px; padding: 12px 16px; display: flex; align-items: center; gap: 16px">
+<span aria-hidden="true" style="flex: none; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: {{c.high}}; color: {{c.onVar}}; font: 20px/1 'Material Symbols Rounded'">info</span>
+<span style="flex: 1; display: flex; flex-direction: column"><span style="font-weight: 500">Über Horizont</span><span style="font-size: 12px; line-height: 16px; color: {{c.onVar}}">Version [VERSION]</span></span>
+<span aria-hidden="true" style="font: 22px/1 'Material Symbols Rounded'; color: {{c.onVar}}">chevron_right</span>
+</button>
+</div>
+</div>
+</sc-if>
+
+<!-- ============ DARSTELLUNG ============ -->
+<sc-if value="{{show.appearance}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; overflow-y: auto; box-sizing: border-box; padding: 52px 16px 48px">
+<button aria-label="Zurück" onClick="{{go.settings}}" style="width: 48px; height: 48px; border: 0; padding: 0; border-radius: 9999px; background: {{c.highest}}; color: {{c.on}}; display: flex; align-items: center; justify-content: center; cursor: pointer"><span aria-hidden="true" style="font: 24px/1 'Material Symbols Rounded'">arrow_back</span></button>
+<div style="padding: 12px 4px 0; display: flex; flex-direction: column">
+<span style="font-size: 36px; line-height: 44px; font-weight: 450">Design & Farbe</span>
+<span style="font-size: 16px; line-height: 24px; color: {{c.onVar}}">Änderungen gelten sofort</span>
+</div>
+
+<h2 style="margin: 28px 4px 12px; font-size: 24px; line-height: 32px; font-weight: 750; font-stretch: 108%">Modus</h2>
+<div role="radiogroup" aria-label="Modus" style="display: flex; gap: 2px">
+<sc-for list="{{themeSeg}}" as="ts" hint-placeholder-count="3">
+<button role="radio" aria-checked="{{ts.sel}}" onClick="{{ts.pick}}" style="flex: 1; height: 56px; border: 0; cursor: pointer; font: inherit; display: flex; align-items: center; justify-content: center; gap: 8px; {{ts.style}}"><span aria-hidden="true" style="font: 20px/1 'Material Symbols Rounded'">{{ts.icon}}</span>{{ts.t}}</button>
+</sc-for>
+</div>
+
+<h2 style="margin: 28px 4px 12px; font-size: 24px; line-height: 32px; font-weight: 750; font-stretch: 108%">Farbwelt</h2>
+<div style="background: {{c.bright}}; border-radius: 28px; padding: 20px 12px 16px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px">
+<sc-for list="{{colorways}}" as="cw" hint-placeholder-count="5">
+<button role="radio" aria-checked="{{cw.sel}}" onClick="{{cw.pick}}" style="border: 0; padding: 0; background: none; cursor: pointer; font: inherit; color: {{c.on}}; display: flex; flex-direction: column; align-items: center; gap: 8px">
+<span style="position: relative; width: 52px; height: 52px; border-radius: 9999px; overflow: hidden; background: {{cw.cont}}; {{cw.ring}}">
+<span style="position: absolute; left: 0; top: 0; width: 52px; height: 26px; background: {{cw.primary}}"></span>
+<span style="position: absolute; left: 26px; top: 26px; width: 26px; height: 26px; background: {{cw.ter}}"></span>
+<sc-if value="{{cw.sel}}" hint-placeholder-val="{{ false }}"><span aria-hidden="true" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font: 22px/1 'Material Symbols Rounded'; font-variation-settings: 'FILL' 1; color: #ffffff">check_circle</span></sc-if>
+</span>
+<span style="font-size: 12px; line-height: 16px; font-weight: {{cw.weight}}; font-stretch: 92%">{{cw.t}}</span>
+</button>
+</sc-for>
+</div>
+
+<h2 style="margin: 28px 4px 12px; font-size: 24px; line-height: 32px; font-weight: 750; font-stretch: 108%">Leistenlayout</h2>
+<div role="radiogroup" aria-label="Leistenlayout" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{layouts}}" as="ly" hint-placeholder-count="6">
+<button role="radio" aria-checked="{{ly.sel}}" onClick="{{ly.pick}}" style="border: 0; cursor: pointer; font: inherit; border-radius: 24px; padding: 10px 8px 12px; display: flex; flex-direction: column; align-items: center; gap: 8px; background: {{ly.bg}}; color: {{ly.fg}}">
+<span style="position: relative; display: block; width: 72px; height: 112px; border-radius: 14px; background: {{ly.screen}}; overflow: hidden">
+<span style="position: absolute; left: {{ly.a.x}}px; top: {{ly.a.y}}px; width: {{ly.a.w}}px; height: {{ly.a.h}}px; border-radius: {{ly.a.r}}px; background: {{ly.a.c}}"></span>
+<span style="position: absolute; left: {{ly.b.x}}px; top: {{ly.b.y}}px; width: {{ly.b.w}}px; height: {{ly.b.h}}px; border-radius: {{ly.b.r}}px; background: {{ly.b.c}}"></span>
+<span style="position: absolute; left: {{ly.d.x}}px; top: {{ly.d.y}}px; width: {{ly.d.w}}px; height: {{ly.d.h}}px; border-radius: {{ly.d.r}}px; background: {{ly.d.c}}"></span>
+</span>
+<span style="font-size: 13px; line-height: 18px; font-weight: {{ly.weight}}; font-stretch: {{ly.stretch}}%">{{ly.t}}</span>
+</button>
+</sc-for>
+</div>
+
+<h2 style="margin: 28px 4px 12px; font-size: 24px; line-height: 32px; font-weight: 750; font-stretch: 108%">Leiste</h2>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<div style="background: {{c.bright}}; border-radius: 24px 24px 8px 8px; min-height: 72px; padding: 12px 16px; display: flex; align-items: center; gap: 16px; box-sizing: border-box">
+<span style="flex: 1; display: flex; flex-direction: column"><span style="font-weight: 500">Websitefarbe übernehmen</span><span style="font-size: 12px; line-height: 16px; color: {{c.onVar}}">Statusleiste in der Farbe des Seitenkopfs tönen</span></span>
+<button role="switch" aria-checked="{{tg.tint.on}}" aria-label="Websitefarbe übernehmen" onClick="{{tg.tint.toggle}}" style="position: relative; flex: none; width: 52px; height: 32px; border-radius: 9999px; box-sizing: border-box; padding: 0; cursor: pointer; {{tg.tint.track}}"><span style="position: absolute; top: 50%; transform: translateY(-50%); border-radius: 9999px; {{tg.tint.knob}}"></span></button>
+</div>
+<div style="background: {{c.bright}}; border-radius: 8px 8px 24px 24px; min-height: 72px; padding: 12px 16px; display: flex; align-items: center; gap: 16px; box-sizing: border-box">
+<span style="flex: 1; display: flex; flex-direction: column"><span style="font-weight: 500">Beim Scrollen verkleinern</span><span style="font-size: 12px; line-height: 16px; color: {{c.onVar}}">Zeigt nur noch die Domain</span></span>
+<button role="switch" aria-checked="{{tg.shrink.on}}" aria-label="Beim Scrollen verkleinern" onClick="{{tg.shrink.toggle}}" style="position: relative; flex: none; width: 52px; height: 32px; border-radius: 9999px; box-sizing: border-box; padding: 0; cursor: pointer; {{tg.shrink.track}}"><span style="position: absolute; top: 50%; transform: translateY(-50%); border-radius: 9999px; {{tg.shrink.knob}}"></span></button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<!-- ============ SUCHMASCHINE ============ -->
+<sc-if value="{{show.engine}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; overflow-y: auto; box-sizing: border-box; padding: 52px 16px 48px">
+<button aria-label="Zurück" onClick="{{go.settings}}" style="width: 48px; height: 48px; border: 0; padding: 0; border-radius: 9999px; background: {{c.highest}}; color: {{c.on}}; display: flex; align-items: center; justify-content: center; cursor: pointer"><span aria-hidden="true" style="font: 24px/1 'Material Symbols Rounded'">arrow_back</span></button>
+<div style="padding: 12px 4px 0; display: flex; flex-direction: column">
+<span style="font-size: 36px; line-height: 44px; font-weight: 450">Suchmaschine</span>
+<span style="font-size: 16px; line-height: 24px; color: {{c.onVar}}">Für die Adressleiste und Schnellsuche</span>
+</div>
+<div role="radiogroup" aria-label="Suchmaschine" style="margin-top: 20px; display: flex; flex-direction: column; gap: 4px">
+<sc-for list="{{engines}}" as="e" hint-placeholder-count="5">
+<button role="radio" aria-checked="{{e.sel}}" onClick="{{e.pick}}" style="border: 0; cursor: pointer; font: inherit; text-align: left; color: {{e.fg}}; background: {{e.bg}}; border-radius: {{e.radius}}; min-height: 64px; padding: 12px 16px; display: flex; align-items: center; gap: 16px">
+<span aria-hidden="true" style="flex: none; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: {{e.badge}}; color: {{e.badgeFg}}; font-size: 16px; font-weight: 800">{{e.l}}</span>
+<span style="flex: 1; display: flex; flex-direction: column"><span style="font-weight: 500">{{e.t}}</span><span style="font-size: 12px; line-height: 16px; opacity: 0.85">{{e.sub}}</span></span>
+<span style="flex: none; width: 20px; height: 20px; border-radius: 9999px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; {{e.radio}}"><span style="width: 10px; height: 10px; border-radius: 9999px; {{e.dot}}"></span></span>
+</button>
+</sc-for>
+</div>
+<h2 style="margin: 28px 4px 12px; font-size: 24px; line-height: 32px; font-weight: 750; font-stretch: 108%">Vorschläge</h2>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<div style="background: {{c.bright}}; border-radius: 24px 24px 8px 8px; min-height: 72px; padding: 12px 16px; display: flex; align-items: center; gap: 16px; box-sizing: border-box">
+<span style="flex: 1; display: flex; flex-direction: column"><span style="font-weight: 500">Suchvorschläge</span><span style="font-size: 12px; line-height: 16px; color: {{c.onVar}}">Eingaben werden an {{engineName}} gesendet</span></span>
+<button role="switch" aria-checked="{{tg.suggest.on}}" aria-label="Suchvorschläge" onClick="{{tg.suggest.toggle}}" style="position: relative; flex: none; width: 52px; height: 32px; border-radius: 9999px; box-sizing: border-box; padding: 0; cursor: pointer; {{tg.suggest.track}}"><span style="position: absolute; top: 50%; transform: translateY(-50%); border-radius: 9999px; {{tg.suggest.knob}}"></span></button>
+</div>
+<div style="background: {{c.bright}}; border-radius: 8px 8px 24px 24px; min-height: 72px; padding: 12px 16px; display: flex; align-items: center; gap: 16px; box-sizing: border-box">
+<span style="flex: 1; display: flex; flex-direction: column"><span style="font-weight: 500">Top-Treffer vorladen</span><span style="font-size: 12px; line-height: 16px; color: {{c.onVar}}">Öffnet wahrscheinliche Seiten schneller</span></span>
+<button role="switch" aria-checked="{{tg.preload.on}}" aria-label="Top-Treffer vorladen" onClick="{{tg.preload.toggle}}" style="position: relative; flex: none; width: 52px; height: 32px; border-radius: 9999px; box-sizing: border-box; padding: 0; cursor: pointer; {{tg.preload.track}}"><span style="position: absolute; top: 50%; transform: translateY(-50%); border-radius: 9999px; {{tg.preload.knob}}"></span></button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<!-- ============ DATENSCHUTZ ============ -->
+<sc-if value="{{show.privacy}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; overflow-y: auto; box-sizing: border-box; padding: 52px 16px 48px">
+<button aria-label="Zurück" onClick="{{go.privacyBack}}" style="width: 48px; height: 48px; border: 0; padding: 0; border-radius: 9999px; background: {{c.highest}}; color: {{c.on}}; display: flex; align-items: center; justify-content: center; cursor: pointer"><span aria-hidden="true" style="font: 24px/1 'Material Symbols Rounded'">arrow_back</span></button>
+<div style="padding: 12px 4px 0"><span style="font-size: 36px; line-height: 44px; font-weight: 450">Datenschutz</span></div>
+<div style="margin-top: 20px; background: {{c.tCont}}; color: {{c.onTCont}}; border-radius: 32px; padding: 20px; display: flex; align-items: center; gap: 20px">
+<span style="position: relative; width: 116px; height: 116px; flex: none">
+<svg width="116" height="116" viewBox="0 0 116 116" aria-hidden="true" style="position: absolute; inset: 0"><path d="{{shp.sunny}}" fill="{{c.ter}}"></path></svg>
+<span style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 32px; line-height: 36px; font-weight: 800; font-stretch: 112%; font-variant-numeric: tabular-nums; color: {{c.onTer}}">128</span>
+</span>
+<span style="display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 12px; line-height: 16px; font-weight: 450; font-stretch: 88%">Diese Woche · 31 Websites</span>
+<span style="font-size: 17px; line-height: 24px; font-weight: 750; font-stretch: 108%">Tracker blockiert</span>
+<span style="font-size: 14px; line-height: 20px; font-weight: 700">12 mehr als letzte Woche</span>
+<span style="font-size: 12px; line-height: 16px; font-style: oblique 10deg">Gezählt auf diesem Gerät.</span>
+</span>
+</div>
+<h2 style="margin: 28px 4px 12px; font-size: 24px; line-height: 32px; font-weight: 750; font-stretch: 108%">Schutz</h2>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<sc-for list="{{privacyRows}}" as="pr" hint-placeholder-count="5">
+<div style="background: {{c.bright}}; border-radius: {{pr.radius}}; min-height: 72px; padding: 12px 16px; display: flex; align-items: center; gap: 16px; box-sizing: border-box">
+<span aria-hidden="true" style="flex: none; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: {{c.high}}; color: {{c.onVar}}; font: 20px/1 'Material Symbols Rounded'">{{pr.icon}}</span>
+<span style="flex: 1; display: flex; flex-direction: column"><span style="font-weight: 500">{{pr.t}}</span><span style="font-size: 12px; line-height: 16px; color: {{c.onVar}}">{{pr.sub}}</span></span>
+<button role="switch" aria-checked="{{pr.sw.on}}" aria-label="{{pr.t}}" onClick="{{pr.sw.toggle}}" style="position: relative; flex: none; width: 52px; height: 32px; border-radius: 9999px; box-sizing: border-box; padding: 0; cursor: pointer; {{pr.sw.track}}"><span style="position: absolute; top: 50%; transform: translateY(-50%); border-radius: 9999px; {{pr.sw.knob}}"></span></button>
+</div>
+</sc-for>
+</div>
+<button style="margin-top: 20px; width: 100%; height: 56px; border: 0; border-radius: 9999px; cursor: pointer; font: inherit; font-weight: 700; color: {{c.onErr}}; background: {{c.err}}; display: flex; align-items: center; justify-content: center; gap: 8px"><span aria-hidden="true" style="font: 20px/1 'Material Symbols Rounded'">delete_forever</span>Verlauf und Websitedaten löschen</button>
+</div>
+</sc-if>
+
+<!-- ============ STATUSLEISTE (Pixel 10) ============ -->
+<button aria-label="Statusleiste – tippen, um nach oben zu scrollen" onClick="{{sb.toTop}}" style="position: absolute; left: 0; right: 0; top: 0; height: {{sb.h}}px; border: 0; padding: 0; margin: 0; cursor: pointer; background: none; color: {{sb.ink}}; font: inherit; text-align: left">
+<span style="position: absolute; inset: 0; {{sb.bg}}"></span>
+<span style="position: absolute; left: 0; right: 0; top: 0; height: 40px; display: flex; align-items: center; justify-content: space-between; padding: 0 22px 0 26px; box-sizing: border-box">
+<span style="font-size: 14px; line-height: 20px; font-weight: 600; font-stretch: 100%; font-variant-numeric: tabular-nums">10:42</span>
+<span style="display: flex; align-items: center; gap: 5px">
+<span aria-hidden="true" style="font: 17px/1 'Material Symbols Rounded'; font-variation-settings: 'FILL' 1">wifi</span>
+<span aria-hidden="true" style="font: 16px/1 'Material Symbols Rounded'; font-variation-settings: 'FILL' 1">signal_cellular_4_bar</span>
+<span aria-hidden="true" style="width: 26px; height: 13px; border-radius: 4px; background: {{sb.ink}}; display: flex; align-items: center; justify-content: center; font-size: 9px; line-height: 9px; font-weight: 800; font-stretch: 100%; color: {{sb.inv}}">80</span>
+</span>
+</span>
+<span aria-hidden="true" style="position: absolute; left: 50%; top: 12px; width: 16px; height: 16px; margin-left: -8px; border-radius: 9999px; background: #000000"></span>
+<sc-if value="{{sb.dim}}" hint-placeholder-val="{{ false }}"><span style="position: absolute; inset: 0; background: rgba(0,0,0,0.36)"></span></sc-if>
+</button>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"screen":{"editor":"enum","options":["start","page","search","menu","tabs","library","downloads","private","settings","appearance","engine","privacy"],"default":"page"},"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"colorway":{"editor":"enum","options":["blau","violett","gruen","orange","pink"],"default":"blau"},"layout":{"editor":"enum","options":["kompakt","zweireihig","expressiv","oben","karte","minimal"],"default":"kompakt"},"statusMode":{"editor":"enum","options":["loesung","problem"],"default":"loesung"},"tint":{"editor":"enum","options":["on","off"],"default":"on"},"scrollTo":{"editor":"int","min":0,"max":2000,"default":0},"$preview":{"width":412,"height":915}}'>
+class Component extends DCLogic {
+  v(k, d) {
+    const s = this.state || {};
+    if (s[k] !== undefined) return s[k];
+    const p = this.props[k];
+    return (p === undefined || p === null || p === '') ? d : p;
+  }
+  scheme(cw, dark) {
+    const T = {
+      blau: {
+        light: '0045fc,ffffff,dee1ff,0033c2,5f5a7d,ffffff,e5deff,474364,6b5585,ffffff,eedbff,523d6c,f3f2ff,edecfb,e7e7f5,e2e1ef,fbf8ff,191b25,444654,757685,c5c5d6,2e303a,f0effe',
+        dark: 'b9c3ff,00228b,0033c2,dee1ff,c9c2ea,312c4c,474364,e5deff,d6bcf4,3b2754,523d6c,eedbff,191b25,1d1f29,282934,33343f,373843,e2e1ef,c5c5d6,8e909f,444654,e2e1ef,2e303a'
+      },
+      violett: {
+        light: '7706ff,ffffff,eaddff,5a00c6,6b5778,ffffff,f2daff,523f5f,78517b,ffffff,ffd5ff,5e3962,f9f1ff,f3ebfa,ede5f4,e8dfee,fef7ff,1d1a24,4a4453,7b7484,ccc3d5,332f3a,f6eefd',
+        dark: 'd2bbff,3f008e,5a00c6,eaddff,d7bee4,3b2948,523f5f,f2daff,e6b7e8,45234b,5e3962,ffd5ff,1d1a24,221e28,2c2833,37333e,3c3743,e8dfee,ccc3d5,958e9e,4a4453,e8dfee,332f3a'
+      },
+      gruen: {
+        light: '006e2e,ffffff,67ff8d,005321,406653,ffffff,c1ecd4,284e3c,21695c,ffffff,aaf0df,005045,ecf7e8,e6f1e3,e1ebdd,dbe5d7,f2fcee,151e15,3e4a3d,6e7a6c,bdcaba,293329,e9f4e5',
+        dark: '00e468,003915,005321,67ff8d,a6d0b9,0f3727,284e3c,c1ecd4,8fd4c3,00382f,005045,aaf0df,151e15,192219,232c23,2e372e,323c32,dbe5d7,bdcaba,879485,3e4a3d,dbe5d7,293329'
+      },
+      orange: {
+        light: 'ab3500,ffffff,ffdbd0,832700,7e5537,ffffff,ffdcc5,633e22,7e561e,ffffff,ffddb6,633f06,fff1ed,ffe9e3,ffe2da,f9ddd4,fff8f6,271813,58423a,8c7169,dfc0b6,3d2c27,ffede8',
+        dark: 'ffb59c,5c1900,832700,ffdbd0,f1bc97,49280e,633e22,ffdcc5,f2bd7a,462a00,633f06,ffddb6,271813,2b1c17,362621,42312b,47352f,f9ddd4,dfc0b6,a78b82,58423a,f9ddd4,3d2c27'
+      },
+      pink: {
+        light: 'ba005b,ffffff,ffd9e1,8f0044,81524f,ffffff,ffdad7,663b39,8a4e39,ffffff,ffdbcf,6e3824,fff0f2,ffe8ec,fce2e6,f6dce1,fff8f8,26181b,564146,897176,ddbfc5,3c2c30,ffecef',
+        dark: 'ffb1c4,65002e,8f0044,ffd9e1,f5b7b4,4c2524,663b39,ffdad7,ffb59b,522210,6e3824,ffdbcf,26181b,2a1c1f,352629,413034,453538,f6dce1,ddbfc5,a48a8f,564146,f6dce1,3c2c30'
+      }
+    };
+    const keys = ['primary','onPrimary','pCont','onPCont','sec','onSec','sCont','onSCont','ter','onTer','tCont','onTCont','low','sc','high','highest','bright','on','onVar','outline','outVar','inv','invOn'];
+    const vals = ((T[cw] || T.blau)[dark ? 'dark' : 'light']).split(',');
+    const c = {};
+    keys.forEach((k, i) => { c[k] = '#' + vals[i]; });
+    c.glass = c.highest + 'eb';
+    c.err = dark ? '#ffb4ab' : '#ba1a1a';
+    c.onErr = dark ? '#690005' : '#ffffff';
+    c.errCont = dark ? '#93000a' : '#ffdad6';
+    c.onErrCont = dark ? '#ffdad6' : '#93000a';
+    c.good = dark ? '#7bd88f' : '#2e7d32';
+    return c;
+  }
+  shape(n, amp, size) {
+    const R = size / 2, r0 = R / (1 + amp), N = Math.max(96, n * 24);
+    let d = '';
+    for (let i = 0; i <= N; i++) {
+      const t = i / N * Math.PI * 2;
+      const r = r0 * (1 + amp * Math.cos(n * t));
+      d += (i ? 'L' : 'M') + (R + r * Math.sin(t)).toFixed(1) + ' ' + (R - r * Math.cos(t)).toFixed(1);
+    }
+    return d + 'Z';
+  }
+  sw(key, def, c) {
+    const on = !!this.v('tg_' + key, def);
+    return {
+      on,
+      toggle: () => this.setState({ ['tg_' + key]: !on }),
+      track: on ? `background: ${c.primary}; border: 2px solid ${c.primary}` : `background: ${c.highest}; border: 2px solid ${c.outline}`,
+      knob: on ? `width: 24px; height: 24px; left: 22px; background: ${c.onPrimary}` : `width: 16px; height: 16px; left: 6px; background: ${c.outline}`
+    };
+  }
+  radius(i, n) {
+    if (n === 1) return '24px';
+    if (i === 0) return '24px 24px 8px 8px';
+    if (i === n - 1) return '8px 8px 24px 24px';
+    return '8px';
+  }
+  componentDidMount() {
+    const y = Number(this.props.scrollTo || 0);
+    if (this.webEl && y > 0) this.webEl.scrollTop = y;
+  }
+  renderVals() {
+    const screen = this.v('screen', 'page');
+    const theme = this.v('theme', 'light');
+    const cw = this.v('colorway', 'blau');
+    const layout = this.v('layout', 'kompakt');
+    const dark = theme === 'dark' || screen === 'private';
+    const c = this.scheme(cw, dark);
+    const go = (s, extra) => () => this.setState(Object.assign({ screen: s }, extra || {}));
+    const cur = screen;
+    const base = ['start', 'page', 'private'].includes(cur) ? cur : 'page';
+
+    const L = {}; ['kompakt','zweireihig','expressiv','oben','karte','minimal'].forEach(k => { L[k] = layout === k; });
+    const isWeb = screen === 'page' || screen === 'menu';
+    const show = {
+      web: isWeb, start: screen === 'start', private: screen === 'private',
+      bar: ['start', 'page', 'private'].includes(screen),
+      menu: screen === 'menu', search: screen === 'search', tabs: screen === 'tabs',
+      library: screen === 'library', downloads: screen === 'downloads',
+      settings: screen === 'settings', appearance: screen === 'appearance',
+      engine: screen === 'engine', privacy: screen === 'privacy'
+    };
+    const topPad = layout === 'oben' ? 120 : (layout === 'expressiv' ? 104 : 52);
+
+    const w = dark
+      ? { bg: '#141414', text: '#ededed', muted: '#a9a9a9', accent: '#f08a63', rule: '#2c2c2c', box: '#201d1a', sky: '#101a38', sun: '#e8e2c8', m1: '#3a4767', m2: '#252f4a', lake: '#1b2a4d', head: '#15241c', headText: '#ededed', headAccent: '#f08a63' }
+      : { bg: '#ffffff', text: '#1b1b1b', muted: '#5c5c5c', accent: '#b4441f', rule: '#e6e2dc', box: '#f5f1ea', sky: '#ffe3a8', sun: '#ffc55a', m1: '#6d7ea3', m2: '#3e4b6b', lake: '#8fb3d9', head: '#1f3a2d', headText: '#ffffff', headAccent: '#f2a65a' };
+
+    const engineId = this.v('engine', 'google');
+    const engineList = [
+      { id: 'google', t: 'Google', l: 'G', sub: 'Standard' },
+      { id: 'ecosia', t: 'Ecosia', l: 'E', sub: 'Pflanzt Bäume mit Werbeeinnahmen' },
+      { id: 'ddg', t: 'DuckDuckGo', l: 'D', sub: 'Ohne Personalisierung' },
+      { id: 'startpage', t: 'Startpage', l: 'S', sub: 'Google-Ergebnisse, anonymisiert' },
+      { id: 'bing', t: 'Bing', l: 'B', sub: 'Microsoft' }
+    ];
+    const engineName = (engineList.find(e => e.id === engineId) || engineList[0]).t;
+    const engines = engineList.map((e, i) => {
+      const sel = e.id === engineId;
+      return Object.assign({}, e, {
+        sel, radius: this.radius(i, engineList.length),
+        pick: () => this.setState({ engine: e.id }),
+        bg: sel ? c.pCont : c.bright, fg: sel ? c.onPCont : c.on,
+        badge: sel ? c.primary : c.high, badgeFg: sel ? c.onPrimary : c.onVar,
+        radio: `border: 2px solid ${sel ? c.primary : c.onVar}`,
+        dot: sel ? `background: ${c.primary}` : 'background: transparent'
+      });
+    });
+
+    const closed = this.v('closed', []);
+    const tabSrc = [
+      { id: 1, title: 'Herbst am Schafberg', l: 'B', active: true },
+      { id: 2, title: 'Schafbergbahn – Fahrplan', l: 'S' },
+      { id: 3, title: 'Wetter Salzburg – 7 Tage', l: 'W' },
+      { id: 4, title: 'Wolfgangsee – Wikipedia', l: 'W' },
+      { id: 5, title: 'Kürbissuppe mit Ingwer', l: 'K' },
+      { id: 6, title: 'Material 3 Expressive', l: 'M' }
+    ];
+    const tones = [[c.sCont, c.on], [c.tCont, c.on], [c.pCont, c.on], [c.high, c.on]];
+    const tabs = tabSrc.filter(t => !closed.includes(t.id)).map((t, i) => Object.assign({}, t, {
+      bg: dark ? '#1c1c1c' : '#ffffff',
+      c1: t.active ? w.m1 : tones[i % 4][0],
+      c2: dark ? '#5a5a5a' : '#2a2a2a', c3: dark ? '#3a3a3a' : '#d9d9d9',
+      ring: t.active ? `outline: 3px solid ${c.primary}; outline-offset: 2px` : '',
+      close: () => this.setState({ closed: closed.concat([t.id]) })
+    }));
+    const tabCount = tabs.length;
+
+    const favSrc = [['W','Wikipedia'],['O','ORF'],['Y','YouTube'],['G','GitHub'],['M','Moodle'],['K','Karten'],['B','Bergzeit'],['C','Chefkoch']];
+    const favShapes = [this.shape(4, 0.1, 64), this.shape(6, 0.07, 64), this.shape(8, 0.06, 64), this.shape(5, 0.09, 64)];
+    const favs = favSrc.map((f, i) => ({ l: f[0], t: f[1], path: favShapes[i % 4], fill: c.bright, ink: c.on }));
+
+    const freqSrc = [['B','Herbst am Schafberg','bergzeit.at'],['S','Schafbergbahn – Fahrplan','schafbergbahn.at'],['W','Wetter Salzburg – 7 Tage','geosphere.at']];
+    const frequent = freqSrc.map((r, i) => ({ l: r[0], t: r[1], u: r[2], radius: this.radius(i, freqSrc.length) }));
+
+    const sugSrc = [
+      ['search', 'schafberg wanderung', 'Suche'],
+      ['search', 'schafbergbahn fahrplan', 'Suche'],
+      ['history', 'Schafberg – Wetter in 3 Tagen', 'Verlauf · gestern'],
+      ['bookmark', 'Schafbergalm', 'Lesezeichen · Reisen']
+    ];
+    const suggestions = sugSrc.map((s, i) => ({ icon: s[0], t: s[1], sub: s[2], radius: this.radius(i, sugSrc.length) }));
+    const searchTop = layout === 'oben' ? 120 : 52;
+    const searchBottom = layout === 'oben' ? 48 : 120;
+    const searchFieldPos = layout === 'oben' ? 'top: 48px' : 'bottom: 28px';
+
+    const libTab = this.v('libTab', 'history');
+    const libDefs = [['bookmarks', 'Lesezeichen', 'bookmarks'], ['history', 'Verlauf', 'history'], ['reading', 'Leseliste', 'eyeglasses']];
+    const libTabs = libDefs.map((d, i) => {
+      const sel = d[0] === libTab;
+      const rad = i === 0 ? '9999px 8px 8px 9999px' : (i === 2 ? '8px 9999px 9999px 8px' : '8px');
+      return {
+        t: d[1], icon: d[2], sel,
+        pick: () => this.setState({ libTab: d[0] }),
+        style: `border-radius: ${sel ? '9999px' : rad}; background: ${sel ? c.primary : c.highest}; color: ${sel ? c.onPrimary : c.onVar}; font-weight: ${sel ? 800 : 500}; font-stretch: ${sel ? 108 : 96}%`
+      };
+    });
+    const lib = { history: libTab === 'history', bookmarks: libTab === 'bookmarks', reading: libTab === 'reading' };
+    const libPlaceholder = libTab === 'history' ? 'Verlauf durchsuchen' : (libTab === 'bookmarks' ? 'Lesezeichen durchsuchen' : 'Leseliste durchsuchen');
+    const hToday = [['B','Herbst am Schafberg','bergzeit.at','10:42'],['S','Schafbergbahn – Fahrplan','schafbergbahn.at','10:31'],['W','Wetter Salzburg – 7 Tage','geosphere.at','09:15']];
+    const hYest = [['K','Kürbissuppe mit Ingwer','chefkoch.de','21:08'],['W','Wolfgangsee – Wikipedia','de.wikipedia.org','18:40'],['M','Material 3 Expressive','m3.material.io','14:02']];
+    const mk = arr => arr.map((r, i) => ({ l: r[0], t: r[1], u: r[2], time: r[3], radius: this.radius(i, arr.length) }));
+    const history = [{ day: 'Heute', rows: mk(hToday) }, { day: 'Gestern', rows: mk(hYest) }];
+    const folders = [
+      { t: 'Favoriten', n: 8, icon: 'star', bg: c.pCont, fg: c.onPCont, badge: c.primary, badgeFg: c.onPrimary },
+      { t: 'Studium', n: 12, icon: 'school', bg: c.bright, fg: c.on, badge: c.sCont, badgeFg: c.onSCont },
+      { t: 'Reisen', n: 9, icon: 'hiking', bg: c.bright, fg: c.on, badge: c.tCont, badgeFg: c.onTCont },
+      { t: 'Rezepte', n: 5, icon: 'restaurant', bg: c.bright, fg: c.on, badge: c.high, badgeFg: c.onVar }
+    ];
+    const reading = [
+      { t: 'Herbst am Schafberg', u: 'bergzeit.at · 8 Min.', state: 'Zur Hälfte gelesen', c: c.sCont },
+      { t: 'Was Material 3 Expressive anders macht', u: 'm3.material.io · 12 Min.', state: 'Ungelesen', c: c.tCont },
+      { t: 'Kürbissuppe mit Ingwer', u: 'chefkoch.de · 4 Min.', state: 'Offline verfügbar', c: c.pCont }
+    ];
+
+    const themeSeg = [['light', 'Hell', 'light_mode'], ['dark', 'Dunkel', 'dark_mode'], ['system', 'System', 'brightness_auto']].map((d, i) => {
+      const sel = d[0] === theme || (d[0] === 'system' && theme === 'system');
+      const rad = i === 0 ? '9999px 8px 8px 9999px' : (i === 2 ? '8px 9999px 9999px 8px' : '8px');
+      return {
+        t: d[1], icon: d[2], sel,
+        pick: () => this.setState({ theme: d[0] === 'system' ? 'light' : d[0] }),
+        style: `border-radius: ${sel ? '9999px' : rad}; background: ${sel ? c.primary : c.bright}; color: ${sel ? c.onPrimary : c.on}; font-weight: ${sel ? 800 : 500}; font-stretch: ${sel ? 108 : 96}%`
+      };
+    });
+    const cwDefs = [['blau', 'Blau'], ['violett', 'Violett'], ['gruen', 'Grün'], ['orange', 'Orange'], ['pink', 'Pink']];
+    const colorways = cwDefs.map(d => {
+      const s = this.scheme(d[0], dark);
+      const sel = d[0] === cw;
+      return {
+        t: d[1], sel, primary: s.primary, cont: s.pCont, ter: s.tCont,
+        weight: sel ? 800 : 450,
+        ring: sel ? `outline: 3px solid ${c.on}; outline-offset: 3px` : '',
+        pick: () => this.setState({ colorway: d[0] })
+      };
+    });
+    const accent = c.primary, bar = c.outline;
+    const box = (x, y, ww, h, r, col) => ({ x, y, w: ww, h, r, c: col });
+    const none = box(0, 0, 0, 0, 0, 'transparent');
+    const lyDefs = [
+      ['kompakt', 'Kompakt', box(6, 94, 10, 10, 5, bar), box(19, 94, 34, 10, 5, accent), box(56, 94, 10, 10, 5, bar)],
+      ['zweireihig', 'Zweireihig', box(10, 80, 52, 8, 4, accent), box(6, 92, 60, 13, 6, bar), none],
+      ['expressiv', 'Expressiv', box(20, 6, 32, 7, 4, accent), box(6, 92, 44, 13, 6, bar), box(53, 92, 13, 13, 4, accent)],
+      ['oben', 'Oben', box(6, 6, 60, 10, 5, accent), box(6, 94, 60, 12, 6, bar), none],
+      ['karte', 'Karte', box(6, 80, 60, 11, 5, accent), box(6, 93, 60, 12, 5, bar), none],
+      ['minimal', 'Minimal', box(18, 98, 30, 7, 4, accent), box(51, 98, 7, 7, 4, bar), none]
+    ];
+    const layoutNames = {};
+    const layouts = lyDefs.map(d => {
+      layoutNames[d[0]] = d[1];
+      const sel = d[0] === layout;
+      return {
+        t: d[1], sel, a: d[2], b: d[3], d: d[4],
+        bg: sel ? c.pCont : c.bright, fg: sel ? c.onPCont : c.on,
+        screen: sel ? c.bright : c.sc,
+        weight: sel ? 800 : 500, stretch: sel ? 108 : 96,
+        pick: () => this.setState({ layout: d[0] })
+      };
+    });
+
+    const privDefs = [
+      ['tracking', 'Websiteübergreifendes Tracking verhindern', 'Werbenetzwerke folgen dir nicht von Seite zu Seite', 'block'],
+      ['ip', 'IP-Adresse vor Trackern verbergen', 'Bekannte Tracker sehen nicht, wo du bist', 'vpn_lock'],
+      ['https', 'Nur HTTPS', 'Unsichere Verbindungen werden vorher gemeldet', 'lock'],
+      ['fraud', 'Warnung bei Betrugsseiten', 'Prüft Adressen gegen bekannte Phishing-Listen', 'gpp_maybe'],
+      ['lock', 'Private Tabs sperren', 'Entsperren mit Fingerabdruck', 'fingerprint']
+    ];
+    const privacyRows = privDefs.map((d, i) => ({ t: d[1], sub: d[2], icon: d[3], sw: this.sw(d[0], true, c), radius: this.radius(i, privDefs.length) }));
+
+    const reader = this.sw('reader', false, c);
+    const textSize = this.v('textSize', 100);
+
+    // Statusleiste: Safe Area + Seitenfarbe, beim Scrollen weiche getönte Kante
+    const statusMode = this.v('statusMode', 'loesung');
+    const tintSw = this.sw('tint', this.props.tint !== 'off', c);
+    const scrolled = !!this.v('scrolled', Number(this.props.scrollTo || 0) > 0);
+    const lum = hex => { const n = parseInt(hex.slice(1, 7), 16); return (0.2126 * ((n >> 16) & 255) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255)) / 255; };
+    const problem = statusMode === 'problem' && isWeb;
+    let sbColor = c.sc, edge = true;
+    if (isWeb) { sbColor = tintSw.on ? w.head : c.sc; edge = scrolled; }
+    if (screen === 'private') { sbColor = '#101a38'; edge = true; }
+    const ink = problem ? '#ffffff' : (lum(sbColor) > 0.55 ? '#191b25' : '#ffffff');
+    const fade = '-webkit-mask-image: linear-gradient(to bottom, #000 0, #000 40px, transparent 56px); mask-image: linear-gradient(to bottom, #000 0, #000 40px, transparent 56px)';
+    const sb = {
+      h: (!problem && edge) ? 56 : 40,
+      ink, inv: ink === '#ffffff' ? '#191b25' : '#ffffff',
+      bg: problem ? 'background: transparent' : (edge ? `background: ${sbColor}d9; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); ${fade}` : `background: ${sbColor}`),
+      dim: screen === 'menu',
+      toTop: () => { if (this.webEl) this.webEl.scrollTo({ top: 0, behavior: 'smooth' }); }
+    };
+
+    const addrMap = { page: 'bergzeit.at', start: 'Suchen oder Adresse eingeben', private: 'Privat · Suchen oder Adresse' };
+    const subMap = { page: 'Herbst am Schafberg · sicher', start: engineName, private: 'Wird nicht gespeichert' };
+
+    return {
+      c, w, L, show, topPad, sb,
+      webHeadPad: problem ? 12 : topPad,
+      webRef: el => { this.webEl = el; },
+      onWebScroll: e => { const s = e.currentTarget.scrollTop > 6; if (s !== scrolled) this.setState({ scrolled: s }); },
+      tabs, tabCount, favs, frequent, suggestions,
+      searchTop, searchBottom, searchFieldPos, engineName, engines,
+      libTabs, lib, libPlaceholder, history, folders, reading,
+      themeSeg, colorways, layouts, privacyRows,
+      addr: addrMap[screen] || 'bergzeit.at',
+      addrSub: subMap[screen] || '',
+      addrIcon: screen === 'page' ? 'lock' : (screen === 'private' ? 'visibility_off' : 'search'),
+      navFirst: screen === 'page' ? 'Seite' : 'Start',
+      navFirstIcon: screen === 'page' ? 'language' : 'home',
+      readerBg: reader.on ? c.primary : 'transparent',
+      readerFg: reader.on ? c.onPrimary : c.on,
+      webFont: Math.round(17 * textSize / 100),
+      textSize,
+      textSmaller: () => this.setState({ textSize: Math.max(50, textSize - 10) }),
+      textBigger: () => this.setState({ textSize: Math.min(200, textSize + 10) }),
+      themeLabel: theme === 'dark' ? 'Dunkel' : 'Hell',
+      colorwayLabel: (cwDefs.find(d => d[0] === cw) || cwDefs[0])[1],
+      layoutLabel: layoutNames[layout] || 'Kompakt',
+      shp: {
+        hero9: this.shape(9, 0.07, 116),
+        hero6: this.shape(6, 0.08, 116),
+        sunny: this.shape(12, 0.06, 116),
+        flower: this.shape(8, 0.12, 72)
+      },
+      tg: {
+        reader,
+        groups: this.sw('groups', true, c),
+        tint: tintSw,
+        shrink: this.sw('shrink', true, c),
+        suggest: this.sw('suggest', true, c),
+        preload: this.sw('preload', false, c)
+      },
+      go: {
+        start: go('start'), page: go('page'), menu: go('menu'), tabs: go('tabs'),
+        library: go('library'), downloads: go('downloads'), private: go('private'),
+        search: go('search', { searchFrom: base }),
+        cancelSearch: go(this.v('searchFrom', 'page')),
+        back: go(screen === 'page' ? 'start' : 'page'),
+        settings: go('settings', screen === 'appearance' || screen === 'engine' || screen === 'privacy' ? {} : { settingsFrom: base }),
+        settingsBack: go(this.v('settingsFrom', 'page')),
+        appearance: go('appearance'), engine: go('engine'),
+        privacy: go('privacy', { privacyFrom: screen === 'settings' ? 'settings' : base }),
+        privacyBack: go(this.v('privacyFrom', 'settings'))
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

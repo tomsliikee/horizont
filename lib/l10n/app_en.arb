@@ -1,0 +1,76 @@
+{
+  "@@locale": "en",
+  "appName": "Horizont",
+  "settings": "Settings",
+  "privacyReportLabel": "Privacy report · 7 days",
+  "trackersBlocked": "Trackers blocked",
+  "moreThanLastWeek": "{count} more than last week",
+  "@moreThanLastWeek": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "countedOnDevice": "Counted on this device.",
+  "favourites": "Favourites",
+  "frequentlyVisited": "Frequently visited",
+  "readingList": "Reading list",
+  "readMinutes": "{count} min.",
+  "@readMinutes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "back": "Back",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "themeSystem": "System",
+  "colourwayWallpaper": "Wallpaper",
+  "colourwayBlue": "Blue",
+  "colourwayViolet": "Violet",
+  "colourwayGreen": "Green",
+  "colourwayOrange": "Orange",
+  "colourwayPink": "Pink",
+  "forward": "Forward",
+  "reload": "Reload",
+  "menu": "Menu",
+  "searchOrEnterAddress": "Search or address",
+  "cancel": "Cancel",
+  "linkNeedsOtherApp": "This link needs another app and was not opened.",
+  "tabs": "Tabs",
+  "tabsOpen": "{count} open",
+  "@tabsOpen": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tabsOpenInGroup": "{count} open · Group “{group}”",
+  "@tabsOpenInGroup": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "newTab": "New tab",
+  "done": "Done",
+  "closeTab": "Close tab",
+  "privateMode": "Private",
+  "tabsCount": "{count, plural, =1{1 tab} other{{count} tabs}}",
+  "@tabsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "startPage": "Start page"
+}

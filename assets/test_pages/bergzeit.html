@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bergzeit: Herbst am Schafberg</title>
+<!-- Local test page rebuilding the prototype's article (P:21-P:56). The header
+     colour is #1F3A2D (light) / #15241C (dark) and is deliberately not given
+     as a theme-color meta tag, so milestone 3 can test the DOM sampling. -->
+<style>
+  :root { color-scheme: light dark;
+    --bg:#fff; --text:#1b1b1b; --muted:#5c5c5c; --accent:#b4441f; --box:#f5f1ea;
+    --sky:#ffe3a8; --sun:#ffc55a; --m1:#6d7ea3; --m2:#3e4b6b; --lake:#8fb3d9;
+    --head:#1f3a2d; --head-text:#fff; --head-accent:#f2a65a; }
+  @media (prefers-color-scheme: dark) { :root {
+    --bg:#141414; --text:#ededed; --muted:#a9a9a9; --accent:#f08a63; --box:#201d1a;
+    --sky:#101a38; --sun:#e8e2c8; --m1:#3a4767; --m2:#252f4a; --lake:#1b2a4d;
+    --head:#15241c; --head-text:#ededed; --head-accent:#f08a63; } }
+  body { margin:0; background:var(--bg); color:var(--text); font-family:Georgia,'Times New Roman',serif; }
+  header { padding:14px 20px; display:flex; align-items:center; justify-content:space-between;
+    background:var(--head); color:var(--head-text); }
+  header a { font-size:26px; line-height:32px; font-weight:700; letter-spacing:-.5px;
+    color:var(--head-text); text-decoration:none; }
+  header a span { color:var(--head-accent); }
+  svg { display:block; width:100%; }
+  main { padding:20px 20px 0; display:flex; flex-direction:column; gap:14px; line-height:1.55; }
+  .kicker { font:700 12px/16px system-ui,sans-serif; letter-spacing:1.2px; text-transform:uppercase; color:var(--accent); }
+  h1 { margin:0; font-size:30px; line-height:36px; letter-spacing:-.4px; }
+  h2 { margin:8px 0 0; font-size:22px; line-height:28px; }
+  .by { font:13px/18px system-ui,sans-serif; color:var(--muted); }
+  p { margin:0; }
+  .facts { font-family:system-ui,sans-serif; background:var(--box); border-radius:6px; padding:16px;
+    display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+  .facts b { display:block; font-size:20px; line-height:26px; }
+  .facts small { font-size:12px; line-height:16px; color:var(--muted); }
+  input { font:16px system-ui,sans-serif; padding:10px; }
+  .end { margin-bottom:160px; }
+</style>
+</head>
+<body>
+<header>
+  <a href="#top">Bergzeit<span>.</span></a>
+  <span>Suche · Menü</span>
+</header>
+<svg viewBox="0 0 412 236" role="img" aria-label="Illustration: Berge über einem See bei Sonnenaufgang">
+  <rect width="412" height="236" fill="var(--sky)"/>
+  <circle cx="300" cy="78" r="34" fill="var(--sun)"/>
+  <path d="M0 170 L70 96 L120 140 L190 58 L262 150 L310 118 L412 176 L412 236 L0 236 Z" fill="var(--m1)"/>
+  <path d="M0 196 L60 160 L130 188 L210 132 L300 186 L360 162 L412 190 L412 236 L0 236 Z" fill="var(--m2)"/>
+  <rect y="206" width="412" height="30" fill="var(--lake)"/>
+  <rect x="40" y="216" width="120" height="3" rx="1.5" fill="var(--sky)" opacity=".6"/>
+  <rect x="230" y="224" width="90" height="3" rx="1.5" fill="var(--sky)" opacity=".5"/>
+</svg>
+<main id="top">
+  <span class="kicker">Wandern · Salzkammergut</span>
+  <h1>Herbst am Schafberg: Drei Wege über dem Wolfgangsee</h1>
+  <span class="by">Von Lena Hofer · 14. Oktober 2026 · 8 Min. Lesezeit</span>
+  <p>Wenn sich am Morgen der Nebel über dem Wolfgangsee hebt, wird der Schafberg zur Aussichtsterrasse des Salzkammerguts. An klaren Tagen reicht der Blick vom Gipfel über ein Dutzend Seen, und im Oktober leuchten die Buchenwälder an den Flanken in Kupfer und Gold.</p>
+  <div class="facts">
+    <span><b>9,4 km</b><small>Strecke</small></span>
+    <span><b>1.190 m</b><small>Höhenmeter</small></span>
+    <span><b>4 Std. 30</b><small>Gehzeit</small></span>
+  </div>
+  <h2>Der Klassiker über die Schafbergalm</h2>
+  <p>Der Weg beginnt in St. Wolfgang und führt in gleichmäßiger Steigung durch den Wald hinauf zur Schafbergalm. Dort lohnt sich die Pause: Die Zahnradbahn kreuzt hier den Wanderweg, und mit etwas Glück schnauft gerade eine der historischen Lokomotiven vorbei.</p>
+  <p>Oberhalb der Alm wird es steiler. Der Pfad windet sich in Kehren über offene Wiesen, bis die Felsen der Gipfelregion beginnen. Trittsicherheit ist hier wichtiger als Tempo – vor allem, wenn das Laub nach einer kalten Nacht noch feucht ist.</p>
+  <h2>Über den Himmelspfortenweg</h2>
+  <p>Wer es luftiger mag, steigt von der Nordseite über den Himmelspfortenweg auf. Eine schmale Felsöffnung gibt den Blick auf den Mondsee frei, kurz bevor das Gipfelhaus auftaucht. Dieser Weg ist nur bei trockenem Wetter zu empfehlen.</p>
+  <h2>Ein Feld zum Tippen</h2>
+  <p><input type="search" placeholder="Hier tippen (Tastatur-Test)" aria-label="Tastatur-Test"></p>
+  <p class="end">Zurück geht es bequem mit der Bahn – oder zu Fuß über die Suissensee-Runde, die an zwei kleinen Karseen vorbeiführt und im Herbst kaum begangen ist.</p>
+</main>
+</body>
+</html>
