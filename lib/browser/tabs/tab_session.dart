@@ -255,7 +255,13 @@ class TabSession with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.detached) {
-      unawaited(syncScroll().then((_) => _tabs.flush()));
+      // A fresh picture of the page in front: the overview shows it, and the
+      // next start shows it until the page has loaded (PLAN N4).
+      unawaited(
+        captureActive(limit: const Duration(milliseconds: 400))
+            .then((_) => syncScroll())
+            .then((_) => _tabs.flush()),
+      );
     }
   }
 

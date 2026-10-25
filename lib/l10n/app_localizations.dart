@@ -170,6 +170,12 @@ abstract class AppLocalizations {
   /// **'{count} min.'**
   String readMinutes(int count);
 
+  /// No description provided for @home.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get home;
+
   /// No description provided for @back.
   ///
   /// In en, this message translates to:
@@ -1154,6 +1160,36 @@ abstract class AppLocalizations {
   /// **'Tabs opened from a tab stay with it'**
   String get groupTabsSub;
 
+  /// No description provided for @homeAfterAway.
+  ///
+  /// In en, this message translates to:
+  /// **'Start page after time away'**
+  String get homeAfterAway;
+
+  /// No description provided for @homeAfterAwaySub.
+  ///
+  /// In en, this message translates to:
+  /// **'Come back after longer than this and a new tab with the start page opens. The old tab stays open.'**
+  String get homeAfterAwaySub;
+
+  /// No description provided for @homeAfterHalfHour.
+  ///
+  /// In en, this message translates to:
+  /// **'After 30 minutes'**
+  String get homeAfterHalfHour;
+
+  /// No description provided for @homeAfterHour.
+  ///
+  /// In en, this message translates to:
+  /// **'After 1 hour'**
+  String get homeAfterHour;
+
+  /// No description provided for @homeAfterFourHours.
+  ///
+  /// In en, this message translates to:
+  /// **'After 4 hours'**
+  String get homeAfterFourHours;
+
   /// No description provided for @autoCloseTabs.
   ///
   /// In en, this message translates to:
@@ -1351,6 +1387,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Shows only the domain'**
   String get shrinkOnScrollSub;
+
+  /// No description provided for @translucentBars.
+  ///
+  /// In en, this message translates to:
+  /// **'Translucent'**
+  String get translucentBars;
+
+  /// No description provided for @translucentBarsSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Lets what lies beneath show through; blurred within the app'**
+  String get translucentBarsSub;
 
   /// No description provided for @hideAtEnd.
   ///
@@ -1802,12 +1850,6 @@ abstract class AppLocalizations {
   /// **'Search'**
   String get search;
 
-  /// No description provided for @pageNav.
-  ///
-  /// In en, this message translates to:
-  /// **'Page'**
-  String get pageNav;
-
   /// No description provided for @startNav.
   ///
   /// In en, this message translates to:
@@ -1861,6 +1903,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'in front'**
   String get activeTab;
+
+  /// No description provided for @greetingMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'Good morning'**
+  String get greetingMorning;
+
+  /// No description provided for @greetingAfternoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Good afternoon'**
+  String get greetingAfternoon;
+
+  /// No description provided for @greetingEvening.
+  ///
+  /// In en, this message translates to:
+  /// **'Good evening'**
+  String get greetingEvening;
+
+  /// No description provided for @greetingNight.
+  ///
+  /// In en, this message translates to:
+  /// **'Good night'**
+  String get greetingNight;
 }
 
 class _AppLocalizationsDelegate

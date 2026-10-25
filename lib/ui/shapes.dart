@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/physics.dart';
@@ -245,6 +246,132 @@ class _MorphingShapeBadgeState extends State<MorphingShapeBadge>
           widget.child,
         ],
       ),
+    );
+  }
+}
+
+/// Material 3 Expressive shapes for the favourites, from `MaterialShapes`.
+const _favouriteCycle = 4;
+
+RoundedPolygon materialFavourite(int index) =>
+    switch (index % _favouriteCycle) {
+      0 => MaterialShapes.cookie9Sided,
+      1 => MaterialShapes.clover4Leaf,
+      2 => MaterialShapes.softBurst,
+      _ => MaterialShapes.cookie6Sided,
+    };
+
+/// A letter or icon on a Material 3 Expressive [shape]. While [pressed]
+/// (0 to 1) it morphs towards [pressedShape]; the border lerp does the morph.
+class MaterialShapeBadge extends StatelessWidget {
+  const MaterialShapeBadge({
+    super.key,
+    required this.shape,
+    required this.size,
+    required this.color,
+    required this.child,
+    this.pressedShape,
+    this.pressed = 0,
+  });
+
+  final RoundedPolygon shape;
+  final RoundedPolygon? pressedShape;
+  final double pressed;
+  final double size;
+  final Color color;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final from = MaterialShapeBorder(shape: shape);
+    final border = pressedShape == null || pressed <= 0
+        ? from
+        : ShapeBorder.lerp(
+            from,
+            MaterialShapeBorder(shape: pressedShape!),
+            pressed.clamp(0.0, 1.0),
+          )!;
+    return RepaintBoundary(
+      child: Container(
+        width: size,
+        height: size,
+        alignment: Alignment.center,
+        decoration: ShapeDecoration(color: color, shape: border),
+        child: child,
+      ),
+    );
+  }
+}
+
+/// A [MaterialShapeBadge] whose outline morphs to the new [shape] when it
+/// changes, on a spring, and turns a little while it does.
+class MorphingMaterialBadge extends StatefulWidget {
+  const MorphingMaterialBadge({
+    super.key,
+    required this.shape,
+    required this.size,
+    required this.color,
+    required this.child,
+  });
+
+  final RoundedPolygon shape;
+  final double size;
+  final Color color;
+  final Widget child;
+
+  @override
+  State<MorphingMaterialBadge> createState() => _MorphingMaterialBadgeState();
+}
+
+class _MorphingMaterialBadgeState extends State<MorphingMaterialBadge>
+    with SingleTickerProviderStateMixin {
+  late final _c = AnimationController.unbounded(vsync: this, value: 1);
+  late RoundedPolygon _from = widget.shape;
+
+  @override
+  void didUpdateWidget(MorphingMaterialBadge old) {
+    super.didUpdateWidget(old);
+    if (old.shape != widget.shape) {
+      _from = old.shape;
+      _c.value = 0;
+      final description = SpringDescription.withDampingRatio(
+        mass: 1,
+        stiffness: 200,
+        ratio: 0.8,
+      );
+      unawaited(_c.animateWith(SpringSimulation(description, 0, 1, 0)));
+    }
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _c,
+      builder: (context, child) {
+        final t = _c.value.clamp(0.0, 1.0);
+        return Transform.rotate(
+          // A sixth of a turn over the morph, back at rest.
+          angle: math.sin(t * math.pi) / 12 * 2 * math.pi,
+          child: MaterialShapeBadge(
+            shape: _from,
+            pressedShape: widget.shape,
+            pressed: t,
+            size: widget.size,
+            color: widget.color,
+            child: Transform.rotate(
+              angle: -math.sin(t * math.pi) / 12 * 2 * math.pi,
+              child: child,
+            ),
+          ),
+        );
+      },
+      child: widget.child,
     );
   }
 }

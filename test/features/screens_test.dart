@@ -13,6 +13,7 @@ import 'package:horizont/features/private/private_page.dart';
 import 'package:horizont/features/search/search_page.dart';
 import 'package:horizont/features/settings/appearance_page.dart';
 import 'package:horizont/features/settings/engine_page.dart';
+import 'package:horizont/features/settings/more_settings.dart';
 import 'package:horizont/features/settings/privacy_page.dart';
 import 'package:horizont/features/settings/settings_page.dart';
 import 'package:horizont/theme/color_schemes.dart';
@@ -132,6 +133,8 @@ void main() {
         const LibraryPage(initial: LibrarySection.bookmarks),
     'library_reading': () => const LibraryPage(initial: LibrarySection.reading),
     'downloads': () => const DownloadsPage(),
+    'start_settings': () => const StartSettingsPage(),
+    'about': () => const AboutPage(),
   };
 
   for (final MapEntry(key: name, value: build) in screens.entries) {

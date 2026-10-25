@@ -43,6 +43,15 @@ class PageActions {
       );
   }
 
+  /// Puts the page's address on the clipboard. Android 13 and later show
+  /// their own note of what was copied, so there is only a tick to feel.
+  Future<void> copyAddress() async {
+    final url = _page.url;
+    if (url == null) return;
+    await Clipboard.setData(ClipboardData(text: url.toString()));
+    await HapticFeedback.mediumImpact();
+  }
+
   Future<void> share() async {
     final url = _page.url;
     if (url == null) return;

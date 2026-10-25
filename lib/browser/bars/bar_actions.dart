@@ -5,7 +5,6 @@ import 'package:flutter/widgets.dart';
 @immutable
 class BarActions {
   const BarActions({
-    required this.back,
     required this.forward,
     required this.reload,
     required this.search,
@@ -16,6 +15,7 @@ class BarActions {
     required this.newTab,
     required this.home,
     required this.reader,
+    this.copyAddress,
     this.tabCount = 1,
     this.readerOn = false,
     this.privateMode = false,
@@ -23,8 +23,7 @@ class BarActions {
     this.menuKey,
   });
 
-  /// Null where the action is not possible (nothing to go back to).
-  final VoidCallback? back;
+  /// Null where the action is not possible (nothing to go forward to).
   final VoidCallback? forward;
   final VoidCallback? reload;
   final VoidCallback search;
@@ -34,11 +33,15 @@ class BarActions {
   final VoidCallback? share;
   final VoidCallback newTab;
 
-  /// The start page of the tab ("Start" in the top layout).
+  /// The start page in this tab, as a history entry, so the system back
+  /// gesture returns to the page. Bars show it in place of back (PLAN N2).
   final VoidCallback home;
 
   /// Toggles the reader view; null where the page has none.
   final VoidCallback? reader;
+
+  /// Copies the page's address (a long press on it); null on the start page.
+  final VoidCallback? copyAddress;
   final int tabCount;
   final bool readerOn;
   final bool privateMode;
@@ -50,7 +53,6 @@ class BarActions {
   /// The same actions for a second bar on screen (a layout leaving), which
   /// must not carry the keys of the first.
   BarActions withoutKeys() => BarActions(
-    back: back,
     forward: forward,
     reload: reload,
     search: search,
@@ -60,6 +62,7 @@ class BarActions {
     share: share,
     newTab: newTab,
     home: home,
+    copyAddress: copyAddress,
     reader: reader,
     tabCount: tabCount,
     readerOn: readerOn,

@@ -16,6 +16,7 @@ import '../browser/status_bar/status_bar_tint.dart';
 import '../browser/tabs/tab_session.dart';
 import '../browser/tabs/tabs_notifier.dart';
 import '../browser/tabs/thumbnail_store.dart';
+import '../browser/web_engine.dart';
 import '../features/downloads/downloads_page.dart';
 import '../features/library/library_page.dart';
 import '../features/menu/menu_sheet.dart';
@@ -29,6 +30,7 @@ import '../platform/horizont_webkit.dart';
 import '../theme/extensions.dart';
 import '../theme/horizont_theme.dart';
 import '../theme/motion.dart';
+import '../ui/motion/presence.dart';
 import '../ui/motion/spring.dart';
 import 'engine_requests.dart';
 import 'page_actions.dart';
@@ -56,7 +58,30 @@ class _BrowserShellState extends ConsumerState<BrowserShell>
   final _menuKey = GlobalKey();
   final _themes = ThemeCache();
   bool _keyboardUp = false;
+
+  /// The search screen is open above: the keyboard that comes up for it must
+  /// not shrink the page below, or the web view is laid out again every frame.
+  bool _searching = false;
   bool _finding = false;
+
+  /// Home was tapped and the web view has not reported the start page yet:
+  /// the start page shows at once, so the blank page is never seen.
+  bool _homing = false;
+  Timer? _homingTimeout;
+
+  void _home(WebEngine engine) {
+    setState(() => _homing = true);
+    // The web view turns blank as soon as it is told; the start page must
+    // be on screen first.
+    unawaited(
+      WidgetsBinding.instance.endOfFrame.then((_) => engine.goToStart()),
+    );
+    // Should the web view never report it, the page is not hidden for good.
+    _homingTimeout?.cancel();
+    _homingTimeout = Timer(const Duration(seconds: 2), () {
+      if (mounted && _homing) setState(() => _homing = false);
+    });
+  }
 
   /// The tab swipe on the bar: how far the page pictures are moved.
   late final _swipe = AnimationController.unbounded(vsync: this);
@@ -80,6 +105,7 @@ class _BrowserShellState extends ConsumerState<BrowserShell>
 
   @override
   void dispose() {
+    _homingTimeout?.cancel();
     unawaited(_events?.cancel());
     unawaited(_bridge?.cancel());
     _swipe.dispose();
@@ -103,11 +129,13 @@ class _BrowserShellState extends ConsumerState<BrowserShell>
   Future<void> _search({String? initial}) async {
     final engine = ref.read(webEngineProvider);
     final page = ref.read(pageStateProvider);
+    setState(() => _searching = true);
     final uri = await showSearchScreen(
       context,
       origin: rectOf(_addressKey),
       initial: initial ?? page.url?.toString() ?? '',
     );
+    if (mounted) setState(() => _searching = false);
     if (uri == null || !mounted) return;
     // Local test pages for the spikes; not reachable in a release build.
     if (!kReleaseMode && uri.toString().contains('test%3Abergzeit')) {
@@ -224,22 +252,38 @@ class _BrowserShellState extends ConsumerState<BrowserShell>
 
   @override
   Widget build(BuildContext context) {
-    final settings = ref.watch(settingsProvider);
-    final tabs = ref.watch(tabsProvider);
-    final private = tabs.privateMode;
+    final colourway = ref.watch(settingsProvider.select((s) => s.colourway));
+    final translucent = ref.watch(
+      settingsProvider.select((s) => s.translucentBars),
+    );
+    final private = ref.watch(tabsProvider.select((t) => t.privateMode));
     final palette = ref.watch(systemPaletteProvider).value;
     final base = Theme.of(context);
     // Private mode always uses the dark scheme of the colourway (`P:792`).
     final theme = private
-        ? _themes.get(settings.colourway, Brightness.dark, palette: palette)
+        ? _themes.get(
+            colourway,
+            Brightness.dark,
+            palette: palette,
+            translucentBars: translucent,
+          )
         : base;
+    ref.listen(pageStateProvider.select((p) => p.url), (_, url) {
+      if (_homing && url == null) {
+        _homingTimeout?.cancel();
+        setState(() => _homing = false);
+      }
+    });
     return Theme(
       data: theme,
-      child: Builder(builder: (context) => _build(context, tabs)),
+      child: Builder(builder: _build),
     );
   }
 
-  Widget _build(BuildContext context, TabsState tabs) {
+  Widget _build(BuildContext context) {
+    // Only what the shell shows: a title, scroll position or thumbnail of a
+    // tab must not rebuild the whole browser (PLAN N4).
+    final tabs = ref.watch(tabsProvider.select(_ShellTabs.of));
     final layout = ref.watch(settingsProvider.select((s) => s.barLayout));
     final engine = ref.watch(webEngineProvider);
     final page = ref.watch(pageStateProvider);
@@ -263,7 +307,9 @@ class _BrowserShellState extends ConsumerState<BrowserShell>
     );
     // The bar steps aside for the keyboard; the Scaffold shrinks the page to
     // the space above it, so a focused page field stays in view.
-    final keyboardUp = MediaQuery.viewInsetsOf(context).bottom > 0;
+    // Not for the search screen above: the bars are covered and need not move.
+    final keyboardUp =
+        !_searching && MediaQuery.viewInsetsOf(context).bottom > 0;
     if (keyboardUp != _keyboardUp) {
       _keyboardUp = keyboardUp;
       // Only for a field of the page: the search screen above has its own.
@@ -276,11 +322,13 @@ class _BrowserShellState extends ConsumerState<BrowserShell>
       }
     }
     final barMode = ref.watch(barModeProvider);
+    // Until a restored tab's page reports, the bar shows the tab's address.
+    final restoring = page.url == null && tabs.activeUrl != null && !_homing;
+    final barPage = restoring
+        ? page.copyWith(url: tabs.activeUrl, title: tabs.activeTitle)
+        : page;
 
     final actions = BarActions(
-      back: page.canGoBack
-          ? engine.goBack
-          : (page.url != null ? engine.goToStart : null),
       forward: page.canGoForward ? engine.goForward : null,
       reload: page.url == null ? null : engine.reload,
       search: () => unawaited(_search()),
@@ -288,12 +336,13 @@ class _BrowserShellState extends ConsumerState<BrowserShell>
       tabs: () => unawaited(showTabsPage(context, ref)),
       library: () => unawaited(_openLibrary()),
       share: onPage ? () => unawaited(_actions.share()) : null,
+      copyAddress: onPage ? () => unawaited(_actions.copyAddress()) : null,
       newTab: () => ref.read(tabsProvider.notifier).open(),
-      home: () => unawaited(engine.goToStart()),
+      home: () => _home(engine),
       reader: onPage
           ? () => unawaited(_actions.setReader(context, !page.reader))
           : null,
-      tabCount: tabs.visible.length,
+      tabCount: tabs.count,
       readerOn: page.reader,
       privateMode: private,
       addressKey: _addressKey,
@@ -303,8 +352,8 @@ class _BrowserShellState extends ConsumerState<BrowserShell>
     // Back: find, then the reader, then the page's history, then the tab
     // this one was opened from (closing it), then the start page, then the
     // app.
-    final openerId = tabs.active.openerId;
-    final hasOpener = openerId != null && tabs.byId(openerId) != null;
+    final openerId = tabs.openerId;
+    final hasOpener = openerId != null;
     return PopScope(
       canPop:
           !_finding &&
@@ -334,6 +383,7 @@ class _BrowserShellState extends ConsumerState<BrowserShell>
           navigationBrightness: private ? Brightness.dark : scheme.brightness,
         ),
         child: Scaffold(
+          resizeToAvoidBottomInset: !_searching,
           backgroundColor: surface,
           body: Stack(
             children: [
@@ -341,20 +391,40 @@ class _BrowserShellState extends ConsumerState<BrowserShell>
                 top: top + reserve,
                 child: KeyedSubtree(
                   key: ValueKey(tabs.activeId),
-                  child: engine.buildView(),
+                  // Hidden while searching: a native view under a screen that
+                  // changes every frame is composed again each frame.
+                  child: Offstage(
+                    offstage: _searching,
+                    child: engine.buildView(),
+                  ),
                 ),
               ),
-              if (page.url == null)
-                Positioned.fill(
-                  child: private
-                      ? PrivatePage(topPadding: reserve)
-                      : StartPage(
-                          topPadding: reserve,
-                          onOpen: _open,
-                          onOpenInNewTab: (uri) =>
-                              ref.read(tabsProvider.notifier).open(url: uri),
+              // A restored tab's picture until its page reports, so the
+              // empty web view is not what the first second shows (PLAN N4).
+              Positioned.fill(
+                top: top + reserve,
+                child: SpringPresence(
+                  visible: restoring && tabs.activeThumbnail != null,
+                  child: tabs.activeThumbnail == null
+                      ? const SizedBox.shrink()
+                      : Image(
+                          image: thumbnailImage(tabs.activeThumbnail!),
+                          fit: BoxFit.cover,
+                          alignment: Alignment.topCenter,
+                          gaplessPlayback: true,
                         ),
                 ),
+              ),
+              Positioned.fill(
+                child: SpringPresence(
+                  // A restored tab reports its address only once its page
+                  // starts loading; until then it is not the start page.
+                  visible:
+                      (page.url == null && tabs.activeUrl == null) || _homing,
+                  backdrop: surface,
+                  child: _startPage(private: private, reserve: reserve),
+                ),
+              ),
               if (page.error != null)
                 Positioned.fill(
                   top: top + reserve,
@@ -368,7 +438,8 @@ class _BrowserShellState extends ConsumerState<BrowserShell>
                         : () => unawaited(engine.goToStart()),
                   ),
                 ),
-              if (_swiping != null) _swipeLayer(context, top + reserve, tabs),
+              if (_swiping != null)
+                _swipeLayer(context, top + reserve, ref.watch(tabsProvider)),
               Positioned(
                 left: 0,
                 right: 0,
@@ -401,7 +472,7 @@ class _BrowserShellState extends ConsumerState<BrowserShell>
                       )
                     : BrowserBars(
                         layout: layout,
-                        page: page,
+                        page: barPage,
                         actions: actions,
                         mode: page.url == null ? BarMode.full : barMode,
                         keyboardUp: keyboardUp,
@@ -417,6 +488,28 @@ class _BrowserShellState extends ConsumerState<BrowserShell>
         ),
       ),
     );
+  }
+
+  /// The start page, made once per look: the same widget instance lets
+  /// Flutter skip its whole subtree when the shell rebuilds for the page's
+  /// progress or the bar (PLAN N4).
+  Widget? _start;
+  (bool, double)? _startKey;
+
+  Widget _startPage({required bool private, required double reserve}) {
+    if (_start == null || _startKey != (private, reserve)) {
+      _startKey = (private, reserve);
+      _start = private
+          ? PrivatePage(topPadding: reserve)
+          : StartPage(
+              topPadding: reserve,
+              onOpen: _open,
+              onSearch: () => unawaited(_search()),
+              onOpenInNewTab: (uri) =>
+                  ref.read(tabsProvider.notifier).open(url: uri),
+            );
+    }
+    return _start!;
   }
 
   /// The pictures of the tab in front and its neighbour, moved by the swipe.
@@ -503,6 +596,33 @@ class PrivateLockLayer extends ConsumerWidget {
             ),
           ),
       ],
+    );
+  }
+}
+
+/// The part of [TabsState] the shell shows; compared by value, so other
+/// changes to the tabs do not rebuild it.
+typedef _ShellTabsView = ({
+  String activeId,
+  bool privateMode,
+  int count,
+  String? openerId,
+  Uri? activeUrl,
+  String activeTitle,
+  String? activeThumbnail,
+});
+
+abstract final class _ShellTabs {
+  static _ShellTabsView of(TabsState t) {
+    final opener = t.active.openerId;
+    return (
+      activeId: t.activeId,
+      privateMode: t.privateMode,
+      count: t.visible.length,
+      openerId: opener != null && t.byId(opener) != null ? opener : null,
+      activeUrl: t.active.url,
+      activeTitle: t.active.title,
+      activeThumbnail: t.active.thumbnailPath,
     );
   }
 }

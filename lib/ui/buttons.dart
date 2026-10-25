@@ -97,6 +97,9 @@ class SymbolIcon extends StatelessWidget {
   );
 }
 
+/// How much of a round button's corner radius goes while it is pressed.
+const pressedCornerCut = 0.42;
+
 /// A circle of [size] 44, 48 or 56 with an icon.
 class RoundButton extends StatelessWidget {
   const RoundButton({
@@ -123,20 +126,30 @@ class RoundButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = _colours(context, look);
+    final glyph = SymbolIcon(
+      icon,
+      size: iconSize,
+      filled: filled,
+      color: c.ink,
+    );
+    final shadow = c.shadow ? HorizontShadows.of(context).button : null;
     return Squish(
       onTap: onTap,
       onLongPress: onLongPress,
       semanticLabel: semanticLabel,
-      child: Container(
+      // Pressed, the circle morphs toward a rounded square (M3 Expressive).
+      morph: (context, pressed) => Container(
         width: size,
         height: size,
         decoration: BoxDecoration(
           color: c.fill,
-          shape: BoxShape.circle,
-          boxShadow: c.shadow ? HorizontShadows.of(context).button : null,
+          borderRadius: BorderRadius.circular(
+            size / 2 * (1 - pressedCornerCut * pressed.clamp(0.0, 1.2)),
+          ),
+          boxShadow: shadow,
         ),
         alignment: Alignment.center,
-        child: SymbolIcon(icon, size: iconSize, filled: filled, color: c.ink),
+        child: glyph,
       ),
     );
   }
@@ -164,16 +177,19 @@ class PillButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = _colours(context, look);
+    final shadow = c.shadow ? HorizontShadows.of(context).button : null;
     return Squish(
       onTap: onTap,
       semanticLabel: semanticLabel ?? label,
-      child: Container(
+      morph: (context, pressed) => Container(
         height: height,
         padding: EdgeInsets.symmetric(horizontal: label == null ? 14 : 20),
         decoration: BoxDecoration(
           color: c.fill,
-          borderRadius: BorderRadius.circular(height / 2),
-          boxShadow: c.shadow ? HorizontShadows.of(context).button : null,
+          borderRadius: BorderRadius.circular(
+            height / 2 * (1 - pressedCornerCut * pressed.clamp(0.0, 1.2)),
+          ),
+          boxShadow: shadow,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,

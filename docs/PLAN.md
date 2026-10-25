@@ -1,6 +1,6 @@
 # Horizont: Implementation Plan
 
-> Written 2026-10-23, decisions of section 12 worked in the same day. Status of everything below: *planned*. Nothing is built yet.
+> Written 2026-10-23, decisions of section 12 worked in the same day. This is the plan the app was built from; the milestones below are built (see the README for what was checked on a device). Paths such as `~/git/pulse` point to the author's other projects.
 > Target: **Android 12+** (API 31), **Pixel 10 Pro**, portrait (fullscreen video may rotate), Flutter **3.47.6** / Dart **3.13.5** (the SDK on this machine).
 > Source of truth for layout, spacing, radii, type and navigation: **`referenz/horizont_prototyp.dc.html`** (cited below as `P:<line>`). Design tokens: **`referenz/tokens.json`**. Design rules: **Toms Expressive Design** (`~/git/ledge/toms-expressive-design/README.md`).
 
@@ -183,7 +183,7 @@ All implement `lerp`, so a theme change animates.
 
 | **Extension** | **Fields** | **Source** |
 | :--- | :--- | :--- |
-| **`HorizontColors`** | `statusGood`/`onStatusGood`, `statusWarn`/`onStatusWarn`, `statusBad`/`onStatusBad`, `illustrationSun`, `illustrationNight`, `glass` (= `surfaceContainerHighest` at alpha `0xEB`, `P:750`), `scrim` (black 36 %), `privateSurface` `#1B2650`, `privateOnSurfaceVariant` `#C9D1EE` (`P:142`, `P:139`) | tokens, prototype |
+| **`HorizontColors`** | `statusGood`/`onStatusGood`, `statusWarn`/`onStatusWarn`, `statusBad`/`onStatusBad`, `illustrationSun`, `illustrationNight`, `glass` (= `surfaceContainerHighest`, opaque; at alpha `0xB3` with "Durchscheinend", D31), `scrim` (black 36 %), `privateSurface` `#1B2650`, `privateOnSurfaceVariant` `#C9D1EE` (`P:142`, `P:139`) | tokens, prototype |
 | **`HorizontRadii`** | small 8, medium 12, large 16, largeIncreased 20, tile 24, extraLarge 28, extraLargeIncreased 32, extraExtraLarge 48, full; plus `groupItem(index, count)` returning the `BorderRadius` of `radius()` (`P:777`) | tokens, prototype |
 | **`HorizontSpacing`** | space1 … space8 (4 … 32) | tokens |
 | **`HorizontShadows`** | `floating` (two `BoxShadow`s: 0/3/8 at 16 %, 0/1/3 at 12 %), `button` (0/2/6 at 18 %) | tokens |
@@ -485,7 +485,7 @@ Performance is a top priority (D24). The target is the Pixel 10 Pro at **120 Hz*
 - **Animate only transform, opacity and clip.** Animations never change layout; bars and sheets are positioned once and moved with `Transform`/`FractionalTranslation`; text width changes (`wdth`, `wght` on the nav label) happen inside a box of fixed size so neighbours do not relayout.
 - **`RepaintBoundary`** around the bars, the status tint, each tab card and the sheet, so a moving bar does not repaint the page layer.
 - **The live web view is not animated.** For zooms and slides (overview, tab swipe, back preview) it is swapped for its snapshot during the flight and back at rest. Transforming a platform view every frame costs composition time and is unreliable in Hybrid Composition.
-- **No blur by default.** The glass is 92 % opaque and has no `BackdropFilter`; the soft status edge uses a gradient mask. Blur is added only where the M2 spike measured it inside the budget (Pulse lost scrolling to backdrop filters on the same phone).
+- **No blur by default.** The glass is opaque and has no `BackdropFilter` (D31; with "Durchscheinend" only over the app's own screens, never over the page); the soft status edge uses a gradient mask. Blur is added only where the M2 spike measured it inside the budget (Pulse lost scrolling to backdrop filters on the same phone).
 - **No platform-channel traffic per frame in Dart state.** Scroll offsets go into a plain field and a `ValueNotifier` the bar listens to; providers change only at thresholds. Riverpod `select` everywhere so a page title change does not rebuild the bar.
 - **Precomputed shapes and cached paths.** `shapePath` results are cached per (preset, size); morph point lists are built once.
 - **Images at display size.** Thumbnails stored as small WebP, decoded with `cacheWidth` at card size; grids and lists are lazy builders.
@@ -515,6 +515,31 @@ Each milestone runs on its own, ends with the analyzer at 0 errors and 0 warning
 **Performance gate (D24):** from M2 on, each milestone ends with its perf tests (7.4); motion that misses the budget is simplified, not kept.
 
 **How every milestone is shown (D16):** first screenshots made by the assistant and sent into the chat: real web pages and the status bar from an Android emulator with Pixel 10 Pro measures (1280x2856 at 480 dpi, Android 16), pure Flutter screens additionally rendered from widget tests in light and dark. Thomas reviews them; the check on the Pixel 10 Pro itself comes at the end (M11) and wherever an emulator cannot answer a question (fingerprint, real performance, Material You from a real wallpaper).
+
+### Order from 2026-10-25
+
+Asked for on 2026-10-25 (D25–D30). These four steps come next, in this order, each with screenshots or measurements before the next starts. N1 brings forward the icon from M11; N3 and N4 are M10.
+
+**N1: Logo.** *Built and tested 2026-10-25* (generator, goldens, launcher on the emulator). An adaptive launcher icon (D25): on a background in the default `primary` (`#0045fc`), a half sun in `seed-orange` (`#f26b3a`) rising over a curved horizon line, the sun's edge an Expressive scallop. Drawn as vector drawables (`android/app/src/main/res/drawable/ic_launcher_{foreground,monochrome}.xml`, background colour in `values/`), `mipmap-anydpi-v26/ic_launcher.xml` with the monochrome layer so Android 13+ tints it with Material You. PNG fallbacks for the legacy mipmaps are rendered from the same paths by a small `tool/gen_icon.dart`. The same motif as a Flutter `CustomPainter` for "Über Horizont". Acceptance: renders of the icon in a circle, squircle and themed (light/dark) sent into the chat; launcher on the emulator.
+
+**N2: Home button and auto-home.** *Built and tested 2026-10-25* (widget and unit tests, home on the emulator; auto-home not tried on a device).
+- In every layout, the back button in the bar becomes a home button (D26): a tap shows the start page in the current tab, as a history entry, so the system back gesture returns to the page. Going back within a page is the system back gesture only. In `oben` the bottom pill showed home only on the start page (where it opened search); it now shows home always. On the start page itself the home button is dimmed.
+- Auto-home (D27): when the app comes back to the foreground after more than the chosen time away, a new tab with the start page opens and becomes active; the old tab is kept. An empty normal start-page tab that is already open is reused instead of stacking new ones. It is always a normal tab: coming back from private mode after the limit lands on the normal start page, and the private tabs stay open behind their lock (M7). Setting "Startseite nach Abwesenheit" in Einstellungen → Startseite: Aus / 30 min / 1 h (default) / 4 h / 1 Tag. The time away is measured from `AppLifecycleState.hidden` with the wall clock and stored, so it also works after the process was killed.
+- Acceptance: widget tests per layout that the home button calls `home` and back is gone; unit tests of the away rule with a fake clock (under, at, over the limit, reuse of an empty start tab, setting off, process restart); on the emulator a screenshot of each layout.
+
+**N3: Material 3 Expressive motion (M10).** *2026-10-25:* most of 6.2 already existed; added spring screen routes with the card transition (predictive back kept), the press shape morph on round and pill buttons, the start page coming and going on springs without a white flash, and the bar shrink as a squeeze morph. Seen on the emulator; not measured on the Pixel. The choreography of 6.2 in this order: (1) menu sheet grows out of the menu button and the address pill morphs into search, with staggered rows; (2) tab overview zoom with snapshot swap, fling to close, new tab pops from +; (3) bar morphs to the pill while scrolling, swipe on the bar switches tabs, swipe up opens the overview; (4) predictive back on every route with the Expressive back transition (the page shrinks toward the finger and its corners round), Expressive page transitions for the routes (settings, library, downloads), shape morphs, `Squish` on every pressable. Every step is measured on the phone (7.4) before the next.
+
+**N4: Performance (part of M10).** *First pass 2026-10-25 on the emulator* (`docs/spikes.md`); the Pixel measurements are still open. Measured first, then fixed, then measured again, on the Pixel 10 Pro in a profile build. The three areas Thomas feels as slow:
+- *Scrolling and pages:* scroll p99 with Hybrid Composition on the test sites of section 11, frame log during loads, cost of the document-start script and colour sampling, rebuilds of the bar and the tint during scroll (Riverpod `select`, `RepaintBoundary`).
+- *Tab switch and overview:* tap-to-visible time of a warm and a cold tab, overview open frames with 20 tabs, thumbnail decode at card size, `TabPool` restore order, memory after closing tabs.
+- *App start:* `am start -W` and time to the first frame with the bar and to the first page; start-up order of 7.2 checked (settings and palette before the first frame, database, tab restore and engine warm-up after it), deferred work moved off the first frame.
+- Acceptance: a table before/after for each area in `docs/spikes.md`; the budgets of 7.1 met or the miss written down with the reason.
+
+**N5: Smoothness, bar morph, glass.** *Built and tested 2026-10-25 on the emulator at 120 Hz* (`docs/spikes.md`, N5); not tried on the Pixel. Asked for after Thomas tried the release build on the phone.
+- *Nothing that holds text is scaled while it moves* (Impeller rasterises glyphs anew at every scale): screens slide in as a rounded card without growing, the start page and the overview rise into place, and the browser below a new screen stays put and only dims (7.2: the live web view is not animated).
+- *The shrunk pill (2026-10-25, second round):* only the address, 34 high, centred over the gesture bar; no menu button there (a tap brings back the full bar with it). The morph runs on a softer, bouncier spring (`HorizontMotion.playful`, stiffness 240, damping ratio 0.6); the width draws in before the height drops, the bar's content is gone a third of the way and the pill's comes in over the last part, so the moving surface is what is seen. A long press on the address in any bar copies the page's address. Swiping on the bar for tabs is unchanged.
+- *The bar becomes the pill as one surface:* while it shrinks, a single glass surface goes from the outline of the full bar to the pill's address surface on the spring, the bar's content fades early and rides along, the pill's content comes in late. Both forms stay laid out (offstage when unseen) so their places are known; all five layouts with a bar of their own morph this way.
+- *Glass (D31):* the bars are opaque. "Durchscheinend" in Design & Farbe makes them 70 % opaque with a blur over the app's own screens; over a web page Flutter cannot blur in Hybrid Composition and a native blur failed (spikes N5), so there they are translucent only.
 
 ### M1: Theme and skeleton
 
@@ -682,7 +707,7 @@ Small motion (press squish, switch knob, segment pill, sheet drag) is built with
 
 - [ ] TalkBack: every button has the prototype's `aria-label` text; switches announce state; tab cards announce title and position.
 - [ ] Contrast check of every text role on every surface in all colourways.
-- [ ] App icon (adaptive, monochrome layer), splash in `surfaceContainer`.
+- [ ] App icon (adaptive, monochrome layer): moved to N1. Splash in `surfaceContainer`.
 - [ ] Register as a browser (VIEW intents for http/https), selectable as the default browser (D19).
 - [ ] Edge cases: no network, certificate errors (`setOnSSlAuthError`), HTTP auth (`setOnHttpAuthRequest`), JS dialogs, file upload, camera/mic/location prompts, very long titles, 100+ tabs.
 - [ ] README with real screenshots.
@@ -726,7 +751,7 @@ Versions checked on pub.dev on 2026-10-23. **Approved by Thomas on 2026-10-23** 
 | **ID** | **Risk** | **Effect** | **Plan** |
 | :--- | :--- | :--- | :--- |
 | **R1** | Composition mode: TLHC input bugs vs Hybrid Composition cost | Typing or frame rate | Measured in M2; one flag switches. |
-| **R2** | Blur over the web view too slow or invisible | Glass looks different | Bars without blur first; 92 % glass is close to the prototype. |
+| **R2** | Blur over the web view too slow or invisible | Glass looks different | Bars opaque; translucent glass blurs only over the app's own screens (D31). |
 | **R3** | `setProfile` must happen before the plugin's first use of the `WebView` | No private isolation | Spike in M2; fallback refuses private mode (A11). |
 | **R4** | Request blocking needs the plugin's `WebViewClient` wrapped; the plugin may replace it when the delegate changes | No tracker blocking, no count on the start page | Spike in M2; else a small fork of `webview_flutter_android` (D5). |
 | **R5** | Status bar taps never reach the app | Scroll to top only on the edge | A15, checked in M2. |
@@ -793,6 +818,13 @@ Versions checked on pub.dev on 2026-10-23. **Approved by Thomas on 2026-10-23** 
 | **D22** | Packages and bundled files | The list of section 9, Readability.js and EasyPrivacy are approved. |
 | **D23** | Motion | Playful and fluid, in the manner of Safari on iOS 26: surfaces grow out of their controls, everything can be grabbed and thrown, springs throughout (section 6). |
 | **D24** | Performance | Top priority: 120 Hz budgets of section 7; motion that misses them is simplified. |
+| **D25** | Logo (2026-10-25) | Horizon line with a rising sun, colours from the Horizont palette (`primary`, `seed-orange`); one icon with a monochrome layer for themed icons, no selectable variants. |
+| **D26** | Back in the bar (2026-10-25) | Becomes a home button in every layout; home shows the start page in the current tab; going back is the system gesture only. |
+| **D27** | Auto-home (2026-10-25) | After time away (setting, default 1 h) a new tab with the start page opens; the old tab is kept; an open empty start tab is reused. |
+| **D28** | Motion priority (2026-10-25) | All four groups of N3, in the order menu/search, overview, bar gestures, predictive back and page transitions. |
+| **D29** | Performance focus (2026-10-25) | Scrolling and pages, tab switch and overview, app start; measured before and after. |
+| **D30** | Order (2026-10-25) | N1 logo, N2 home and auto-home, N3 motion, N4 performance; written into this plan first, built only after Thomas approves it. |
+| **D31** | Glass (2026-10-25) | The bars are opaque; "Durchscheinend" makes them translucent and blurred over the app's own screens. Over a web page there is no blur: Flutter's blur does not see the page in Hybrid Composition, and a second draw of the `WebView` for a native blur comes out misplaced (spikes N5). |
 
 ### Still open
 

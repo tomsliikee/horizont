@@ -16,6 +16,7 @@ class StaggeredEntrance extends StatefulWidget {
     this.step = const Duration(milliseconds: 24),
     this.offset = 18,
     this.maxDelayed = 12,
+    this.fade = true,
   });
 
   final int index;
@@ -27,6 +28,10 @@ class StaggeredEntrance extends StatefulWidget {
 
   /// Items beyond this many appear together with the last delayed one.
   final int maxDelayed;
+
+  /// False when a parent already fades the whole list: each fade is an
+  /// offscreen layer.
+  final bool fade;
 
   @override
   State<StaggeredEntrance> createState() => _StaggeredEntranceState();
@@ -61,15 +66,15 @@ class _StaggeredEntranceState extends State<StaggeredEntrance>
       child: widget.child,
       builder: (context, child) {
         final t = _c.value;
-        return Opacity(
-          opacity: t.clamp(0.0, 1.0),
-          child: reduced
-              ? child
-              : Transform.translate(
-                  offset: Offset(0, (1 - t) * widget.offset),
-                  child: child,
-                ),
-        );
+        final moved = reduced
+            ? child!
+            : Transform.translate(
+                offset: Offset(0, (1 - t) * widget.offset),
+                child: child,
+              );
+        return widget.fade
+            ? Opacity(opacity: t.clamp(0.0, 1.0), child: moved)
+            : moved;
       },
     );
   }

@@ -44,3 +44,41 @@ Texture Layer mixed long stretches at 60 Hz into the scroll, which looks like ju
 - *Tested:* force-stop and start: 20 tabs, their pictures and the tab in front are back.
 - *Finding:* the page script's scroll messages carry the position only when "scrolled" or "at the end" changes, so they cannot be used to restore a position. `readScrollY` asks the page when a tab is left, evicted or the app pauses.
 
+
+## N4: performance, first pass (2026-10-25, emulator Pixel_10, x86_64 profile build)
+
+The Pixel 10 Pro was not connected, so these are emulator numbers: good for before/after on the same machine, not for the budgets of PLAN 7.1.
+
+| **Area** | **Before** | **After** | **How** |
+| :--- | :--- | :--- | :--- |
+| Cold start, own page visible (tab with a page in front) | start page at 0.85 s, the page replaces it at 2.3 s | the page (its picture) at 0.8 s, live without a jump at 2.1 s | `screenrecord` at 30 fps, brightness of the title area per frame |
+| Flutter first frame built (`--trace-startup`, 3 runs) | 318 / 325 / 367 ms | 147 / 204 / 312 ms | `timeToFirstFrameMicros` |
+| Flutter first frame rasterised (3 runs) | 362 / 364 / 411 ms | 359 / 407 / 443 ms | `timeToFirstFrameRasterizedMicros`; the first frame now also creates the web view of the real tab |
+| Start page rebuilds per 10 tab/page events while it shows | 10 | 0 | widget test with `debugOnRebuildDirtyWidget` |
+
+- *Tested:* the snapshot of the tab in front (`SettingsStore.activeSnapshot`) lets the first frame show that tab instead of a throwaway empty tab; the database fills in the rest. Tests in `tabs_notifier_test.dart`.
+- *Tested:* the shell watches only the tab fields it shows (`_ShellTabs`) and keeps one start page instance.
+- *Tested:* `springTo` sets the exact target at rest; before, opacities stayed at 0.9999 and kept a layer alive.
+- *Built, emulator only:* the picture of a tab shows until its page reports, also on a switch to a cold tab; the picture is taken when the app pauses.
+- Not measured: scroll frame times, tab switch and overview with 20 tabs, memory after closing tabs. They need the Pixel (PLAN 7.4).
+
+## N5: smoothness on 120 Hz, the bar morph, the glass (2026-10-25, emulator Pixel_10 at 120 Hz, x86_64 profile build)
+
+Thomas felt the release build on the Pixel 10 Pro stutter when opening settings and while scrolling. Measured on the emulator only (at his request), with the display set to 120 Hz (`hw.lcd.vsync = 120` in the AVD, `peak_refresh_rate` and `min_refresh_rate` 120); at 60 Hz nothing showed. Impeller ran on OpenGL ES. Emulator numbers compare before and after; they do not prove the Pixel's budgets.
+
+**Cause found:** Impeller rasterises text anew at every scale. The screen transition scaled the whole incoming screen (92 → 100 %), the start page came in from 96 %, the overview from 106 %, and the bar squeezed itself with its address text into the pill. Each of those frames redrew every glyph.
+
+| **Measurement** | **Before** | **After** | **How** |
+| :--- | :--- | :--- | :--- |
+| Settings opened and closed 4 times: Flutter frames over 8.3 ms | 114 / 110 (of ~730) | 23 / 19 (of ~810) | `FRAME_STATS` build, raster + build per frame |
+| Same, raster p99 | 17.9 / 18.1 ms | 9.9 / 8.9 ms | same |
+| Web page, 6 swipes: screen frames late (gap 21–150 ms) | 42 / 22 | 13 / 15 / 20 | `screenrecord` frame gaps |
+| Opening and closing settings: screen frames late | 33 / 12 | 10 / 6 / 11 | same |
+| Reference: system Settings app scrolling | 6 / 9 late | | same |
+
+Experiments that changed nothing measurable and were dropped: no opacity in the transition, no rounded clip, no stagger fade, taking the web view offstage under a covering screen, no bars and no status bar tint while scrolling (the web view's own drawing is the bulk there: `gfxinfo` 7–8 % janky with or without the bars).
+
+- *Tested (emulator):* **Hybrid Composition++** (`initHybridAndroidView`, `EnableHcpp` in the manifest) needs Vulkan; with Vulkan forced on the emulator it rendered correctly but scrolled no better than Hybrid Composition. Not adopted; worth a measurement on the Pixel if scrolling stays rough there.
+- *Tested (emulator):* **native blur under the bars** fails: a `WebView` drawn a second time into a `RenderNode` (for `RenderEffect.createBlurEffect`) draws its page stretched and from the wrong place; its draw functor assumes its own node. A software capture per frame is far too slow. So with "Durchscheinend" the bars blur only over the app's own screens; over a web page they are translucent without blur (D31).
+- *Tested:* the bar morph: one glass surface goes from the bar's outline to the pill's (`bar_morph_test.dart`, all five layouts), screen recording frame by frame.
+- Not measured: the Pixel 10 Pro itself.

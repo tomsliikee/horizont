@@ -63,7 +63,21 @@ class _GrowSheet extends StatefulWidget {
 class _GrowSheetState extends State<_GrowSheet> with TickerProviderStateMixin {
   late final _open = AnimationController.unbounded(vsync: this);
   late final _drag = AnimationController.unbounded(vsync: this);
+
+  /// Closing takes the content away at once; the outline follows on its
+  /// spring, so nothing lingers in a shrinking shape.
+  late final _hide = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 90),
+  );
+  late final Animation<double> _visible = ReverseAnimation(_hide);
   final _sheetKey = GlobalKey();
+  late final Animation<double> _fade = _open.drive(
+    Animatable.fromCallback((t) => ((t - 0.2) / 0.5).clamp(0.0, 1.0)),
+  );
+  late final Animation<Offset> _rise = _open.drive(
+    Animatable.fromCallback((t) => Offset(0, (1 - t.clamp(0.0, 1.0)) * 0.04)),
+  );
   var _closing = false;
   var _crossedThreshold = false;
 
@@ -75,7 +89,10 @@ class _GrowSheetState extends State<_GrowSheet> with TickerProviderStateMixin {
       unawaited(
         _open.springTo(
           1,
-          motion: HorizontMotion.spatialFor(context, HorizontMotion.spatial),
+          motion: HorizontMotion.spatialFor(
+            context,
+            HorizontMotion.spatialFast,
+          ),
         ),
       );
     });
@@ -85,17 +102,19 @@ class _GrowSheetState extends State<_GrowSheet> with TickerProviderStateMixin {
   void dispose() {
     _open.dispose();
     _drag.dispose();
+    _hide.dispose();
     super.dispose();
   }
 
   Future<void> _close([Object? result, double velocity = 0]) async {
     if (_closing) return;
     _closing = true;
+    unawaited(_hide.forward());
     // Back into the button, without bouncing past it.
     await Future.wait([
       _open.springTo(
         0,
-        motion: HorizontMotion.effects,
+        motion: HorizontMotion.effectsFast,
         velocity: -velocity / 600,
       ),
       if (_drag.value != 0) _drag.springTo(0, motion: HorizontMotion.effects),
@@ -140,6 +159,23 @@ class _GrowSheetState extends State<_GrowSheet> with TickerProviderStateMixin {
     final scheme = Theme.of(context).colorScheme;
     final scrim = HorizontColors.of(context).scrim;
     final size = media.size;
+    final content = RepaintBoundary(
+      child: FadeTransition(
+        opacity: _visible,
+        child: FadeTransition(
+          opacity: _fade,
+          child: SlideTransition(
+            position: _rise,
+            child: Padding(
+              padding: EdgeInsets.only(
+                bottom: math.max(0, media.viewPadding.bottom - 8),
+              ),
+              child: widget.builder(context, ([r]) => _close(r)),
+            ),
+          ),
+        ),
+      ),
+    );
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
@@ -149,7 +185,9 @@ class _GrowSheetState extends State<_GrowSheet> with TickerProviderStateMixin {
         type: MaterialType.transparency,
         child: AnimatedBuilder(
           animation: Listenable.merge([_open, _drag]),
-          builder: (context, _) {
+          // The content is built once; only the outline moves per frame.
+          child: content,
+          builder: (context, child) {
             final t = _open.value;
             final shown = t.clamp(0.0, 1.0);
             // The pull also lets the scrim go.
@@ -186,34 +224,20 @@ class _GrowSheetState extends State<_GrowSheet> with TickerProviderStateMixin {
                       child: GestureDetector(
                         onVerticalDragUpdate: _onDragUpdate,
                         onVerticalDragEnd: _onDragEnd,
-                        child: PhysicalShape(
+                        // No elevation: the shadow of an outline that changes
+                        // every frame is blurred anew each frame, and over the
+                        // scrim it is barely seen.
+                        child: ClipPath(
                           key: _sheetKey,
                           clipper: _GrowClipper(
                             origin: widget.origin,
                             screen: size,
                             t: t,
                           ),
-                          color: scheme.surfaceContainer,
-                          elevation: 3 * shown,
-                          shadowColor: const Color(0xFF000000),
                           clipBehavior: Clip.antiAlias,
-                          child: Opacity(
-                            opacity: ((t - 0.3) / 0.7).clamp(0.0, 1.0),
-                            child: Transform.translate(
-                              offset: Offset(0, (1 - shown) * 24),
-                              child: Padding(
-                                padding: EdgeInsets.only(
-                                  bottom: math.max(
-                                    0,
-                                    media.viewPadding.bottom - 8,
-                                  ),
-                                ),
-                                child: widget.builder(
-                                  context,
-                                  ([r]) => _close(r),
-                                ),
-                              ),
-                            ),
+                          child: ColoredBox(
+                            color: scheme.surfaceContainer,
+                            child: child,
                           ),
                         ),
                       ),
@@ -276,6 +300,34 @@ class _GrowClipper extends CustomClipper<Path> {
       old.t != t || old.origin != origin || old.screen != screen;
 }
 
-/// A screen route: Android's predictive back comes with it.
+/// A screen route (PLAN N3): it comes and goes on springs, drawn by the
+/// theme's `ExpressiveScreenTransitionsBuilder`; Android's predictive back
+/// comes with it, and a back gesture let go mid-way carries on from there.
 Route<T> screenRoute<T>(Widget page) =>
-    MaterialPageRoute<T>(builder: (context) => page);
+    _SpringScreenRoute<T>(builder: (context) => page);
+
+class _SpringScreenRoute<T> extends MaterialPageRoute<T> {
+  _SpringScreenRoute({required super.builder});
+
+  bool get _reduced {
+    final context = navigator?.context;
+    return context != null && HorizontMotion.reduced(context);
+  }
+
+  @override
+  TickerFuture didPush() {
+    super.didPush();
+    return controller!.springTo(
+      1,
+      motion: _reduced ? HorizontMotion.effects : HorizontMotion.spatial,
+    );
+  }
+
+  @override
+  bool didPop(T? result) {
+    final popped = super.didPop(result);
+    // Back without overshoot: it must come to rest at 0 to be removed.
+    unawaited(controller!.springBackTo(0, motion: HorizontMotion.effects));
+    return popped;
+  }
+}

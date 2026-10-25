@@ -7,7 +7,7 @@ import 'squish.dart';
 
 /// The address in a bar: a lock or search icon and the domain, with the
 /// page-load progress as a thin line along its bottom edge. A tap anywhere on
-/// it opens the search.
+/// it opens the search; a long press does [onLongPress] (copies the address).
 class AddressPill extends StatelessWidget {
   const AddressPill({
     super.key,
@@ -15,6 +15,7 @@ class AddressPill extends StatelessWidget {
     required this.placeholder,
     required this.secure,
     required this.onTap,
+    this.onLongPress,
     this.progress,
     this.height = 48,
     this.small = false,
@@ -28,6 +29,7 @@ class AddressPill extends StatelessWidget {
   final String placeholder;
   final bool secure;
   final VoidCallback onTap;
+  final VoidCallback? onLongPress;
 
   /// 0 to 1 while a page loads; null when idle.
   final double? progress;
@@ -48,6 +50,7 @@ class AddressPill extends StatelessWidget {
     final style = small ? HorizontType.addressSmall : HorizontType.address;
     return Squish(
       onTap: onTap,
+      onLongPress: onLongPress,
       semanticLabel: empty ? placeholder : text,
       pressedScale: 0.97,
       child: SizedBox(

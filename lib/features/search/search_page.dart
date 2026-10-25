@@ -61,6 +61,13 @@ class SearchPage extends ConsumerStatefulWidget {
 
 class _SearchPageState extends ConsumerState<SearchPage>
     with SingleTickerProviderStateMixin {
+  /// The tallest keyboard seen, kept between openings: the results are laid
+  /// out for it at once, so they do not move on every frame the keyboard
+  /// slides in (only the field follows it).
+  static double _keyboardMemory = 0;
+  _Results? _results;
+  (EdgeInsets, SearchEngine, String, bool)? _resultsKey;
+
   late final _open = AnimationController.unbounded(vsync: this);
   late final _text = TextEditingController(text: widget.initial)
     ..selection = TextSelection(
@@ -150,6 +157,8 @@ class _SearchPageState extends ConsumerState<SearchPage>
     final engine = settings.searchEngine;
     final atTop = settings.barLayout == BarLayout.oben;
     final keyboard = media.viewInsets.bottom;
+    if (keyboard > _keyboardMemory) _keyboardMemory = keyboard;
+    final listKeyboard = math.max(keyboard, _keyboardMemory);
     final width = media.size.width;
     const fieldHeight = 56.0;
     final cancelWidth = _cancelWidth(context, l10n.cancel);
@@ -169,6 +178,35 @@ class _SearchPageState extends ConsumerState<SearchPage>
             fieldHeight,
           );
 
+    // The results are laid out for the settled keyboard and kept as the same
+    // widget while nothing about them changes, so the keyboard sliding in does
+    // not rebuild or repaint the list.
+    final listFieldTop = atTop
+        ? target.top
+        : media.size.height -
+              math.max(listKeyboard + 12, media.viewPadding.bottom + 28) -
+              fieldHeight;
+    final listPadding = EdgeInsets.fromLTRB(
+      16,
+      atTop ? target.bottom + 16 : media.viewPadding.top + 16,
+      16,
+      atTop ? listKeyboard + 24 : media.size.height - listFieldTop + 16,
+    );
+    final key = (listPadding, engine, _text.text, atTop);
+    if (_resultsKey != key || _results == null) {
+      _resultsKey = key;
+      _results = _Results(
+        model: _model,
+        engine: engine,
+        input: _text.text,
+        padding: listPadding,
+        onOpen: _go,
+        onInsert: _insert,
+        reverse: !atTop,
+      );
+    }
+    final results = RepaintBoundary(child: _results);
+
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
@@ -186,33 +224,15 @@ class _SearchPageState extends ConsumerState<SearchPage>
             type: MaterialType.transparency,
             child: Stack(
               children: [
+                // A colour with alpha, not an Opacity: no offscreen layer.
                 Positioned.fill(
-                  child: Opacity(
-                    opacity: shown,
-                    child: ColoredBox(color: scheme.surfaceContainer),
-                  ),
-                ),
-                Positioned.fill(
-                  child: Opacity(
-                    opacity: contentOpacity,
-                    child: _Results(
-                      model: _model,
-                      engine: engine,
-                      input: _text.text,
-                      padding: EdgeInsets.fromLTRB(
-                        16,
-                        atTop ? target.bottom + 16 : media.viewPadding.top + 16,
-                        16,
-                        atTop
-                            ? keyboard + 24
-                            : media.size.height - target.top + 16,
-                      ),
-                      onOpen: _go,
-                      onInsert: _insert,
-                      reverse: !atTop,
+                  child: ColoredBox(
+                    color: scheme.surfaceContainer.withValues(
+                      alpha: scheme.surfaceContainer.a * shown,
                     ),
                   ),
                 ),
+                Positioned.fill(child: results),
                 Positioned.fromRect(
                   rect: rect,
                   child: _Field(

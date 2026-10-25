@@ -17,8 +17,21 @@ import 'bar_actions.dart';
 /// page (`P:808`).
 @immutable
 class BarParts {
-  const BarParts({required this.bottom, this.top, this.topReserve = 0});
+  const BarParts({
+    required this.bottom,
+    this.bottomPadding = EdgeInsets.zero,
+    this.bottomRadius = 28,
+    this.top,
+    this.topReserve = 0,
+  });
+
+  /// What floats at the bottom, without its distance from the edges.
   final Widget bottom;
+  final EdgeInsets bottomPadding;
+
+  /// The corner radius of the bottom part's outline, which the one surface
+  /// of the shrinking bar starts from (PLAN N5).
+  final double bottomRadius;
   final Widget? top;
   final double topReserve;
 }
@@ -76,6 +89,11 @@ Widget _icon(
   ),
 );
 
+/// Home in place of back (PLAN N2): the start page in this tab; going back
+/// is the system gesture. Dimmed on the start page itself.
+VoidCallback? _home(PageState page, BarActions a) =>
+    page.url == null ? null : a.home;
+
 Widget _tabsButton(BuildContext context, BarActions a) {
   final l10n = AppLocalizations.of(context);
   return Squish(
@@ -89,86 +107,80 @@ Widget _tabsButton(BuildContext context, BarActions a) {
   );
 }
 
-/// Layout "kompakt" (`P:159`–`P:172`): glass back button, a glass pill with
+/// Layout "kompakt" (`P:159`–`P:172`): glass home button, a glass pill with
 /// reader, address and reload, glass menu button. Bottom 28, sides 16.
 BarParts compactBar(BuildContext context, PageState page, BarActions a) {
   final l10n = AppLocalizations.of(context);
   final addr = _Address(context, page, a);
   return BarParts(
-    bottom: Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 28),
-      child: Row(
-        spacing: 8,
-        children: [
-          _dim(
-            a.back,
-            RoundButton(
-              icon: HIcons.arrowBack,
-              semanticLabel: l10n.back,
-              size: 56,
-              onTap: a.back,
-            ),
+    bottomPadding: const EdgeInsets.fromLTRB(16, 0, 16, 28),
+    bottom: Row(
+      spacing: 8,
+      children: [
+        _dim(
+          _home(page, a),
+          RoundButton(
+            icon: HIcons.home,
+            semanticLabel: l10n.home,
+            size: 56,
+            onTap: _home(page, a),
           ),
-          Expanded(
-            child: FloatingSurface(
-              key: a.addressKey,
-              child: SizedBox(
-                height: 56,
-                child: Row(
-                  children: [
-                    const SizedBox(width: 4),
-                    // On the start page the address needs the room.
-                    if (page.url == null)
-                      const SizedBox(width: 12)
-                    else
-                      _dim(
-                        a.reader,
-                        RoundButton(
-                          icon: HIcons.chromeReaderMode,
-                          semanticLabel: l10n.readerView,
-                          size: 48,
-                          iconSize: 22,
-                          look: a.readerOn
-                              ? ButtonLook.primary
-                              : ButtonLook.plain,
-                          onTap: a.reader,
-                        ),
-                      ),
-                    Expanded(
-                      child: AddressPill(
-                        text: addr.text,
-                        placeholder: addr.placeholder,
-                        secure: page.secure,
-                        icon: addr.icon,
-                        onTap: a.search,
-                        progress: addr.progress,
+        ),
+        Expanded(
+          child: FloatingSurface(
+            key: a.addressKey,
+            child: SizedBox(
+              height: 56,
+              child: Row(
+                children: [
+                  const SizedBox(width: 4),
+                  // On the start page the address needs the room.
+                  if (page.url == null)
+                    const SizedBox(width: 12)
+                  else
+                    _dim(
+                      a.reader,
+                      RoundButton(
+                        icon: HIcons.chromeReaderMode,
+                        semanticLabel: l10n.readerView,
+                        size: 48,
+                        iconSize: 22,
+                        look: a.readerOn
+                            ? ButtonLook.primary
+                            : ButtonLook.plain,
+                        onTap: a.reader,
                       ),
                     ),
-                    if (page.url == null)
-                      const SizedBox(width: 12)
-                    else
-                      _icon(
-                        HIcons.refresh,
-                        l10n.reload,
-                        a.reload,
-                        iconSize: 22,
-                      ),
-                    const SizedBox(width: 4),
-                  ],
-                ),
+                  Expanded(
+                    child: AddressPill(
+                      text: addr.text,
+                      placeholder: addr.placeholder,
+                      secure: page.secure,
+                      icon: addr.icon,
+                      onTap: a.search,
+                      onLongPress: a.copyAddress,
+                      progress: addr.progress,
+                    ),
+                  ),
+                  if (page.url == null)
+                    const SizedBox(width: 12)
+                  else
+                    _icon(HIcons.refresh, l10n.reload, a.reload, iconSize: 22),
+                  const SizedBox(width: 4),
+                ],
               ),
             ),
           ),
-          RoundButton(
-            key: a.menuKey,
-            icon: HIcons.menu,
-            semanticLabel: l10n.menu,
-            size: 56,
-            onTap: a.menu,
-            onLongPress: a.tabs,
-          ),
-        ],
-      ),
+        ),
+        RoundButton(
+          key: a.menuKey,
+          icon: HIcons.menu,
+          semanticLabel: l10n.menu,
+          size: 56,
+          onTap: a.menu,
+          onLongPress: a.tabs,
+        ),
+      ],
     ),
   );
 }
@@ -179,53 +191,53 @@ BarParts twoRowBar(BuildContext context, PageState page, BarActions a) {
   final l10n = AppLocalizations.of(context);
   final addr = _Address(context, page, a);
   return BarParts(
-    bottom: Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        spacing: 8,
-        children: [
-          FloatingSurface(
-            key: a.addressKey,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: AddressPill(
-                height: 52,
-                text: addr.text,
-                placeholder: addr.placeholder,
-                secure: page.secure,
-                icon: addr.icon,
-                onTap: a.search,
-                progress: addr.progress,
-              ),
+    bottomPadding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+    bottomRadius: 32,
+    bottom: Column(
+      mainAxisSize: MainAxisSize.min,
+      spacing: 8,
+      children: [
+        FloatingSurface(
+          key: a.addressKey,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: AddressPill(
+              height: 52,
+              text: addr.text,
+              placeholder: addr.placeholder,
+              secure: page.secure,
+              icon: addr.icon,
+              onTap: a.search,
+              onLongPress: a.copyAddress,
+              progress: addr.progress,
             ),
           ),
-          FloatingSurface(
-            borderRadius: BorderRadius.circular(32),
-            child: SizedBox(
-              height: 64,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8),
-                    child: _icon(HIcons.arrowBack, l10n.back, a.back),
-                  ),
-                  _icon(HIcons.arrowForward, l10n.forward, a.forward),
-                  // The share icon opens the menu, whose first tile shares
-                  // (`P:183`).
-                  _icon(HIcons.iosShare, l10n.menu, a.menu, key: a.menuKey),
-                  _icon(HIcons.book2, l10n.library, a.library),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: _tabsButton(context, a),
-                  ),
-                ],
-              ),
+        ),
+        FloatingSurface(
+          borderRadius: BorderRadius.circular(32),
+          child: SizedBox(
+            height: 64,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 8),
+                  child: _icon(HIcons.home, l10n.home, _home(page, a)),
+                ),
+                _icon(HIcons.arrowForward, l10n.forward, a.forward),
+                // The share icon opens the menu, whose first tile shares
+                // (`P:183`).
+                _icon(HIcons.iosShare, l10n.menu, a.menu, key: a.menuKey),
+                _icon(HIcons.book2, l10n.library, a.library),
+                Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: _tabsButton(context, a),
+                ),
+              ],
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     ),
   );
 }
@@ -242,13 +254,10 @@ BarParts expressiveBar(BuildContext context, PageState page, BarActions a) {
     top: Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 280),
-        child: DecoratedBox(
+        child: FloatingSurface(
           key: a.addressKey,
-          decoration: BoxDecoration(
-            color: HorizontColors.of(context).glass,
-            borderRadius: BorderRadius.circular(22),
-            boxShadow: HorizontShadows.of(context).button,
-          ),
+          borderRadius: BorderRadius.circular(22),
+          shadows: HorizontShadows.of(context).button,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 14),
             child: AddressPill(
@@ -259,55 +268,55 @@ BarParts expressiveBar(BuildContext context, PageState page, BarActions a) {
               secure: page.secure,
               icon: addr.icon,
               onTap: a.search,
+              onLongPress: a.copyAddress,
               progress: addr.progress,
             ),
           ),
         ),
       ),
     ),
-    bottom: Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 28),
-      child: Row(
-        spacing: 8,
-        children: [
-          Expanded(
-            child: FloatingSurface(
-              borderRadius: BorderRadius.circular(32),
-              child: SizedBox(
-                height: 64,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _icon(HIcons.arrowBack, l10n.back, a.back),
-                    _icon(HIcons.arrowForward, l10n.forward, a.forward),
-                    _tabsButton(context, a),
-                    _icon(HIcons.moreVert, l10n.menu, a.menu, key: a.menuKey),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Squish(
-            semanticLabel: l10n.search,
-            onTap: a.search,
-            child: Container(
-              width: 64,
+    bottomPadding: const EdgeInsets.fromLTRB(16, 0, 16, 28),
+    bottomRadius: 32,
+    bottom: Row(
+      spacing: 8,
+      children: [
+        Expanded(
+          child: FloatingSurface(
+            borderRadius: BorderRadius.circular(32),
+            child: SizedBox(
               height: 64,
-              decoration: BoxDecoration(
-                color: scheme.tertiaryContainer,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: HorizontShadows.of(context).floating,
-              ),
-              alignment: Alignment.center,
-              child: SymbolIcon(
-                HIcons.search,
-                size: 28,
-                color: scheme.onTertiaryContainer,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _icon(HIcons.home, l10n.home, _home(page, a)),
+                  _icon(HIcons.arrowForward, l10n.forward, a.forward),
+                  _tabsButton(context, a),
+                  _icon(HIcons.moreVert, l10n.menu, a.menu, key: a.menuKey),
+                ],
               ),
             ),
           ),
-        ],
-      ),
+        ),
+        Squish(
+          semanticLabel: l10n.search,
+          onTap: a.search,
+          child: Container(
+            width: 64,
+            height: 64,
+            decoration: BoxDecoration(
+              color: scheme.tertiaryContainer,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: HorizontShadows.of(context).floating,
+            ),
+            alignment: Alignment.center,
+            child: SymbolIcon(
+              HIcons.search,
+              size: 28,
+              color: scheme.onTertiaryContainer,
+            ),
+          ),
+        ),
+      ],
     ),
   );
 }
@@ -340,6 +349,7 @@ BarParts topBar(BuildContext context, PageState page, BarActions a) {
                   secure: page.secure,
                   icon: addr.icon,
                   onTap: a.search,
+                  onLongPress: a.copyAddress,
                   progress: addr.progress,
                 ),
               ),
@@ -367,38 +377,37 @@ BarParts topBar(BuildContext context, PageState page, BarActions a) {
         ),
       ),
     ),
-    bottom: Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 28),
-      child: FloatingSurface(
-        borderRadius: BorderRadius.circular(32),
-        child: SizedBox(
-          height: 64,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 8),
-                child: PillButton(
-                  icon: onPage ? HIcons.arrowBack : HIcons.home,
-                  label: onPage ? l10n.pageNav : l10n.startNav,
-                  look: ButtonLook.primary,
-                  onTap: onPage ? (a.back ?? a.home) : a.search,
-                ),
+    bottomPadding: const EdgeInsets.fromLTRB(16, 0, 16, 28),
+    bottomRadius: 32,
+    bottom: FloatingSurface(
+      borderRadius: BorderRadius.circular(32),
+      child: SizedBox(
+        height: 64,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 8),
+              child: PillButton(
+                icon: HIcons.home,
+                label: l10n.startNav,
+                look: ButtonLook.primary,
+                onTap: onPage ? a.home : a.search,
               ),
-              _icon(HIcons.tab, l10n.tabs, a.tabs, size: 52),
-              _icon(HIcons.bookmarks, l10n.library, a.library, size: 52),
-              Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: _icon(
-                  HIcons.menuLines,
-                  l10n.menu,
-                  a.menu,
-                  size: 52,
-                  key: a.menuKey,
-                ),
+            ),
+            _icon(HIcons.tab, l10n.tabs, a.tabs, size: 52),
+            _icon(HIcons.bookmarks, l10n.library, a.library, size: 52),
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: _icon(
+                HIcons.menuLines,
+                l10n.menu,
+                a.menu,
+                size: 52,
+                key: a.menuKey,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     ),
@@ -416,35 +425,39 @@ BarParts cardBar(
 ) {
   final l10n = AppLocalizations.of(context);
   final scheme = Theme.of(context).colorScheme;
-  final glass = HorizontColors.of(context).glass;
+  final colors = HorizontColors.of(context);
   final addr = _Address(context, page, a);
   return BarParts(
-    bottom: Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: HorizontShadows.of(context).floating,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          spacing: 4,
-          children: [
-            Squish(
-              key: a.addressKey,
-              semanticLabel: addr.text.isEmpty ? addr.placeholder : addr.text,
-              pressedScale: 0.97,
-              onTap: a.search,
+    bottomPadding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+    bottomRadius: 24,
+    bottom: DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        // One shadow for both pieces; none under translucent glass.
+        boxShadow: colors.translucentGlass
+            ? null
+            : HorizontShadows.of(context).floating,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        spacing: 4,
+        children: [
+          Squish(
+            key: a.addressKey,
+            semanticLabel: addr.text.isEmpty ? addr.placeholder : addr.text,
+            pressedScale: 0.97,
+            onTap: a.search,
+            onLongPress: a.copyAddress,
+            child: FloatingSurface(
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(24),
+                bottom: Radius.circular(8),
+              ),
+              shadows: const [],
               child: Container(
                 height: 56,
                 padding: const EdgeInsets.only(left: 20, right: 4),
-                decoration: BoxDecoration(
-                  color: glass,
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(24),
-                    bottom: Radius.circular(8),
-                  ),
-                ),
+
                 child: Stack(
                   children: [
                     Row(
@@ -500,20 +513,21 @@ BarParts cardBar(
                 ),
               ),
             ),
-            Container(
+          ),
+          FloatingSurface(
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(8),
+              bottom: Radius.circular(24),
+            ),
+            shadows: const [],
+            child: Container(
               height: 56,
               padding: const EdgeInsets.symmetric(horizontal: 8),
-              decoration: BoxDecoration(
-                color: glass,
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(8),
-                  bottom: Radius.circular(24),
-                ),
-              ),
+
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _icon(HIcons.arrowBack, l10n.back, a.back),
+                  _icon(HIcons.home, l10n.home, _home(page, a)),
                   _icon(HIcons.arrowForward, l10n.forward, a.forward),
                   Squish(
                     semanticLabel: l10n.newTab,
@@ -534,75 +548,118 @@ BarParts cardBar(
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     ),
   );
 }
 
 /// Layout "minimal" (`P:249`–`P:257`): an address pill 44 and a menu button
-/// 44, bottom 20. Also the shrunk form of every layout while scrolling.
+/// 44, bottom 20.
+///
+/// [shrunk] is the form every other layout shrinks to while the page is read
+/// (PLAN N5): only the address, thinner (34), centred over the gesture bar;
+/// a tap brings the full bar back with its menu. Then it is [bare] and
+/// [surfaceKey] tells where its address surface lies.
 BarParts minimalBar(
   BuildContext context,
   PageState page,
   BarActions a, {
   bool withKeys = true,
   VoidCallback? onTapAddress,
+  Key? surfaceKey,
+  bool bare = false,
+  bool shrunk = false,
 }) {
   final l10n = AppLocalizations.of(context);
   final addr = _Address(context, page, a);
-  final glass = HorizontColors.of(context).glass;
   final shadow = HorizontShadows.of(context).button;
-  return BarParts(
-    bottom: Padding(
-      padding: const EdgeInsets.only(bottom: 20),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        spacing: 8,
-        children: [
-          ConstrainedBox(
-            constraints: const BoxConstraints(minWidth: 200, maxWidth: 260),
-            child: DecoratedBox(
-              key: withKeys ? a.addressKey : null,
-              decoration: BoxDecoration(
-                color: glass,
-                borderRadius: BorderRadius.circular(22),
-                boxShadow: shadow,
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18),
-                child: AddressPill(
-                  height: 44,
-                  small: true,
-                  text: addr.text,
-                  placeholder: addr.placeholder,
-                  secure: page.secure,
-                  icon: addr.icon,
-                  onTap: onTapAddress ?? a.search,
-                  progress: addr.progress,
-                ),
-              ),
-            ),
-          ),
-          DecoratedBox(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              boxShadow: shadow,
-            ),
-            child: RoundButton(
-              key: withKeys ? a.menuKey : null,
-              icon: HIcons.menu,
-              semanticLabel: l10n.menu,
-              size: 44,
-              iconSize: 20,
-              look: ButtonLook.glass,
-              onTap: a.menu,
-              onLongPress: a.tabs,
-            ),
-          ),
-        ],
+  final height = shrunk ? 34.0 : 44.0;
+  final address = ConstrainedBox(
+    key: surfaceKey,
+    constraints: shrunk
+        ? const BoxConstraints(minWidth: 168, maxWidth: 220)
+        : const BoxConstraints(minWidth: 200, maxWidth: 260),
+    child: _MaybeSurface(
+      key: withKeys ? a.addressKey : null,
+      // Bare while it is the shrinking bar's surface that is drawn.
+      bare: bare,
+      radius: height / 2,
+      shadows: shadow,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: shrunk ? 14 : 18),
+        child: AddressPill(
+          height: height,
+          small: true,
+          text: addr.text,
+          placeholder: addr.placeholder,
+          secure: page.secure,
+          icon: addr.icon,
+          onTap: onTapAddress ?? a.search,
+          onLongPress: a.copyAddress,
+          progress: addr.progress,
+        ),
       ),
     ),
   );
+  if (shrunk) {
+    return BarParts(
+      bottomPadding: const EdgeInsets.only(bottom: 34),
+      bottomRadius: height / 2,
+      bottom: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [address],
+      ),
+    );
+  }
+  return BarParts(
+    bottomPadding: const EdgeInsets.only(bottom: 20),
+    bottomRadius: 22,
+    bottom: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      spacing: 8,
+      children: [
+        address,
+        DecoratedBox(
+          decoration: BoxDecoration(shape: BoxShape.circle, boxShadow: shadow),
+          child: RoundButton(
+            key: withKeys ? a.menuKey : null,
+            icon: HIcons.menu,
+            semanticLabel: l10n.menu,
+            size: 44,
+            iconSize: 20,
+            look: ButtonLook.glass,
+            onTap: a.menu,
+            onLongPress: a.tabs,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+/// The pill's glass, or nothing where the shrinking bar draws it.
+class _MaybeSurface extends StatelessWidget {
+  const _MaybeSurface({
+    super.key,
+    required this.bare,
+    required this.radius,
+    required this.shadows,
+    required this.child,
+  });
+
+  final bool bare;
+  final double radius;
+  final List<BoxShadow> shadows;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => bare
+      ? child
+      : FloatingSurface(
+          borderRadius: BorderRadius.circular(radius),
+          shadows: shadows,
+          child: child,
+        );
 }

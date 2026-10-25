@@ -12,7 +12,6 @@ import '../test_app.dart';
 void main() {
   void noop() {}
   const actions = BarActions(
-    back: _noop,
     forward: null,
     reload: _noop,
     search: _noop,
@@ -91,6 +90,59 @@ void main() {
     // is the one that takes taps.
     await tester.tap(find.text('bergzeit.example').last);
     expect(expanded, 1);
+  });
+
+  group('home in place of back', () {
+    for (final layout in BarLayout.values.where(
+      (l) => l != BarLayout.minimal,
+    )) {
+      testWidgets('${layout.name}: home on a page, dimmed on start', (
+        tester,
+      ) async {
+        var homes = 0;
+        var searches = 0;
+        final counting = BarActions(
+          forward: null,
+          reload: _noop,
+          search: () => searches++,
+          menu: _noop,
+          tabs: _noop,
+          library: _noop,
+          share: _noop,
+          newTab: _noop,
+          home: () => homes++,
+          reader: _noop,
+        );
+        Future<void> show(PageState state) => pumpApp(
+          tester,
+          Scaffold(
+            body: BrowserBars(
+              layout: layout,
+              page: state,
+              actions: counting,
+              mode: BarMode.full,
+              keyboardUp: false,
+              engineLabel: 'Google',
+              onExpand: _noop,
+            ),
+          ),
+        );
+        // The top layout's home is the "Start" pill.
+        final home = layout == BarLayout.oben
+            ? find.text('Start')
+            : find.bySemanticsLabel('Home');
+
+        await show(page);
+        expect(find.bySemanticsLabel('Back'), findsNothing);
+        await tester.tap(home);
+        expect(homes, 1);
+
+        await show(const PageState());
+        await tester.tap(home, warnIfMissed: false);
+        expect(homes, 1);
+        if (layout == BarLayout.oben) expect(searches, 1);
+      });
+    }
   });
 }
 

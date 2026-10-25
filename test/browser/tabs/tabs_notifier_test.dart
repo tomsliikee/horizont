@@ -233,6 +233,100 @@ void main() {
     );
   });
 
+  group('snapshot of the tab in front', () {
+    final page = Uri.parse('https://a.example/x');
+
+    test('the first frame shows the remembered tab', () async {
+      final c = await container(stored: [tab('a'), tab('b', position: 1)]);
+      await store.saveActiveSnapshot(
+        id: 'b',
+        url: page,
+        title: 'X',
+        scrollY: 40,
+      );
+      final fresh = ProviderContainer(
+        overrides: [
+          settingsStoreProvider.overrideWithValue(store),
+          tabsRepositoryProvider.overrideWithValue(repository),
+          clockProvider.overrideWithValue(() => now),
+        ],
+      );
+      addTearDown(fresh.dispose);
+      c.dispose();
+      final first = fresh.read(tabsProvider).active;
+      expect(
+        (first.id, first.url, first.title, first.scrollY),
+        ('b', page, 'X', 40.0),
+      );
+      await fresh.read(tabsProvider.notifier).restore();
+      final state = fresh.read(tabsProvider);
+      expect(state.tabs.map((t) => t.id), ['a', 'b']);
+      expect(state.activeId, 'b');
+      // Nothing to write: the snapshot's tab was stored already.
+      await fresh.read(tabsProvider.notifier).flush();
+      expect((await repository.loadAll()), hasLength(2));
+    });
+
+    Future<ProviderContainer> withSnapshot(
+      List<BrowserTab> stored,
+      String id,
+    ) async {
+      final c = await container(stored: stored);
+      await store.saveActiveSnapshot(id: id, url: page);
+      final fresh = ProviderContainer(
+        overrides: [
+          settingsStoreProvider.overrideWithValue(store),
+          tabsRepositoryProvider.overrideWithValue(repository),
+          clockProvider.overrideWithValue(() => now),
+        ],
+      );
+      addTearDown(fresh.dispose);
+      c.dispose();
+      return fresh;
+    }
+
+    test('a remembered tab the store no longer has goes', () async {
+      final c = await withSnapshot([tab('a'), tab('b', position: 1)], 'gone');
+      await store.saveActiveTabId('a');
+      await c.read(tabsProvider.notifier).restore();
+      final state = c.read(tabsProvider);
+      expect(state.tabs.map((t) => t.id), ['a', 'b']);
+      expect(state.activeId, 'a');
+    });
+
+    test('a link opens its own tab beside the remembered one', () async {
+      final c = await withSnapshot([tab('a')], 'a');
+      final link = Uri.parse('https://link.example');
+      c.read(tabsProvider.notifier).openLink(link);
+      await c.read(tabsProvider.notifier).restore();
+      final state = c.read(tabsProvider);
+      expect(state.tabs, hasLength(2));
+      expect(state.active.url, link);
+      expect(state.byId('a'), isNotNull);
+    });
+
+    test('without a snapshot a link takes the empty first tab', () async {
+      final c = await container(stored: [tab('a')]);
+      final link = Uri.parse('https://link.example');
+      c.read(tabsProvider.notifier).openLink(link);
+      await c.read(tabsProvider.notifier).restore();
+      final state = c.read(tabsProvider);
+      expect(state.tabs, hasLength(2));
+      expect(state.active.url, link);
+    });
+
+    test('flush remembers the normal tab, also from private mode', () async {
+      final c = await container(stored: [tab('a')]);
+      final n = c.read(tabsProvider.notifier);
+      await n.restore();
+      n.updatePage('a', url: page, title: 'A');
+      n.enterPrivate();
+      await n.flush();
+      expect(store.activeSnapshot?.id, 'a');
+      expect(store.activeSnapshot?.url, page);
+    });
+  });
+
   group('auto-close', () {
     List<BrowserTab> aged() => [
       tab('new', active: now.subtract(const Duration(days: 29))),

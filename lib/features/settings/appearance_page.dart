@@ -181,6 +181,18 @@ class AppearancePage extends ConsumerWidget {
                             ),
                           ),
                           ListRow(
+                            title: l10n.translucentBars,
+                            subtitle: l10n.translucentBarsSub,
+                            minHeight: 72,
+                            trailing: HorizontSwitch(
+                              value: s.translucentBars,
+                              semanticLabel: l10n.translucentBars,
+                              onChanged: (v) => notifier.update(
+                                (s) => s.copyWith(translucentBars: v),
+                              ),
+                            ),
+                          ),
+                          ListRow(
                             title: l10n.hideAtEnd,
                             subtitle: l10n.hideAtEndSub,
                             minHeight: 72,

@@ -16,6 +16,19 @@ enum AutoCloseTabs {
   final Duration? after;
 }
 
+/// After how long away the app opens a new tab with the start page
+/// (PLAN N2, D27).
+enum HomeAfterAway {
+  never(null),
+  halfHour(Duration(minutes: 30)),
+  hour(Duration(hours: 1)),
+  fourHours(Duration(hours: 4)),
+  day(Duration(days: 1));
+
+  const HomeAfterAway(this.after);
+  final Duration? after;
+}
+
 /// The six bar layouts of Design & Farbe (PLAN 3).
 enum BarLayout { kompakt, zweireihig, expressiv, oben, karte, minimal }
 
@@ -31,6 +44,7 @@ class Settings {
     this.barLayout = BarLayout.kompakt,
     this.tintFromPage = true,
     this.shrinkOnScroll = true,
+    this.translucentBars = false,
     this.hideBarAtPageEnd = false,
     this.searchEngine = SearchEngine.google,
     this.searchSuggestions = true,
@@ -44,6 +58,7 @@ class Settings {
     this.forceZoom = false,
     this.textZoomByHost = const {},
     this.startSections = const {...StartSection.values},
+    this.homeAfterAway = HomeAfterAway.hour,
   });
 
   /// Bumped when a stored value changes meaning; [fromJson] migrates older
@@ -59,6 +74,10 @@ class Settings {
 
   /// "Beim Scrollen verkleinern": the bar shrinks to the minimal pill.
   final bool shrinkOnScroll;
+
+  /// "Durchscheinend": the bars let the page show through, blurred (PLAN
+  /// N5, D31). Off, they are opaque.
+  final bool translucentBars;
 
   /// "Am Seitenende ausblenden" (D4).
   final bool hideBarAtPageEnd;
@@ -87,6 +106,9 @@ class Settings {
   final Map<String, int> textZoomByHost;
   final Set<StartSection> startSections;
 
+  /// "Startseite nach Abwesenheit".
+  final HomeAfterAway homeAfterAway;
+
   int textZoomFor(String host) => textZoomByHost[host] ?? 100;
 
   /// [textZoomByHost] with [host] set to [percent].
@@ -106,6 +128,7 @@ class Settings {
     BarLayout? barLayout,
     bool? tintFromPage,
     bool? shrinkOnScroll,
+    bool? translucentBars,
     bool? hideBarAtPageEnd,
     SearchEngine? searchEngine,
     bool? searchSuggestions,
@@ -119,12 +142,14 @@ class Settings {
     bool? forceZoom,
     Map<String, int>? textZoomByHost,
     Set<StartSection>? startSections,
+    HomeAfterAway? homeAfterAway,
   }) => Settings(
     themeMode: themeMode ?? this.themeMode,
     colourway: colourway ?? this.colourway,
     barLayout: barLayout ?? this.barLayout,
     tintFromPage: tintFromPage ?? this.tintFromPage,
     shrinkOnScroll: shrinkOnScroll ?? this.shrinkOnScroll,
+    translucentBars: translucentBars ?? this.translucentBars,
     hideBarAtPageEnd: hideBarAtPageEnd ?? this.hideBarAtPageEnd,
     searchEngine: searchEngine ?? this.searchEngine,
     searchSuggestions: searchSuggestions ?? this.searchSuggestions,
@@ -138,6 +163,7 @@ class Settings {
     forceZoom: forceZoom ?? this.forceZoom,
     textZoomByHost: textZoomByHost ?? this.textZoomByHost,
     startSections: startSections ?? this.startSections,
+    homeAfterAway: homeAfterAway ?? this.homeAfterAway,
   );
 
   String toJson() => jsonEncode({
@@ -147,6 +173,7 @@ class Settings {
     'barLayout': barLayout.name,
     'tintFromPage': tintFromPage,
     'shrinkOnScroll': shrinkOnScroll,
+    'translucentBars': translucentBars,
     'hideBarAtPageEnd': hideBarAtPageEnd,
     'searchEngine': searchEngine.name,
     'searchSuggestions': searchSuggestions,
@@ -160,6 +187,7 @@ class Settings {
     'forceZoom': forceZoom,
     'textZoomByHost': textZoomByHost,
     'startSections': [for (final s in startSections) s.name],
+    'homeAfterAway': homeAfterAway.name,
   });
 
   /// Reads [source]; anything unreadable, or from a newer version, gives the
@@ -196,6 +224,7 @@ class Settings {
         barLayout: pick(BarLayout.values, 'barLayout', d.barLayout),
         tintFromPage: flag('tintFromPage', d.tintFromPage),
         shrinkOnScroll: flag('shrinkOnScroll', d.shrinkOnScroll),
+        translucentBars: flag('translucentBars', d.translucentBars),
         hideBarAtPageEnd: flag('hideBarAtPageEnd', d.hideBarAtPageEnd),
         searchEngine: pick(SearchEngine.values, 'searchEngine', d.searchEngine),
         searchSuggestions: flag('searchSuggestions', d.searchSuggestions),
@@ -213,6 +242,11 @@ class Settings {
         forceZoom: flag('forceZoom', d.forceZoom),
         textZoomByHost: zoom,
         startSections: sections,
+        homeAfterAway: pick(
+          HomeAfterAway.values,
+          'homeAfterAway',
+          d.homeAfterAway,
+        ),
       );
     } on FormatException {
       return const Settings();

@@ -12,7 +12,8 @@ class FakeWebEngine implements WebEngine {
   final _state = ValueNotifier(const PageState());
   final _events = StreamController<EngineEvent>.broadcast();
   final _messages = StreamController<PageMessage>.broadcast();
-  final _history = <Uri>[];
+  /// Null entries are the start page, as `about:blank` is in the web view.
+  final _history = <Uri?>[];
   var _index = -1;
   var reloads = 0;
   var reveals = 0;
@@ -130,8 +131,11 @@ class FakeWebEngine implements WebEngine {
 
   @override
   Future<void> goToStart() async {
-    _history.clear();
-    _index = -1;
+    if (_index < 0 || _history[_index] == null) return;
+    _history
+      ..removeRange(_index + 1, _history.length)
+      ..add(null);
+    _index = _history.length - 1;
     _show();
   }
 

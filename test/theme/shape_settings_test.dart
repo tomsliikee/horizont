@@ -80,6 +80,16 @@ void main() {
         isTrue,
       );
     });
+    test('the bars are opaque unless translucent is chosen', () {
+      expect(const Settings().translucentBars, isFalse);
+      const on = Settings(translucentBars: true);
+      expect(Settings.fromJson(on.toJson()).translucentBars, isTrue);
+      expect(
+        Settings.fromJson('{"version":1}').translucentBars,
+        isFalse,
+        reason: 'stored before the setting existed',
+      );
+    });
     test('defaults for null, garbage and unknown values', () {
       expect(Settings.fromJson(null), const Settings());
       expect(Settings.fromJson('not json'), const Settings());

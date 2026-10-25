@@ -37,11 +37,14 @@ class ActionTile extends StatelessWidget {
     return Squish(
       onTap: onTap,
       semanticLabel: label,
-      child: Container(
+      // Pressed, the corners grow towards a pill (Material 3 Expressive).
+      morph: (context, pressed) => Container(
         height: 84,
         decoration: BoxDecoration(
           color: fill,
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(
+            lerpDouble(24, 42, pressed.clamp(0.0, 1.0))!,
+          ),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -100,12 +103,17 @@ class GridButton extends StatelessWidget {
       onTap: onTap,
       semanticLabel: label,
       pressedScale: 0.95,
-      child: Container(
+      // Pressed, every corner rounds to the full pill, then springs back.
+      morph: (context, pressed) => Container(
         height: 60,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
           color: scheme.surfaceBright,
-          borderRadius: borderRadius,
+          borderRadius: BorderRadius.lerp(
+            borderRadius,
+            BorderRadius.circular(30),
+            pressed.clamp(0.0, 1.0),
+          ),
         ),
         child: Row(
           spacing: 12,
@@ -726,12 +734,13 @@ class RadioRow extends StatelessWidget {
                           title,
                           style: HorizontType.bodyMedium.copyWith(color: ink),
                         ),
-                        Text(
-                          subtitle,
-                          style: HorizontType.caption.copyWith(
-                            color: ink.withValues(alpha: 0.85),
+                        if (subtitle.isNotEmpty)
+                          Text(
+                            subtitle,
+                            style: HorizontType.caption.copyWith(
+                              color: ink.withValues(alpha: 0.85),
+                            ),
                           ),
-                        ),
                       ],
                     ),
                   ),

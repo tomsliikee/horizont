@@ -1,7 +1,10 @@
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:horizont/app/browser_shell.dart';
 import 'package:horizont/browser/bars/browser_bars.dart';
 import 'package:horizont/browser/fake_web_engine.dart';
+import 'package:horizont/browser/tabs/tabs_notifier.dart';
 import 'package:horizont/browser/web_engine.dart';
 import 'package:horizont/features/start/start_page.dart';
 import 'package:horizont/ui/buttons.dart';
@@ -27,6 +30,51 @@ void main() {
     await pump(tester);
     expect(find.byType(StartPage), findsOneWidget);
     expect(find.text('Search or address'), findsOneWidget);
+  });
+
+  testWidgets('tab bookkeeping and page noise do not rebuild the start page', (
+    tester,
+  ) async {
+    await pump(tester);
+    var builds = 0;
+    debugOnRebuildDirtyWidget = (element, _) {
+      if (element.widget is StartPage) builds++;
+    };
+    addTearDown(() => debugOnRebuildDirtyWidget = null);
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(BrowserShell)),
+    );
+    final notifier = container.read(tabsProvider.notifier);
+    final other = notifier.open(
+      url: Uri.parse('https://a.example'),
+      activate: false,
+    );
+    await tester.pumpAndSettle();
+    builds = 0;
+    for (var i = 0; i < 10; i++) {
+      notifier.updatePage(other.id, title: 'Title $i', scrollY: i * 10.0);
+      engine.emit(PageState(progress: i / 10));
+      await tester.pump();
+    }
+    expect(builds, 0);
+  });
+
+  testWidgets('a restored tab shows its address, not the start page', (
+    tester,
+  ) async {
+    final slow = _SlowEngine();
+    addTearDown(slow.dispose);
+    await pumpAppWith(tester, const BrowserShell(), engineFactory: (_) => slow);
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(BrowserShell)),
+    );
+    container
+        .read(tabsProvider.notifier)
+        .open(url: Uri.parse('https://bergzeit.example/herbst'));
+    await tester.pumpAndSettle();
+    expect(slow.state.value.url, isNull, reason: 'the page has not reported');
+    expect(find.byType(StartPage), findsNothing);
+    expect(find.text('bergzeit.example'), findsOneWidget);
   });
 
   testWidgets('the bar slides away while the keyboard is up', (tester) async {
@@ -74,14 +122,19 @@ void main() {
     expect(engine.state.value.url?.queryParameters['q'], 'wetter wien');
   });
 
-  testWidgets('back button follows the page history', (tester) async {
+  testWidgets('home shows the start page; system back returns', (tester) async {
     await pump(tester);
     await engine.load(Uri.parse('https://a.example'));
-    await engine.load(Uri.parse('https://b.example'));
     await tester.pumpAndSettle();
-    expect(find.text('b.example'), findsOneWidget);
+    expect(find.text('a.example'), findsOneWidget);
+    expect(find.bySemanticsLabel('Back'), findsNothing);
 
-    await tester.tap(find.bySemanticsLabel('Back'));
+    await tester.tap(find.bySemanticsLabel('Home'));
+    await tester.pumpAndSettle();
+    expect(engine.state.value.url, isNull);
+    expect(find.byType(StartPage), findsOneWidget);
+
+    await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
     expect(engine.state.value.url, Uri.parse('https://a.example'));
   });
@@ -147,4 +200,36 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byIcon(HIcons.lock), findsOneWidget);
   });
+
+  testWidgets('a long press on the address copies it', (tester) async {
+    String? copied;
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      SystemChannels.platform,
+      (call) async {
+        if (call.method == 'Clipboard.setData') {
+          copied = (call.arguments as Map)['text'] as String?;
+        }
+        return null;
+      },
+    );
+    addTearDown(
+      () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        null,
+      ),
+    );
+    await pump(tester);
+    await engine.load(Uri.parse('https://a.example/weg?x=1'));
+    await tester.pumpAndSettle();
+    await tester.longPress(find.text('a.example'));
+    await tester.pumpAndSettle();
+    expect(copied, 'https://a.example/weg?x=1');
+  });
+}
+
+/// A web view that has not reported its page yet, like one still starting.
+class _SlowEngine extends FakeWebEngine {
+  @override
+  Future<void> load(Uri uri, {double scrollY = 0}) async =>
+      loads.add((uri, scrollY));
 }

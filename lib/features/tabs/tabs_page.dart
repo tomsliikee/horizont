@@ -165,8 +165,10 @@ class _TabsPageState extends ConsumerState<TabsPage>
                 Positioned.fill(
                   child: Opacity(
                     opacity: ((t - 0.15) / 0.85).clamp(0.0, 1.0),
-                    child: Transform.scale(
-                      scale: lerpDouble(1.06, 1, shown),
+                    // Moved, not scaled: a scale rasterises every title
+                    // anew each frame (N5).
+                    child: Transform.translate(
+                      offset: Offset(0, 24 * (1 - shown)),
                       child: CustomScrollView(
                         controller: _scroll,
                         slivers: [

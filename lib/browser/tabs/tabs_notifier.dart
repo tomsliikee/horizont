@@ -77,39 +77,76 @@ class TabsNotifier extends Notifier<TabsState> {
 
   DateTime _now() => ref.read(clockProvider)();
 
+  /// The id of the tab the first frame took from the snapshot, if any.
+  String? _snapshotId;
+
   @override
   TabsState build() {
     ref.onDispose(() => _saveTimer?.cancel());
+    // The tab in front last time, from the snapshot: the first frame shows
+    // it and its page loads while the database is still being read.
+    final snap = ref.read(settingsStoreProvider).activeSnapshot;
+    if (snap != null) {
+      _snapshotId = snap.id;
+      final first = BrowserTab(
+        id: snap.id,
+        createdAt: _now(),
+        lastActiveAt: _now(),
+        url: snap.url,
+        title: snap.title,
+        scrollY: snap.scrollY,
+        thumbnailPath: snap.thumbnailPath,
+      );
+      return TabsState(tabs: [first], activeId: first.id);
+    }
     final first = BrowserTab.empty(now: _now());
     _dirty.add(first.id);
     return TabsState(tabs: [first], activeId: first.id);
   }
 
-  /// Brings the stored tabs back, closes the stale ones and puts the tab that
-  /// was in front last time in front again.
+  /// Brings the stored tabs back, closes the stale ones and keeps the tab in
+  /// front: the remembered one, else the one that was in front last time.
   Future<void> restore() async {
     final stored = await ref.read(tabsRepositoryProvider).loadAll();
     if (!ref.mounted) return;
     if (stored.isEmpty) {
+      _dirty.addAll(state.tabs.map((t) => t.id));
       _scheduleSave();
       return;
     }
-    _dirty.clear();
+    final storedIds = {for (final t in stored) t.id};
+    // Tabs of the first frame that were never stored go, unless they were
+    // given a page meanwhile (a link from another app). The snapshot's tab
+    // comes back from the store; if the store no longer has it, it goes.
+    final kept = [
+      for (final t in state.tabs)
+        if (!storedIds.contains(t.id) && t.url != null && t.id != _snapshotId)
+          t,
+    ];
+    final tabs = [...stored, ...kept];
     final rememberedId = ref.read(settingsStoreProvider).activeTabId;
-    final remembered = stored.any((t) => t.id == rememberedId)
+    final activeId = tabs.any((t) => t.id == state.activeId)
+        ? state.activeId
+        : tabs.any((t) => t.id == rememberedId)
         ? rememberedId!
         : stored.last.id;
-    // The tab of the first frame was never stored, so it just goes away,
-    // unless it was given a page meanwhile (a link from another app).
-    final first = state.tabs.length == 1 ? state.tabs.single : null;
-    if (first != null && first.url != null) {
-      state = TabsState(tabs: [...stored, first], activeId: first.id);
-      _dirty.add(first.id);
-      _scheduleSave();
-    } else {
-      state = TabsState(tabs: stored, activeId: remembered);
-    }
+    _dirty
+      ..clear()
+      ..addAll(kept.map((t) => t.id));
+    state = TabsState(tabs: tabs, activeId: activeId);
+    if (kept.isNotEmpty) _scheduleSave();
     closeStale();
+  }
+
+  /// A link from another app: it takes the empty tab of the first frame, or
+  /// opens a tab of its own when the first frame shows a remembered tab.
+  void openLink(Uri url) {
+    final active = state.active;
+    if (active.url == null && active.id != _snapshotId) {
+      updatePage(active.id, url: url);
+    } else {
+      open(url: url, private: false);
+    }
   }
 
   /// Closes the tabs not looked at for longer than the setting allows; never
@@ -180,6 +217,17 @@ class TabsNotifier extends Notifier<TabsState> {
         if (t.id == id) t.copyWith(lastActiveAt: _now()) else t,
     ];
     _commit(tabs, id, touched: {id});
+  }
+
+  /// Puts a normal tab with the start page in front (PLAN N2): the newest
+  /// empty one already open, else a new one. Private tabs stay as they are.
+  void showStart() {
+    final empty = state.normalTabs.where((t) => t.url == null).lastOrNull;
+    if (empty != null) {
+      activate(empty.id);
+    } else {
+      open(private: false);
+    }
   }
 
   /// Switches to private mode: the private tab used last, or a new one.
@@ -346,6 +394,20 @@ class TabsNotifier extends Notifier<TabsState> {
       await repository.delete(id);
     }
     await repository.upsertAll(dirty);
+    final front = state.privateMode
+        ? state.byId(state.lastNormalId ?? '')
+        : state.active;
+    if (front != null && !front.isPrivate) {
+      await ref
+          .read(settingsStoreProvider)
+          .saveActiveSnapshot(
+            id: front.id,
+            url: front.url,
+            title: front.title,
+            scrollY: front.scrollY ?? 0,
+            thumbnailPath: front.thumbnailPath,
+          );
+    }
   }
 
   void _commit(

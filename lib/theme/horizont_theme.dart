@@ -4,12 +4,14 @@ import 'color_schemes.dart';
 import 'extensions.dart';
 import 'system_palette.dart';
 import 'type.dart';
+import '../ui/motion/screen_transition.dart';
 
 /// The [ThemeData] of [colourway] in [brightness].
 ThemeData buildHorizontTheme(
   Colourway colourway,
   Brightness brightness, {
   SystemPalette? palette,
+  bool translucentBars = false,
 }) {
   final scheme = colorSchemeFor(colourway, brightness, palette: palette);
   return ThemeData(
@@ -23,9 +25,7 @@ ThemeData buildHorizontTheme(
     splashFactory: NoSplash.splashFactory,
     // Predictive back on Android 14+ for every screen route (PLAN 1.4).
     pageTransitionsTheme: const PageTransitionsTheme(
-      builders: {
-        TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
-      },
+      builders: {TargetPlatform.android: ExpressiveScreenTransitionsBuilder()},
     ),
     snackBarTheme: SnackBarThemeData(
       behavior: SnackBarBehavior.floating,
@@ -71,7 +71,7 @@ ThemeData buildHorizontTheme(
       selectionHandleColor: scheme.primary,
     ),
     extensions: [
-      HorizontColors.fromScheme(scheme),
+      HorizontColors.fromScheme(scheme, translucent: translucentBars),
       const HorizontRadii(),
       const HorizontSpacing(),
       HorizontShadows.standard,
@@ -80,17 +80,22 @@ ThemeData buildHorizontTheme(
   );
 }
 
-/// Builds each theme once per (colourway, brightness, palette).
+/// Builds each theme once per (colourway, brightness, palette, glass).
 class ThemeCache {
-  final _cache = <(Colourway, Brightness, SystemPalette?), ThemeData>{};
+  final _cache = <(Colourway, Brightness, SystemPalette?, bool), ThemeData>{};
 
   ThemeData get(
     Colourway colourway,
     Brightness brightness, {
     SystemPalette? palette,
-  }) => _cache.putIfAbsent((
-    colourway,
-    brightness,
-    palette,
-  ), () => buildHorizontTheme(colourway, brightness, palette: palette));
+    bool translucentBars = false,
+  }) => _cache.putIfAbsent(
+    (colourway, brightness, palette, translucentBars),
+    () => buildHorizontTheme(
+      colourway,
+      brightness,
+      palette: palette,
+      translucentBars: translucentBars,
+    ),
+  );
 }

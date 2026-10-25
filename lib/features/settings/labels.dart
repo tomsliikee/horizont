@@ -47,6 +47,15 @@ String autoCloseLabel(AppLocalizations l10n, AutoCloseTabs value) =>
       AutoCloseTabs.month => l10n.autoCloseMonth,
     };
 
+String homeAfterAwayLabel(AppLocalizations l10n, HomeAfterAway value) =>
+    switch (value) {
+      HomeAfterAway.never => l10n.autoCloseNever,
+      HomeAfterAway.halfHour => l10n.homeAfterHalfHour,
+      HomeAfterAway.hour => l10n.homeAfterHour,
+      HomeAfterAway.fourHours => l10n.homeAfterFourHours,
+      HomeAfterAway.day => l10n.autoCloseDay,
+    };
+
 /// The boxes of each layout's mini screen (`lyDefs`, `P:924`).
 List<PreviewBox> layoutBoxes(BarLayout layout) {
   PreviewBox b(double x, double y, double w, double h, double r, bool a) =>

@@ -52,6 +52,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get home => 'Home';
+
+  @override
   String get back => 'Back';
 
   @override
@@ -624,6 +627,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get groupTabsSub => 'Tabs opened from a tab stay with it';
 
   @override
+  String get homeAfterAway => 'Start page after time away';
+
+  @override
+  String get homeAfterAwaySub =>
+      'Come back after longer than this and a new tab with the start page opens. The old tab stays open.';
+
+  @override
+  String get homeAfterHalfHour => 'After 30 minutes';
+
+  @override
+  String get homeAfterHour => 'After 1 hour';
+
+  @override
+  String get homeAfterFourHours => 'After 4 hours';
+
+  @override
   String get autoCloseTabs => 'Close tabs automatically';
 
   @override
@@ -725,6 +744,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shrinkOnScrollSub => 'Shows only the domain';
+
+  @override
+  String get translucentBars => 'Translucent';
+
+  @override
+  String get translucentBarsSub =>
+      'Lets what lies beneath show through; blurred within the app';
 
   @override
   String get hideAtEnd => 'Hide at the end of the page';
@@ -984,9 +1010,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get search => 'Search';
 
   @override
-  String get pageNav => 'Page';
-
-  @override
   String get startNav => 'Start';
 
   @override
@@ -1018,4 +1041,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get activeTab => 'in front';
+
+  @override
+  String get greetingMorning => 'Good morning';
+
+  @override
+  String get greetingAfternoon => 'Good afternoon';
+
+  @override
+  String get greetingEvening => 'Good evening';
+
+  @override
+  String get greetingNight => 'Good night';
 }

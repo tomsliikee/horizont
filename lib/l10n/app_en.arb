@@ -33,6 +33,7 @@
       }
     }
   },
+  "home": "Home",
   "back": "Back",
   "themeLight": "Light",
   "themeDark": "Dark",
@@ -348,6 +349,11 @@
   "startPageNothing": "Only the search",
   "groupTabs": "Group tabs",
   "groupTabsSub": "Tabs opened from a tab stay with it",
+  "homeAfterAway": "Start page after time away",
+  "homeAfterAwaySub": "Come back after longer than this and a new tab with the start page opens. The old tab stays open.",
+  "homeAfterHalfHour": "After 30 minutes",
+  "homeAfterHour": "After 1 hour",
+  "homeAfterFourHours": "After 4 hours",
   "autoCloseTabs": "Close tabs automatically",
   "autoCloseNever": "Never",
   "autoCloseDay": "After 1 day",
@@ -388,6 +394,8 @@
   "tintFromPageSub": "Tint the status bar in the colour of the page header",
   "shrinkOnScroll": "Shrink while scrolling",
   "shrinkOnScrollSub": "Shows only the domain",
+  "translucentBars": "Translucent",
+  "translucentBarsSub": "Lets what lies beneath show through; blurred within the app",
   "hideAtEnd": "Hide at the end of the page",
   "hideAtEndSub": "The bar goes away when you reach the bottom",
   "layoutKompakt": "Compact",
@@ -536,7 +544,6 @@
   "noAppForLink": "No app can open this link",
   "chooseFiles": "Choose files",
   "search": "Search",
-  "pageNav": "Page",
   "startNav": "Start",
   "secureSubtitle": "{title} · secure",
   "@secureSubtitle": {
@@ -572,5 +579,9 @@
       }
     }
   },
-  "activeTab": "in front"
+  "activeTab": "in front",
+  "greetingMorning": "Good morning",
+  "greetingAfternoon": "Good afternoon",
+  "greetingEvening": "Good evening",
+  "greetingNight": "Good night"
 }

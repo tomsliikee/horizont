@@ -10,6 +10,12 @@ abstract final class HorizontMotion {
   static const Motion spatial = MaterialSpringMotion.expressiveSpatialDefault();
   static const Motion spatialSlow =
       MaterialSpringMotion.expressiveSpatialSlow();
+
+  /// Softer and bouncier than [spatialSlow] (stiffness 240, damping ratio
+  /// 0.6), for a change meant to be watched: the bar becoming the pill.
+  static const Motion playful = SpringMotion(
+    SpringDescription(mass: 1, stiffness: 240, damping: 18.6),
+  );
   static const Motion effectsFast =
       MaterialSpringMotion.expressiveEffectsFast();
   static const Motion effects = MaterialSpringMotion.expressiveEffectsDefault();

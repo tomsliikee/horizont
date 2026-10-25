@@ -14,10 +14,10 @@ import '../../theme/extensions.dart';
 import '../../theme/type.dart';
 import '../../ui/buttons.dart';
 import '../../ui/cards.dart';
+import '../../ui/horizont_logo.dart';
 import '../../ui/controls.dart';
 import '../../ui/lists.dart';
 import '../../ui/motion/staggered.dart';
-import '../../ui/shapes.dart';
 import '../../ui/tiles.dart';
 import 'labels.dart';
 
@@ -74,6 +74,7 @@ class StartSettingsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final radii = HorizontRadii.of(context);
     final s = ref.watch(settingsProvider);
     final notifier = ref.read(settingsProvider.notifier);
     ListRow row(StartSection section, IconData icon, String title) => ListRow(
@@ -108,6 +109,37 @@ class StartSettingsPage extends ConsumerWidget {
             row(StartSection.readingList, HIcons.eyeglasses, l10n.readingList),
           ],
         ),
+        SectionHeader(l10n.homeAfterAway),
+        Column(
+          spacing: 4,
+          children: [
+            for (final (i, value) in HomeAfterAway.values.indexed)
+              RadioRow(
+                letter: switch (value) {
+                  HomeAfterAway.never => '–',
+                  HomeAfterAway.halfHour => '½',
+                  HomeAfterAway.hour => '1',
+                  HomeAfterAway.fourHours => '4',
+                  HomeAfterAway.day => '24',
+                },
+                title: homeAfterAwayLabel(l10n, value),
+                subtitle: '',
+                selected: s.homeAfterAway == value,
+                borderRadius: radii.groupItem(i, HomeAfterAway.values.length),
+                onTap: () =>
+                    notifier.update((s) => s.copyWith(homeAfterAway: value)),
+              ),
+          ],
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            l10n.homeAfterAwaySub,
+            style: HorizontType.label.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -133,7 +165,7 @@ class AutoClosePage extends ConsumerWidget {
             for (var i = 0; i < values.length; i++)
               RadioRow(
                 letter: switch (values[i]) {
-                  AutoCloseTabs.never => '∞',
+                  AutoCloseTabs.never => '–',
                   AutoCloseTabs.day => '1',
                   AutoCloseTabs.week => '7',
                   AutoCloseTabs.month => '30',
@@ -348,15 +380,7 @@ class AboutPage extends StatelessWidget {
           child: Row(
             spacing: 20,
             children: [
-              MorphingShapeBadge(
-                preset: ShapePreset.sunny,
-                size: 96,
-                color: scheme.primary,
-                child: Text(
-                  'H',
-                  style: HorizontType.brand.copyWith(color: scheme.onPrimary),
-                ),
-              ),
+              const HorizontLogo(size: 96),
               Expanded(
                 child: Text(
                   l10n.aboutBody,

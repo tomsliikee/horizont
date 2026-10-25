@@ -31,11 +31,15 @@ class StartPage extends ConsumerWidget {
     super.key,
     required this.onOpen,
     this.onOpenInNewTab,
+    this.onSearch,
     this.topPadding = 0,
   });
 
   final ValueChanged<Uri> onOpen;
   final ValueChanged<Uri>? onOpenInNewTab;
+
+  /// Opens the search; the big search pill calls it.
+  final VoidCallback? onSearch;
 
   /// Extra room for a bar at the top (layouts oben, expressiv).
   final double topPadding;
@@ -73,7 +77,7 @@ class StartPage extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          date,
+                          '${_greeting(l10n, ref.read(clockProvider)().hour)} · $date',
                           style: HorizontType.subtitle.copyWith(
                             color: scheme.onSurfaceVariant,
                           ),
@@ -100,6 +104,10 @@ class StartPage extends ConsumerWidget {
               ),
             ),
           ),
+          const SizedBox(height: 20),
+          stagger(
+            _SearchHero(label: l10n.searchOrEnterAddressLong, onTap: onSearch),
+          ),
           if (sections.contains(StartSection.privacyReport)) ...[
             const SizedBox(height: 20),
             stagger(
@@ -125,12 +133,12 @@ class StartPage extends ConsumerWidget {
                 physics: const NeverScrollableScrollPhysics(),
                 mainAxisSpacing: 16,
                 crossAxisSpacing: 8,
-                childAspectRatio: 1.03,
+                childAspectRatio: 0.92,
                 children: [
                   for (var f = 0; f < favourites.length && f < 8; f++)
                     _Favourite(
                       bookmark: favourites[f],
-                      preset: ShapePreset.favourites[f % 4],
+                      index: f,
                       onTap: () => onOpen(favourites[f].url),
                       onLongPress: () =>
                           _favouriteActions(context, ref, favourites[f]),
@@ -237,6 +245,13 @@ class StartPage extends ConsumerWidget {
     }
   }
 
+  static String _greeting(AppLocalizations l10n, int hour) => switch (hour) {
+    >= 5 && < 11 => l10n.greetingMorning,
+    >= 11 && < 18 => l10n.greetingAfternoon,
+    >= 18 && < 23 => l10n.greetingEvening,
+    _ => l10n.greetingNight,
+  };
+
   static String _host(Uri url) =>
       url.host.startsWith('www.') ? url.host.substring(4) : url.host;
 
@@ -270,9 +285,9 @@ class _ReportCard extends StatelessWidget {
         child: Row(
           spacing: 20,
           children: [
-            MorphingShapeBadge(
-              preset: report.week == 0
-                  ? ShapePreset.hero9
+            MorphingMaterialBadge(
+              shape: report.week == 0
+                  ? MaterialShapes.cookie9Sided
                   : reportShape(report.week),
               size: 116,
               color: scheme.primary,
@@ -319,13 +334,13 @@ class _ReportCard extends StatelessWidget {
 class _Favourite extends StatelessWidget {
   const _Favourite({
     required this.bookmark,
-    required this.preset,
+    required this.index,
     required this.onTap,
     required this.onLongPress,
   });
 
   final Bookmark bookmark;
-  final ShapePreset preset;
+  final int index;
   final VoidCallback onTap;
   final VoidCallback onLongPress;
 
@@ -337,14 +352,20 @@ class _Favourite extends StatelessWidget {
       semanticLabel: title,
       onTap: onTap,
       onLongPress: onLongPress,
-      turns: 0.03,
-      child: Column(
+      morph: (context, pressed) => Column(
         spacing: 6,
         children: [
-          ShapeBadge(
-            preset: preset,
-            size: 64,
-            color: scheme.surfaceBright,
+          MaterialShapeBadge(
+            shape: materialFavourite(index),
+            pressedShape: MaterialShapes.circle,
+            pressed: pressed,
+            size: 68,
+            color: [
+              scheme.primaryContainer,
+              scheme.tertiaryContainer,
+              scheme.secondaryContainer,
+              scheme.surfaceBright,
+            ][index % 4],
             child: Text(
               title.characters.first.toUpperCase(),
               style: HorizontType.monogramLarge.copyWith(
@@ -427,6 +448,48 @@ class _ReadingCard extends StatelessWidget {
                     ),
                   ),
                 ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The big search pill under the header: tapping it opens the search.
+class _SearchHero extends StatelessWidget {
+  const _SearchHero({required this.label, required this.onTap});
+
+  final String label;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Squish(
+      onTap: onTap,
+      pressedScale: 0.97,
+      semanticLabel: label,
+      child: Container(
+        height: 60,
+        padding: const EdgeInsets.symmetric(horizontal: 22),
+        decoration: ShapeDecoration(
+          color: scheme.surfaceBright,
+          shape: const StadiumBorder(),
+        ),
+        child: Row(
+          spacing: 14,
+          children: [
+            SymbolIcon(HIcons.search, size: 24, color: scheme.primary),
+            Expanded(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: HorizontType.bodyStrong.copyWith(
+                  color: scheme.onSurfaceVariant,
+                ),
               ),
             ),
           ],

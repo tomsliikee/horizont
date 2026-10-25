@@ -31,11 +31,11 @@ String trackerComparison(AppLocalizations l10n, TrackerReport report) {
 
 /// The shape of the report changes with the count, so a new number is seen
 /// as well as read (PLAN 6.2, Shapes).
-ShapePreset reportShape(int count) => const [
-  ShapePreset.sunny,
-  ShapePreset.hero9,
-  ShapePreset.flower,
-  ShapePreset.hero6,
+RoundedPolygon reportShape(int count) => [
+  MaterialShapes.sunny,
+  MaterialShapes.cookie9Sided,
+  MaterialShapes.flower,
+  MaterialShapes.cookie6Sided,
 ][count % 4];
 
 /// Datenschutz (`P:668`–`P:696`): the report, four switches ("IP-Adresse
@@ -97,8 +97,8 @@ class PrivacyPage extends ConsumerWidget {
                         child: Row(
                           spacing: 20,
                           children: [
-                            MorphingShapeBadge(
-                              preset: reportShape(report.week),
+                            MorphingMaterialBadge(
+                              shape: reportShape(report.week),
                               size: 116,
                               color: scheme.tertiary,
                               child: CountUp(

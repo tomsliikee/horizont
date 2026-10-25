@@ -20,10 +20,15 @@ class HorizontColors extends ThemeExtension<HorizontColors> {
     required this.privateSurface,
     required this.privateOnSurfaceVariant,
     this.privateBackground = const Color(0xFF101A38),
+    this.translucentGlass = false,
   });
 
-  /// Built from the tokens; [glass] follows the scheme's highest container.
-  factory HorizontColors.fromScheme(ColorScheme scheme) {
+  /// Built from the tokens; [glass] follows the scheme's highest container,
+  /// opaque unless [translucent] (PLAN N5, D31).
+  factory HorizontColors.fromScheme(
+    ColorScheme scheme, {
+    bool translucent = false,
+  }) {
     final dark = scheme.brightness == Brightness.dark;
     final tokens = dark ? TokenColors.dark : TokenColors.light;
     return HorizontColors(
@@ -35,8 +40,13 @@ class HorizontColors extends ThemeExtension<HorizontColors> {
       onStatusBad: Color(tokens['onStatusBad']!),
       illustrationSun: Color(TokenColors.fixed['illustrationSun']!),
       illustrationNight: Color(TokenColors.fixed['illustrationNight']!),
-      // 92 % opaque, prototype P:750.
-      glass: scheme.surfaceContainerHighest.withAlpha(0xEB),
+      // Opaque by default; translucent it lets 30 % of what lies beneath
+      // through (blurred over the app's own screens; over a web page Flutter
+      // cannot blur, N5).
+      glass: translucent
+          ? scheme.surfaceContainerHighest.withAlpha(0xB3)
+          : scheme.surfaceContainerHighest,
+      translucentGlass: translucent,
       scrim: const Color(0x5C000000),
       privateSurface: const Color(0xFF1B2650),
       privateOnSurfaceVariant: const Color(0xFFC9D1EE),
@@ -59,6 +69,10 @@ class HorizontColors extends ThemeExtension<HorizontColors> {
   /// The page behind private tabs (`P:133`).
   final Color privateBackground;
 
+  /// Whether [glass] lets what lies beneath show through; surfaces of glass
+  /// then blur it.
+  final bool translucentGlass;
+
   static HorizontColors of(BuildContext context) =>
       Theme.of(context).extension<HorizontColors>()!;
 
@@ -76,6 +90,7 @@ class HorizontColors extends ThemeExtension<HorizontColors> {
     Color? scrim,
     Color? privateSurface,
     Color? privateOnSurfaceVariant,
+    bool? translucentGlass,
   }) => HorizontColors(
     statusGood: statusGood ?? this.statusGood,
     onStatusGood: onStatusGood ?? this.onStatusGood,
@@ -90,6 +105,8 @@ class HorizontColors extends ThemeExtension<HorizontColors> {
     privateSurface: privateSurface ?? this.privateSurface,
     privateOnSurfaceVariant:
         privateOnSurfaceVariant ?? this.privateOnSurfaceVariant,
+    privateBackground: privateBackground,
+    translucentGlass: translucentGlass ?? this.translucentGlass,
   );
 
   @override
@@ -112,6 +129,8 @@ class HorizontColors extends ThemeExtension<HorizontColors> {
         privateOnSurfaceVariant,
         other.privateOnSurfaceVariant,
       ),
+      privateBackground: l(privateBackground, other.privateBackground),
+      translucentGlass: t < 0.5 ? translucentGlass : other.translucentGlass,
     );
   }
 }

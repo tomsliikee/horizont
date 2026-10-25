@@ -11,6 +11,7 @@ import 'app/frame_log.dart';
 import 'app/horizont_app.dart';
 import 'app/providers.dart';
 import 'browser/browser_providers.dart';
+import 'browser/tabs/away_watcher.dart';
 import 'browser/tabs/tab_session.dart';
 import 'browser/tabs/tabs_notifier.dart';
 import 'browser/tabs/thumbnail_store.dart';
@@ -25,10 +26,15 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   FrameLog().start();
   LicenseRegistry.addLicense(_bundledLicences);
-  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  // Settings before the first frame, so the first frame has the right colours.
-  final prefs = await SharedPreferences.getInstance();
+  // Settings before the first frame, so the first frame has the right
+  // colours. The system calls run meanwhile instead of one after the other;
+  // the manifest already asks for portrait (PLAN N4).
+  final loading = SharedPreferences.getInstance();
+  unawaited(SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge));
+  unawaited(
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]),
+  );
+  final prefs = await loading;
   final db = AppDatabase.open();
   final container = ProviderContainer(
     overrides: [
@@ -54,14 +60,12 @@ Future<void> main() async {
     final initial = await HorizontWebKit.initialUrl();
     final uri = initial == null ? null : Uri.tryParse(initial);
     if (uri != null) {
-      // A link from another app: it opens in the tab of the first frame,
-      // which restoring keeps.
-      container
-          .read(tabsProvider.notifier)
-          .updatePage(container.read(tabsProvider).activeId, url: uri);
+      // A link from another app: restoring keeps the tab it opens in.
+      container.read(tabsProvider.notifier).openLink(uri);
       container.invalidate(webEngineProvider);
     }
     await container.read(tabsProvider.notifier).restore();
+    container.read(awayWatcherProvider).start();
     // Profiles of earlier private sessions (PLAN 4.4).
     unawaited(HorizontWebKit.deleteProfiles(TabSession.privatePrefix));
     unawaited(container.read(downloadsServiceProvider).start());

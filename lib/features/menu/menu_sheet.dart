@@ -67,7 +67,7 @@ class MenuSheet extends ConsumerWidget {
     );
     var i = 0;
     Widget stagger(Widget child) =>
-        StaggeredEntrance(index: i++, offset: 12, child: child);
+        StaggeredEntrance(index: i++, offset: 12, fade: false, child: child);
 
     void run(Future<void> Function() action) {
       unawaited(close());
