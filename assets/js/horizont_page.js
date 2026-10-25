@@ -77,13 +77,38 @@
     return winner;
   }
 
+  // Any CSS colour as 'r,g,b' (the browser parses names, hex, hsl, ...).
+  function normalise(css) {
+    try {
+      var probe = document.createElement('span');
+      probe.style.color = css;
+      if (!probe.style.color) return null;
+      (document.body || document.documentElement).appendChild(probe);
+      var c = parseRgb(getComputedStyle(probe).color);
+      probe.remove();
+      return c ? c.r + ',' + c.g + ',' + c.b : null;
+    } catch (e) { return null; }
+  }
+
+  function luminance(rgb) {
+    var p = rgb.split(',');
+    return (0.2126 * p[0] + 0.7152 * p[1] + 0.0722 * p[2]) / 255;
+  }
+
   function report() {
     var color, src;
     var meta = metaColor();
+    var d = domColor();
     if (meta) {
       color = meta; src = 'meta';
+      // A theme-color that is not what the top of the page shows (a static
+      // white tag on a page with its own dark mode) tints the bar wrongly:
+      // trust what is visible when the two are far apart.
+      var m = normalise(meta);
+      if (m && d && d !== 'image' && Math.abs(luminance(m) - luminance(d)) > 0.35) {
+        color = 'rgb(' + d + ')'; src = 'dom';
+      }
     } else {
-      var d = domColor();
       if (d === 'image') { color = ''; src = 'unknown'; }
       else { color = 'rgb(' + d + ')'; src = 'dom'; }
     }

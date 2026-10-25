@@ -142,6 +142,10 @@ class _BrowserShellState extends ConsumerState<BrowserShell>
       await engine.loadAsset('assets/test_pages/bergzeit.html');
       return;
     }
+    if (!kReleaseMode && uri.toString().contains('testdarkmeta')) {
+      await engine.loadAsset('assets/test_pages/dark_meta.html');
+      return;
+    }
     setState(() => _finding = false);
     await engine.load(uri);
   }
