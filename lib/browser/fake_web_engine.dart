@@ -12,6 +12,7 @@ class FakeWebEngine implements WebEngine {
   final _state = ValueNotifier(const PageState());
   final _events = StreamController<EngineEvent>.broadcast();
   final _messages = StreamController<PageMessage>.broadcast();
+
   /// Null entries are the start page, as `about:blank` is in the web view.
   final _history = <Uri?>[];
   var _index = -1;
@@ -20,7 +21,7 @@ class FakeWebEngine implements WebEngine {
   var scrollsToTop = 0;
 
   /// What [sampleTop] answers; null like a platform without capture.
-  Color? sample;
+  List<Color>? sample;
   var samples = 0;
 
   @override
@@ -45,7 +46,7 @@ class FakeWebEngine implements WebEngine {
   Future<void> scrollToTop() async => scrollsToTop++;
 
   @override
-  Future<Color?> sampleTop() async {
+  Future<List<Color>?> sampleTop() async {
     samples++;
     return sample;
   }

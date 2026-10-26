@@ -736,6 +736,22 @@ class AppLocalizationsDe extends AppLocalizations {
       'Statusleiste in der Farbe des Seitenkopfs tönen';
 
   @override
+  String get statusBarBlur => 'Unschärfe der Statusleiste';
+
+  @override
+  String get statusBarBlurSub =>
+      'Wie weich die Farbe unter der Statusleiste ausläuft';
+
+  @override
+  String get blurOff => 'Aus';
+
+  @override
+  String get blurSoft => 'Weich';
+
+  @override
+  String get blurStrong => 'Stark';
+
+  @override
   String get shrinkOnScroll => 'Beim Scrollen verkleinern';
 
   @override

@@ -486,10 +486,11 @@ class WebViewEngine implements WebEngine {
   );
 
   @override
-  Future<Color?> sampleTop() async {
+  Future<List<Color>?> sampleTop() async {
     final id = nativeId;
     final argb = id == null ? null : await HorizontWebKit.captureTop(id);
-    return argb == null ? null : Color(argb);
+    if (argb == null || argb.isEmpty) return null;
+    return [for (final v in argb) Color(v)];
   }
 
   @override

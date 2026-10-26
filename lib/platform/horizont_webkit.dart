@@ -177,9 +177,18 @@ abstract final class HorizontWebKit {
   static Future<void> release(int identifier) =>
       _call<void>('release', {'identifier': identifier});
 
-  /// The average colour of the top rows of the native view as 0xAARRGGBB.
-  static Future<int?> captureTop(int identifier) =>
-      _call<int>('captureTop', {'identifier': identifier});
+  /// The colours along the top of the native view, left to right, as
+  /// 0xAARRGGBB; each is the average of the top rows of its column.
+  static Future<List<int>?> captureTop(int identifier) async {
+    final raw = await _call<List<dynamic>>('captureTop', {
+      'identifier': identifier,
+    });
+    if (raw == null) return null;
+    return [
+      for (final v in raw)
+        if (v is int) v & 0xFFFFFFFF,
+    ];
+  }
 
   /// A picture of what the native view shows, [width] pixels wide, as WebP.
   static Future<Uint8List?> capture(int identifier, int width) =>

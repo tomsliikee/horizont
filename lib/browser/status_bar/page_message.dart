@@ -33,6 +33,8 @@ sealed class PageMessage {
         // A half transparent colour is not the colour of the page.
         if (color == null || color.a < 0.99) return null;
         return ColorMessage(color, source);
+      case 'rest':
+        return const RestMessage();
       case 'scroll':
         final y = map['y'];
         final end = map['end'];
@@ -63,4 +65,10 @@ class ScrollMessage extends PageMessage {
   final double y;
   final bool end;
   final bool down;
+}
+
+/// The page came to rest (loaded, or stopped scrolling); the app captures the
+/// top of it again to see what colours are there now.
+class RestMessage extends PageMessage {
+  const RestMessage();
 }

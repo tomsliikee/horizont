@@ -740,6 +740,22 @@ class AppLocalizationsEn extends AppLocalizations {
       'Tint the status bar in the colour of the page header';
 
   @override
+  String get statusBarBlur => 'Status bar blur';
+
+  @override
+  String get statusBarBlurSub =>
+      'How softly the colour fades out below the status bar';
+
+  @override
+  String get blurOff => 'Off';
+
+  @override
+  String get blurSoft => 'Soft';
+
+  @override
+  String get blurStrong => 'Strong';
+
+  @override
   String get shrinkOnScroll => 'Shrink while scrolling';
 
   @override

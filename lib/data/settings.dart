@@ -29,6 +29,19 @@ enum HomeAfterAway {
   final Duration? after;
 }
 
+/// How soft the edge under the status bar is: how far the page colour fades
+/// out below the bar.
+enum StatusBarBlur {
+  off(0),
+  soft(16),
+  strong(32);
+
+  const StatusBarBlur(this.edgeHeight);
+
+  /// The height of the fade below the status bar, in logical pixels.
+  final double edgeHeight;
+}
+
 /// The six bar layouts of Design & Farbe (PLAN 3).
 enum BarLayout { kompakt, zweireihig, expressiv, oben, karte, minimal }
 
@@ -43,6 +56,7 @@ class Settings {
     this.colourway = Colourway.wallpaper,
     this.barLayout = BarLayout.kompakt,
     this.tintFromPage = true,
+    this.statusBarBlur = StatusBarBlur.soft,
     this.shrinkOnScroll = true,
     this.translucentBars = false,
     this.hideBarAtPageEnd = false,
@@ -71,6 +85,9 @@ class Settings {
 
   /// "Websitefarbe übernehmen": the status bar takes the colour of the page.
   final bool tintFromPage;
+
+  /// "Unschärfe": how far the status bar colour fades out below the bar.
+  final StatusBarBlur statusBarBlur;
 
   /// "Beim Scrollen verkleinern": the bar shrinks to the minimal pill.
   final bool shrinkOnScroll;
@@ -127,6 +144,7 @@ class Settings {
     Colourway? colourway,
     BarLayout? barLayout,
     bool? tintFromPage,
+    StatusBarBlur? statusBarBlur,
     bool? shrinkOnScroll,
     bool? translucentBars,
     bool? hideBarAtPageEnd,
@@ -148,6 +166,7 @@ class Settings {
     colourway: colourway ?? this.colourway,
     barLayout: barLayout ?? this.barLayout,
     tintFromPage: tintFromPage ?? this.tintFromPage,
+    statusBarBlur: statusBarBlur ?? this.statusBarBlur,
     shrinkOnScroll: shrinkOnScroll ?? this.shrinkOnScroll,
     translucentBars: translucentBars ?? this.translucentBars,
     hideBarAtPageEnd: hideBarAtPageEnd ?? this.hideBarAtPageEnd,
@@ -172,6 +191,7 @@ class Settings {
     'colourway': colourway.name,
     'barLayout': barLayout.name,
     'tintFromPage': tintFromPage,
+    'statusBarBlur': statusBarBlur.name,
     'shrinkOnScroll': shrinkOnScroll,
     'translucentBars': translucentBars,
     'hideBarAtPageEnd': hideBarAtPageEnd,
@@ -223,6 +243,11 @@ class Settings {
         colourway: pick(Colourway.values, 'colourway', d.colourway),
         barLayout: pick(BarLayout.values, 'barLayout', d.barLayout),
         tintFromPage: flag('tintFromPage', d.tintFromPage),
+        statusBarBlur: pick(
+          StatusBarBlur.values,
+          'statusBarBlur',
+          d.statusBarBlur,
+        ),
         shrinkOnScroll: flag('shrinkOnScroll', d.shrinkOnScroll),
         translucentBars: flag('translucentBars', d.translucentBars),
         hideBarAtPageEnd: flag('hideBarAtPageEnd', d.hideBarAtPageEnd),

@@ -298,6 +298,7 @@ class _BrowserShellState extends ConsumerState<BrowserShell>
     final reserve = topReserveOf(layout);
     final status = ref.watch(statusBarProvider);
     final tint = ref.watch(settingsProvider.select((s) => s.tintFromPage));
+    final blur = ref.watch(settingsProvider.select((s) => s.statusBarBlur));
     final surface = private
         ? colors.privateBackground
         : scheme.surfaceContainer;
@@ -305,7 +306,7 @@ class _BrowserShellState extends ConsumerState<BrowserShell>
     final look = statusBarLook(
       onPage: onPage,
       tint: tint,
-      pageColor: status.pageColor,
+      pageColors: status.pageColors,
       scrolled: status.scrolled,
       surface: surface,
     );
@@ -451,6 +452,7 @@ class _BrowserShellState extends ConsumerState<BrowserShell>
                 child: StatusBarTint(
                   look: look,
                   height: top + reserve,
+                  edgeHeight: blur.edgeHeight,
                   onTapEdge: page.url == null
                       ? null
                       : () {

@@ -30,8 +30,9 @@ void main() {
         matching: find.byType(CustomPaint),
       ),
     );
-    // The painter is private to the widget; its colour is what is drawn.
-    return (paint.painter! as dynamic).color as Color;
+    // The painter is private to the widget; its colours are what is drawn.
+    final colors = (paint.painter! as dynamic).colors as List<Color>;
+    return colors[colors.length ~/ 2];
   }
 
   /// The spring converts through floats, so allow one step per channel.
@@ -93,12 +94,30 @@ void main() {
   });
 
   testWidgets('a photo header is sampled from a capture', (tester) async {
-    engine.sample = const Color(0xFF445566);
+    engine.sample = const [Color(0xFF445566)];
     await pump(tester);
     await open(tester);
     await report(tester, const ColorMessage(null, ColorSource.unknown));
     expect(engine.samples, 1);
     expectColor(bandColor(tester), const Color(0xFF445566));
+  });
+
+  testWidgets('a header with several colours paints all of them', (
+    tester,
+  ) async {
+    engine.sample = const [Color(0xFFFF0000), Color(0xFF0000FF)];
+    await pump(tester);
+    await open(tester);
+    await report(tester, const RestMessage());
+    final paint = tester.widget<CustomPaint>(
+      find.descendant(
+        of: find.byType(StatusBarTint),
+        matching: find.byType(CustomPaint),
+      ),
+    );
+    final colors = (paint.painter! as dynamic).colors as List<Color>;
+    expectColor(colors.first, const Color(0xFFFF0000));
+    expectColor(colors.last, const Color(0xFF0000FF));
   });
 
   testWidgets('a tap on the edge scrolls to the top, only while scrolled', (

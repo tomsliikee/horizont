@@ -207,6 +207,36 @@ class AppearancePage extends ConsumerWidget {
                         ],
                       ),
                     ),
+                    SectionHeader(l10n.statusBarBlur),
+                    stagger(
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: 8,
+                        children: [
+                          SegmentRow(
+                            labels: [
+                              l10n.blurOff,
+                              l10n.blurSoft,
+                              l10n.blurStrong,
+                            ],
+                            selected: s.statusBarBlur.index,
+                            onSelected: (i) => notifier.update(
+                              (s) => s.copyWith(
+                                statusBarBlur: StatusBarBlur.values[i],
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: Text(
+                              l10n.statusBarBlurSub,
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: scheme.onSurfaceVariant),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),

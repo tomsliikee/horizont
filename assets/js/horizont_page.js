@@ -73,7 +73,7 @@
     if (points[0] !== null && (points[0] === points[1] || points[0] === points[2])) winner = points[0];
     else if (points[1] !== null && points[1] === points[2]) winner = points[1];
     else winner = points[1];
-    if (winner === null) winner = elementColor(document.body) || elementColor(document.documentElement) || '255,255,255';
+    if (winner === null) winner = elementColor(document.body) || elementColor(document.documentElement);
     return winner;
   }
 
@@ -109,10 +109,11 @@
         color = 'rgb(' + d + ')'; src = 'dom';
       }
     } else {
-      if (d === 'image') { color = ''; src = 'unknown'; }
+      if (d === 'image' || d === null) { color = ''; src = 'unknown'; }
       else { color = 'rgb(' + d + ')'; src = 'dom'; }
     }
     source = src;
+    rest();
     // An unknown colour is reported again so the app can sample the top of the
     // page once more as it scrolls.
     if (src !== 'unknown' && color === lastColor && src === lastSource) return;
@@ -125,6 +126,10 @@
     clearTimeout(timers[key]);
     timers[key] = setTimeout(fn, ms);
   }
+
+  // The page came to rest: the app captures its top again, which shows the
+  // colours the page really has there.
+  function rest() { later('restMsg', 400, function () { send({ type: 'rest' }); }); }
 
   // Scrolling. The document, or an inner element that fills the page.
   // scrollHeight forces a layout when the page changed, so it is read when
@@ -174,7 +179,8 @@
       });
     }
     later('height', 250, function () { readContentHeight(); });
-    // The colour of a page without a theme-color can change as it scrolls.
+    // The colour at the top can change as the page scrolls.
+    rest();
     if (source !== 'meta') {
       later('rest', 250, function () {
         var now = Date.now();
@@ -217,7 +223,7 @@
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', whenReady);
   else whenReady();
-  window.addEventListener('load', report);
+  window.addEventListener('load', function () { report(); rest(); });
 
   try {
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function () { later('scheme', 100, report); });

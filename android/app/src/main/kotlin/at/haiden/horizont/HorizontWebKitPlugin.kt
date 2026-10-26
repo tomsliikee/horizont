@@ -464,27 +464,31 @@ class HorizontWebKitPlugin :
         }
     }
 
-    /** Average colour of the top rows of [view] as 0xAARRGGBB, or null. */
-    private fun captureTop(view: WebView): Long? {
+    /**
+     * The colours along the top of [view]: [TOP_COLUMNS] values as 0xAARRGGBB,
+     * each the average of the top rows of its column, left to right.
+     */
+    private fun captureTop(view: WebView): IntArray? {
         val width = view.width
         if (width <= 0 || view.height <= 0) return null
-        val scale = 0.1f
-        val bitmapWidth = maxOf(1, (width * scale).toInt())
+        val columns = TOP_COLUMNS
         val rows = 4
-        val bitmap = Bitmap.createBitmap(bitmapWidth, rows, Bitmap.Config.ARGB_8888)
+        val bitmap = Bitmap.createBitmap(columns, rows, Bitmap.Config.ARGB_8888)
         try {
             val canvas = Canvas(bitmap)
-            canvas.scale(bitmapWidth / width.toFloat(), bitmapWidth / width.toFloat())
+            canvas.scale(columns / width.toFloat(), columns / width.toFloat())
             view.draw(canvas)
-            var a = 0L; var r = 0L; var g = 0L; var b = 0L
-            val pixels = IntArray(bitmapWidth * rows)
-            bitmap.getPixels(pixels, 0, bitmapWidth, 0, 0, bitmapWidth, rows)
-            for (p in pixels) {
-                a += (p ushr 24) and 0xFF; r += (p shr 16) and 0xFF
-                g += (p shr 8) and 0xFF; b += p and 0xFF
+            val pixels = IntArray(columns * rows)
+            bitmap.getPixels(pixels, 0, columns, 0, 0, columns, rows)
+            return IntArray(columns) { x ->
+                var a = 0; var r = 0; var g = 0; var b = 0
+                for (y in 0 until rows) {
+                    val p = pixels[y * columns + x]
+                    a += (p ushr 24) and 0xFF; r += (p shr 16) and 0xFF
+                    g += (p shr 8) and 0xFF; b += p and 0xFF
+                }
+                ((a / rows) shl 24) or ((r / rows) shl 16) or ((g / rows) shl 8) or (b / rows)
             }
-            val n = pixels.size
-            return ((a / n) shl 24) or ((r / n) shl 16) or ((g / n) shl 8) or (b / n)
         } finally {
             bitmap.recycle()
         }
@@ -492,5 +496,6 @@ class HorizontWebKitPlugin :
 
     companion object {
         private const val PERMISSION_REQUEST = 0x4857
+        private const val TOP_COLUMNS = 32
     }
 }

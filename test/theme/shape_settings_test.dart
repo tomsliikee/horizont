@@ -81,6 +81,16 @@ void main() {
       );
     });
     test('the bars are opaque unless translucent is chosen', () {
+      expect(const Settings().statusBarBlur, StatusBarBlur.soft);
+      const strong = Settings(statusBarBlur: StatusBarBlur.strong);
+      expect(
+        Settings.fromJson(strong.toJson()).statusBarBlur,
+        StatusBarBlur.strong,
+      );
+      expect(
+        Settings.fromJson('{"version":1}').statusBarBlur,
+        StatusBarBlur.soft,
+      );
       expect(const Settings().translucentBars, isFalse);
       const on = Settings(translucentBars: true);
       expect(Settings.fromJson(on.toJson()).translucentBars, isTrue);

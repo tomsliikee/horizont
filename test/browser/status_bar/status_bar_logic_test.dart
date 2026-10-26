@@ -118,14 +118,27 @@ void main() {
       expect(t.color, isNull);
     });
 
-    test('captures run at most once per second', () {
+    test('captures run at most once per interval', () {
       var now = DateTime(2026);
       final t = PageColorTracker(now: () => now);
       expect(t.mayTakeSample(), isTrue);
-      now = now.add(const Duration(milliseconds: 999));
+      now = now.add(PageColorTracker.sampleInterval * 0.99);
       expect(t.mayTakeSample(), isFalse);
-      now = now.add(const Duration(milliseconds: 1));
+      now = now.add(PageColorTracker.sampleInterval * 0.01);
       expect(t.mayTakeSample(), isTrue);
+    });
+
+    test('a capture keeps every colour along the top', () {
+      final t = PageColorTracker();
+      const row = [Color(0xFFFF0000), Color(0xFF00FF00), Color(0xFF0000FF)];
+      expect(t.reportSample(row), isTrue);
+      expect(t.colors, row);
+      expect(t.color, row[1]);
+      expect(t.reportSample(row), isFalse);
+      expect(
+        t.reportSample(const [Color(0xFFFF0000), Color(0xFF00FF00)]),
+        isTrue,
+      );
     });
   });
 
@@ -135,46 +148,51 @@ void main() {
     StatusBarLook look({
       bool onPage = true,
       bool tint = true,
-      Color? pageColor = page,
+      List<Color>? pageColors = const [page],
       bool scrolled = false,
     }) => statusBarLook(
       onPage: onPage,
       tint: tint,
-      pageColor: pageColor,
+      pageColors: pageColors,
       scrolled: scrolled,
       surface: surface,
     );
 
     test('page at the top: solid page colour, no edge', () {
-      expect(look(), const StatusBarLook(color: page, edge: false));
+      expect(look(), const StatusBarLook(colors: [page], edge: false));
     });
 
     test('page scrolled: page colour at 85 %, with the edge', () {
       final l = look(scrolled: true);
-      expect(l.color, page.withAlpha(0xD9));
+      expect(l.colors, [page.withAlpha(0xD9)]);
       expect(l.edge, isTrue);
     });
 
     test('tint off: the surface, edge follows scrolling', () {
       expect(
         look(tint: false),
-        const StatusBarLook(color: surface, edge: false),
+        const StatusBarLook(colors: [surface], edge: false),
       );
       expect(
         look(tint: false, scrolled: true),
-        const StatusBarLook(color: surface, edge: true),
+        const StatusBarLook(colors: [surface], edge: true),
       );
+    });
+
+    test('several colours stay several colours', () {
+      const row = [Color(0xFFFF0000), Color(0xFF0000FF)];
+      expect(look(pageColors: row).colors, row);
     });
 
     test('start page: the surface, always with the edge', () {
       expect(
         look(onPage: false),
-        const StatusBarLook(color: surface, edge: true),
+        const StatusBarLook(colors: [surface], edge: true),
       );
     });
 
     test('before the first report the surface shows', () {
-      expect(look(pageColor: null).color, surface);
+      expect(look(pageColors: null).color, surface);
     });
   });
 }

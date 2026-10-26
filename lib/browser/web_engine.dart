@@ -310,9 +310,9 @@ abstract interface class WebEngine {
   /// Scrolls the page smoothly to the top.
   Future<void> scrollToTop();
 
-  /// The average colour of the top of what the page shows, from a capture of
-  /// the native view; null where that is not possible.
-  Future<Color?> sampleTop();
+  /// The colours along the top of what the page shows, left to right, from a
+  /// capture of the native view; null where that is not possible.
+  Future<List<Color>?> sampleTop();
 
   /// How far the page is scrolled, in page pixels.
   Future<double> readScrollY();

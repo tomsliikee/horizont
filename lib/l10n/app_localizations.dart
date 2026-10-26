@@ -1376,6 +1376,36 @@ abstract class AppLocalizations {
   /// **'Tint the status bar in the colour of the page header'**
   String get tintFromPageSub;
 
+  /// No description provided for @statusBarBlur.
+  ///
+  /// In en, this message translates to:
+  /// **'Status bar blur'**
+  String get statusBarBlur;
+
+  /// No description provided for @statusBarBlurSub.
+  ///
+  /// In en, this message translates to:
+  /// **'How softly the colour fades out below the status bar'**
+  String get statusBarBlurSub;
+
+  /// No description provided for @blurOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get blurOff;
+
+  /// No description provided for @blurSoft.
+  ///
+  /// In en, this message translates to:
+  /// **'Soft'**
+  String get blurSoft;
+
+  /// No description provided for @blurStrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Strong'**
+  String get blurStrong;
+
   /// No description provided for @shrinkOnScroll.
   ///
   /// In en, this message translates to:
