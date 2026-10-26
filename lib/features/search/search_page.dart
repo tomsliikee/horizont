@@ -367,10 +367,12 @@ class _Field extends StatelessWidget {
               child: TextField(
                 controller: controller,
                 focusNode: focus,
-                keyboardType: TextInputType.url,
+                // Plain text keyboard so the keyboard offers word suggestions;
+                // the URL keyboard hides them. The field takes searches too.
+                keyboardType: TextInputType.text,
                 textInputAction: TextInputAction.go,
-                autocorrect: false,
-                enableSuggestions: false,
+                autocorrect: true,
+                enableSuggestions: true,
                 onSubmitted: onSubmit,
                 cursorColor: scheme.primary,
                 style: HorizontType.subtitle

@@ -472,11 +472,12 @@ class HorizontWebKitPlugin :
         val width = view.width
         if (width <= 0 || view.height <= 0) return null
         val columns = TOP_COLUMNS
-        val rows = 4
+        val rows = 2
         val bitmap = Bitmap.createBitmap(columns, rows, Bitmap.Config.ARGB_8888)
         try {
             val canvas = Canvas(bitmap)
-            canvas.scale(columns / width.toFloat(), columns / width.toFloat())
+            // Squeezed sideways only: the rows stay the real top rows of the page.
+            canvas.scale(columns / width.toFloat(), 1f)
             view.draw(canvas)
             val pixels = IntArray(columns * rows)
             bitmap.getPixels(pixels, 0, columns, 0, 0, columns, rows)
