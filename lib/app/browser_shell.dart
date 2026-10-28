@@ -35,6 +35,7 @@ import '../ui/motion/presence.dart';
 import '../ui/motion/spring.dart';
 import 'engine_requests.dart';
 import 'page_actions.dart';
+import 'pull_refresh.dart';
 import 'providers.dart';
 import 'routes.dart';
 import 'system_ui.dart';
@@ -469,6 +470,10 @@ class _BrowserShellState extends ConsumerState<BrowserShell>
                 ),
               if (_swiping != null)
                 _swipeLayer(context, top + reserve, ref.watch(tabsProvider)),
+              // Under the status bar band, so the indicator comes out from
+              // behind it.
+              if (page.url != null && !page.reader)
+                PullRefresh(top: top + reserve),
               Positioned(
                 left: 0,
                 right: 0,

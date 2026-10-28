@@ -49,6 +49,11 @@ sealed class PageMessage {
         final f = map['f'];
         if (f is! num || !f.isFinite) return null;
         return BottomMessage(f.toDouble().clamp(0, 0.4));
+      case 'pull':
+        final d = map['d'];
+        final end = map['end'];
+        if (d is! num || !d.isFinite || end is! bool) return null;
+        return PullMessage(d.toDouble().clamp(0, 2000), end: end);
     }
     return null;
   }
@@ -82,4 +87,12 @@ class RestMessage extends PageMessage {
 class BottomMessage extends PageMessage {
   const BottomMessage(this.fraction);
   final double fraction;
+}
+
+/// A finger pulls the page down from its top by [distance] CSS pixels;
+/// [end] when it lets go.
+class PullMessage extends PageMessage {
+  const PullMessage(this.distance, {required this.end});
+  final double distance;
+  final bool end;
 }

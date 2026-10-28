@@ -183,6 +183,58 @@
     send({ type: 'bottom', f: f });
   }
 
+  // Pull to refresh: a finger that starts with the page at its top and
+  // moves down reports how far, once a frame; the app draws the indicator
+  // and reloads on release past its threshold. Anything scrolled above the
+  // finger (an inner list), a sideways start or a second finger ends it.
+  var pull = null;
+  var pullFrame = 0;
+  function scrolledAbove(el) {
+    if (window.scrollY > 0) return true;
+    for (; el && el.nodeType === 1; el = el.parentElement) {
+      if (el.scrollTop > 0) return true;
+    }
+    return false;
+  }
+  function sendPull(end) {
+    if (!pull) return;
+    var d = Math.max(0, Math.round(pull.d));
+    if (end) {
+      if (pull.sent || d > 0) send({ type: 'pull', d: d, end: true });
+      pull = null;
+      return;
+    }
+    if (pullFrame) return;
+    pullFrame = requestAnimationFrame(function () {
+      pullFrame = 0;
+      if (!pull) return;
+      pull.sent = true;
+      send({ type: 'pull', d: Math.max(0, Math.round(pull.d)), end: false });
+    });
+  }
+  window.addEventListener('touchstart', function (e) {
+    pull = null;
+    if (e.touches.length !== 1 || scrolledAbove(e.target)) return;
+    var t = e.touches[0];
+    pull = { x: t.clientX, y: t.clientY, d: 0, sent: false, decided: false };
+  }, { capture: true, passive: true });
+  window.addEventListener('touchmove', function (e) {
+    if (!pull) return;
+    if (e.touches.length !== 1) { pull.d = 0; sendPull(true); return; }
+    var t = e.touches[0];
+    var dx = t.clientX - pull.x, dy = t.clientY - pull.y;
+    if (!pull.decided) {
+      if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+      pull.decided = true;
+      if (dy <= 0 || Math.abs(dx) > dy) { pull = null; return; }
+    }
+    if (window.scrollY > 0 || e.defaultPrevented) { pull.d = 0; sendPull(true); return; }
+    pull.d = dy;
+    sendPull(false);
+  }, { capture: true, passive: true });
+  window.addEventListener('touchend', function () { sendPull(true); }, { capture: true, passive: true });
+  window.addEventListener('touchcancel', function () { if (pull) pull.d = 0; sendPull(true); }, { capture: true, passive: true });
+
   var frame = 0;
   var lastRestReport = 0;
   function onScroll(event) {

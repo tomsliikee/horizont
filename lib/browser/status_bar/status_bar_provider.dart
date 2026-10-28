@@ -98,6 +98,7 @@ class StatusBarNotifier extends Notifier<StatusBarInfo> {
           state = state.copyWith(scrolled: scrolled);
         }
       case BottomMessage():
+      case PullMessage():
         break;
     }
   }

@@ -108,12 +108,15 @@ void main() {
     final c = await pump(tester, home: const TabsPage());
     seed(c);
     await tester.pump();
+    // The card shrinks away first, then it is gone.
     await tester.tap(closeButtons().at(1));
     await tester.pump();
+    expect(find.byType(TabCard), findsNWidgets(5));
+    await tester.pump(const Duration(milliseconds: 200));
     expect(find.byType(TabCard), findsNWidgets(4));
     for (var i = 0; i < 4; i++) {
       await tester.tap(closeButtons().first);
-      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 200));
     }
     expect(find.byType(TabCard), findsOneWidget);
     expect(find.text('Start page'), findsOneWidget);

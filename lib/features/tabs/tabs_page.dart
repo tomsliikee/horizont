@@ -59,6 +59,9 @@ class _TabsPageState extends ConsumerState<TabsPage>
   var _leaving = false;
   String? _appearing;
 
+  /// Cards closed by their button, shrinking before they go.
+  final _closing = <String>{};
+
   GlobalKey _keyFor(String id) => _cardKeys.putIfAbsent(id, GlobalKey.new);
 
   @override
@@ -107,6 +110,25 @@ class _TabsPageState extends ConsumerState<TabsPage>
     ref.read(tabsProvider.notifier).activate(id);
     Navigator.of(context).pop();
   }
+
+  /// Closes [id]; with [shrink] its card shrinks away first, then the
+  /// neighbours move up. Leaving the last private tab leaves the overview.
+  Future<void> _close(String id, {bool shrink = false}) async {
+    if (shrink) {
+      if (!_closing.add(id)) return;
+      setState(() {});
+      await Future<void>.delayed(_shrinkTime);
+      if (!mounted) return;
+      _closing.remove(id);
+    }
+    final private = ref.read(tabsProvider).privateMode;
+    ref.read(tabsProvider.notifier).close(id);
+    if (private && ref.read(tabsProvider).visible.isEmpty) {
+      Navigator.of(context).pop();
+    }
+  }
+
+  static const _shrinkTime = Duration(milliseconds: 180);
 
   Future<void> _newTab() async {
     if (_leaving) return;
@@ -223,44 +245,51 @@ class _TabsPageState extends ConsumerState<TabsPage>
                                   key: ValueKey(tab.id),
                                   appear: tab.id == _appearing,
                                   child: _FlingCard(
-                                    onClosed: () {
-                                      notifier.close(tab.id);
-                                      if (ref
-                                              .read(tabsProvider)
-                                              .visible
-                                              .isEmpty &&
-                                          private) {
-                                        Navigator.of(context).pop();
-                                      }
-                                    },
-                                    child: Opacity(
-                                      opacity: _flying == tab.id ? 0 : 1,
-                                      child: Semantics(
-                                        label: l10n.tabPosition(
-                                          title,
-                                          i + 1,
-                                          visible.length,
-                                        ),
-                                        selected: tab.id == state.activeId,
-                                        child: TabCard(
-                                          key: _keyFor(tab.id),
-                                          title: title,
-                                          letter: _letter(title),
-                                          closeLabel: l10n.closeTab,
-                                          active: tab.id == state.activeId,
-                                          pageColor: tab.pageColor,
-                                          thumbnail: tab.thumbnailPath == null
-                                              ? null
-                                              : thumbnailImage(
-                                                  tab.thumbnailPath!,
-                                                  cacheWidth: cacheWidth,
-                                                ),
-                                          onTap: () =>
-                                              unawaited(_openTab(tab.id)),
-                                          onClose: () {
-                                            Haptics.play(Haptic.tick);
-                                            notifier.close(tab.id);
-                                          },
+                                    onClosed: () => unawaited(_close(tab.id)),
+                                    child: AnimatedScale(
+                                      scale: _closing.contains(tab.id)
+                                          ? 0.6
+                                          : 1,
+                                      duration: _shrinkTime,
+                                      curve: Curves.easeInCubic,
+                                      child: AnimatedOpacity(
+                                        opacity: _closing.contains(tab.id)
+                                            ? 0
+                                            : 1,
+                                        duration: _shrinkTime,
+                                        child: Opacity(
+                                          opacity: _flying == tab.id ? 0 : 1,
+                                          child: Semantics(
+                                            label: l10n.tabPosition(
+                                              title,
+                                              i + 1,
+                                              visible.length,
+                                            ),
+                                            selected: tab.id == state.activeId,
+                                            child: TabCard(
+                                              key: _keyFor(tab.id),
+                                              title: title,
+                                              letter: _letter(title),
+                                              closeLabel: l10n.closeTab,
+                                              active: tab.id == state.activeId,
+                                              pageColor: tab.pageColor,
+                                              thumbnail:
+                                                  tab.thumbnailPath == null
+                                                  ? null
+                                                  : thumbnailImage(
+                                                      tab.thumbnailPath!,
+                                                      cacheWidth: cacheWidth,
+                                                    ),
+                                              onTap: () =>
+                                                  unawaited(_openTab(tab.id)),
+                                              onClose: () {
+                                                Haptics.play(Haptic.tick);
+                                                unawaited(
+                                                  _close(tab.id, shrink: true),
+                                                );
+                                              },
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ),

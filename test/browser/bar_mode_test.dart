@@ -53,4 +53,19 @@ void main() {
     expect((big! as BottomMessage).fraction, 0.4);
     expect(PageMessage.parse('{"type":"bottom","f":"x"}'), isNull);
   });
+
+  test('a pull from the top is reported with its end', () {
+    final m = PageMessage.parse('{"type":"pull","d":84,"end":false}');
+    expect(
+      m,
+      isA<PullMessage>()
+          .having((p) => p.distance, 'd', 84)
+          .having((p) => p.end, 'end', false),
+    );
+    expect(
+      PageMessage.parse('{"type":"pull","d":-5,"end":true}'),
+      isA<PullMessage>(),
+    );
+    expect(PageMessage.parse('{"type":"pull","d":5}'), isNull);
+  });
 }

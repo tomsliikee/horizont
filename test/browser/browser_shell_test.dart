@@ -2,12 +2,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:horizont/app/browser_shell.dart';
+import 'package:horizont/app/pull_refresh.dart';
 import 'package:horizont/browser/bars/browser_bars.dart';
 import 'package:horizont/browser/fake_web_engine.dart';
+import 'package:horizont/browser/status_bar/page_message.dart';
 import 'package:horizont/browser/tabs/tabs_notifier.dart';
 import 'package:horizont/browser/web_engine.dart';
 import 'package:horizont/features/start/start_page.dart';
 import 'package:horizont/ui/buttons.dart';
+import 'package:horizont/ui/morph_indicator.dart';
 import 'package:horizont/ui/progress_line.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -30,6 +33,44 @@ void main() {
     await pump(tester);
     expect(find.byType(StartPage), findsOneWidget);
     expect(find.text('Search or address'), findsOneWidget);
+  });
+
+  Future<void> frames(WidgetTester tester) async {
+    for (var i = 0; i < 10; i++) {
+      await tester.pump(const Duration(milliseconds: 30));
+    }
+  }
+
+  testWidgets('a pull past the threshold reloads, a short one does not', (
+    tester,
+  ) async {
+    await pump(tester);
+    engine.emit(PageState(url: Uri.parse('https://a.example'), progress: 1));
+    await tester.pumpAndSettle();
+    expect(find.byType(MorphIndicator), findsNothing);
+
+    expect(find.byType(PullRefresh), findsOneWidget);
+    engine.report(const PullMessage(60, end: false));
+    await frames(tester);
+    expect(find.byType(MorphIndicator), findsOneWidget);
+    engine.report(const PullMessage(60, end: true));
+    await tester.pumpAndSettle();
+    expect(engine.reloads, 0);
+    expect(find.byType(MorphIndicator), findsNothing);
+
+    engine.report(const PullMessage(PullRefresh.threshold + 20, end: false));
+    await tester.pump();
+    engine.report(const PullMessage(PullRefresh.threshold + 20, end: true));
+    await frames(tester);
+    expect(engine.reloads, 1);
+    expect(find.byType(MorphIndicator), findsOneWidget);
+
+    // The page loads again and the indicator goes.
+    engine.emit(PageState(url: Uri.parse('https://a.example'), loading: true));
+    await tester.pump();
+    engine.emit(PageState(url: Uri.parse('https://a.example'), progress: 1));
+    await tester.pumpAndSettle();
+    expect(find.byType(MorphIndicator), findsNothing);
   });
 
   testWidgets('tab bookkeeping and page noise do not rebuild the start page', (
