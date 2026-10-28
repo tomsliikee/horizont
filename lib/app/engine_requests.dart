@@ -56,7 +56,25 @@ class EngineRequests {
       case ExternalLinkEvent(:final uri):
         if (active) await _external(uri);
       case DownloadRequestEvent():
+        final tab = tabs.byId(tabEvent.tabId);
+        // The tab was opened for the file itself (a link from another app):
+        // it must not keep the file's address, or every start asks again.
+        final forFile =
+            tab != null &&
+            (tab.url == event.url ||
+                event.referer == null ||
+                event.referer == event.url);
+        final notifier = ref.read(tabsProvider.notifier);
+        final external = forFile && notifier.isExternal(tabEvent.tabId);
+        if (forFile) notifier.updatePage(tabEvent.tabId, clearUrl: true);
         await _download(event, private: private);
+        if (!forFile || !active) return;
+        unawaited(ref.read(webEngineProvider).goToStart());
+        if (external) {
+          // Back to the app that sent the link, as after back.
+          notifier.close(tabEvent.tabId);
+          unawaited(SystemNavigator.pop());
+        }
       case JsDialogEvent():
         if (!active) {
           event.answer.complete(

@@ -218,6 +218,71 @@ void main() {
     expect(exits.value, 0);
   });
 
+  DownloadRequestEvent file(String url, {Uri? referer}) => DownloadRequestEvent(
+    url: Uri.parse(url),
+    fileName: 'big.dat',
+    mimeType: 'application/octet-stream',
+    size: 1000,
+    userAgent: 'test',
+    cookies: null,
+    referer: referer,
+  );
+
+  testWidgets('a file link from another app forgets the file and leaves', (
+    tester,
+  ) async {
+    final exits = _recordExits(tester);
+    // Only the file's tab gets the engine that raises the download.
+    await pumpAppWith(
+      tester,
+      const BrowserShell(),
+      engineFactory: (tab) =>
+          tab.url?.host == 'files.example' ? engine : FakeWebEngine(),
+    );
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(BrowserShell)),
+    );
+    final notifier = container.read(tabsProvider.notifier);
+    notifier.open(url: Uri.parse('https://kept.example'));
+    notifier.openLink(Uri.parse('https://files.example/big.dat'));
+    await tester.pumpAndSettle();
+    final fileTab = container.read(tabsProvider).activeId;
+
+    engine.raise(file('https://files.example/big.dat'));
+    await tester.pumpAndSettle();
+    // The address is gone before the answer, so a restart cannot ask again.
+    expect(container.read(tabsProvider).byId(fileTab)?.url, isNull);
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+
+    expect(container.read(tabsProvider).byId(fileTab), isNull);
+    expect(exits.value, 1);
+  });
+
+  testWidgets('a download from a page keeps the page', (tester) async {
+    final exits = _recordExits(tester);
+    await pump(tester);
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(BrowserShell)),
+    );
+    final page = Uri.parse('https://page.example');
+    container.read(tabsProvider.notifier).open(url: page);
+    await tester.pumpAndSettle();
+    await engine.load(page);
+    await tester.pumpAndSettle();
+
+    engine.raise(file('https://files.example/big.dat', referer: page));
+    await tester.pumpAndSettle();
+    // The fake engine is shared by all tabs, so each one asks.
+    while (find.text('Cancel').evaluate().isNotEmpty) {
+      await tester.tap(find.text('Cancel').first);
+      await tester.pumpAndSettle();
+    }
+
+    expect(container.read(tabsProvider).active.url, page);
+    expect(exits.value, 0);
+  });
+
   testWidgets('the progress line shows only while loading', (tester) async {
     await pump(tester);
     engine.emit(
