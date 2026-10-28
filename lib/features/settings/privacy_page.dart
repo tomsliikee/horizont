@@ -4,6 +4,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../app/page_actions.dart';
 import '../../app/providers.dart';
 import '../../app/system_ui.dart';
+import '../../browser/tabs/closed_tabs.dart';
 import '../../data/library.dart';
 import '../../data/library_providers.dart';
 import '../../data/settings.dart';
@@ -196,6 +197,7 @@ class PrivacyPage extends ConsumerWidget {
                           if (!ok) return;
                           final library = ref.read(libraryProvider);
                           await library.clearHistory();
+                          ref.read(closedTabsProvider.notifier).clear();
                           await library.clearPermissions();
                           await HorizontWebKit.clearAllData(null);
                           Haptics.play(Haptic.confirm);

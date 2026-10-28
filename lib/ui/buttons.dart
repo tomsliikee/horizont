@@ -301,6 +301,10 @@ abstract final class HIcons {
   static const zoomIn = Symbols.zoom_in_rounded;
   static const gavel = Symbols.gavel_rounded;
   static const swipe = Symbols.swipe_up_rounded;
+  static const qrCodeScanner = Symbols.qr_code_scanner_rounded;
+  static const contentPaste = Symbols.content_paste_go_rounded;
+  static const undo = Symbols.undo_rounded;
+  static const check = Symbols.check_rounded;
 
   static const all = <IconData>[
     accessibilityNew,

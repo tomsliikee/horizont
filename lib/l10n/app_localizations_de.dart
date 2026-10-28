@@ -1094,4 +1094,48 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get barRaiseSub => 'Wie weit die untere Leiste über ihrem Platz sitzt';
+
+  @override
+  String get openAndClosedTabs => 'Offene und geschlossene Tabs';
+
+  @override
+  String get recentlyClosed => 'Zuletzt geschlossen';
+
+  @override
+  String reopenTab(String title) {
+    return 'Wieder öffnen: $title';
+  }
+
+  @override
+  String get quickPrivate => 'Privat';
+
+  @override
+  String get quickScan => 'QR-Code';
+
+  @override
+  String get quickVoice => 'Sprechen';
+
+  @override
+  String get quickPasteLink => 'Link einfügen';
+
+  @override
+  String get voiceUnavailable => 'Keine Spracheingabe auf diesem Gerät';
+
+  @override
+  String trackersThisWeek(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Tracker diese Woche blockiert',
+      one: '1 Tracker diese Woche blockiert',
+      zero: 'Diese Woche noch kein Tracker blockiert',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get editFavourites => 'Favoriten anordnen';
+
+  @override
+  String get moveFavouriteHint => 'Ziehen zum Verschieben';
 }

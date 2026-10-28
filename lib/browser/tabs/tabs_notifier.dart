@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/providers.dart';
 import '../../data/repositories/tabs_repository.dart';
 import 'browser_tab.dart';
+import 'closed_tabs.dart';
 
 /// Overridden in `main` with the database; tests override it with memory.
 final tabsRepositoryProvider = Provider<TabsRepository>(
@@ -284,6 +285,7 @@ class TabsNotifier extends Notifier<TabsState> {
     final closing = state.byId(id);
     if (closing == null) return;
     _external.remove(id);
+    ref.read(closedTabsProvider.notifier).remember(closing, _now());
     final rest = [...state.tabs]..removeWhere((t) => t.id == id);
     _deleted.add(id);
     _dirty.remove(id);
@@ -331,6 +333,22 @@ class TabsNotifier extends Notifier<TabsState> {
       return;
     }
     _commit(rest, active, touched: const {});
+  }
+
+  /// Brings the closed tab [id] back in front, at the end of the normal
+  /// tabs.
+  void reopenClosed(String id) {
+    final closed = ref
+        .read(closedTabsProvider)
+        .where((c) => c.id == id)
+        .firstOrNull;
+    if (closed == null || state.byId(id) != null) return;
+    _deleted.remove(id);
+    final tab = closed.reopen(_now());
+    final at = state.tabs.lastIndexWhere((t) => !t.isPrivate) + 1;
+    _commit([...state.tabs]..insert(at, tab), tab.id, touched: {tab.id});
+    // Taken out only now that the tab is open again, so its picture stays.
+    ref.read(closedTabsProvider.notifier).take(id);
   }
 
   /// Closes every tab of the mode in front.

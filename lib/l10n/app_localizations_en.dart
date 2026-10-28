@@ -1098,4 +1098,48 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get barRaiseSub => 'How far the bottom bar sits above its usual place';
+
+  @override
+  String get openAndClosedTabs => 'Open and closed tabs';
+
+  @override
+  String get recentlyClosed => 'Recently closed';
+
+  @override
+  String reopenTab(String title) {
+    return 'Reopen: $title';
+  }
+
+  @override
+  String get quickPrivate => 'Private';
+
+  @override
+  String get quickScan => 'QR code';
+
+  @override
+  String get quickVoice => 'Speak';
+
+  @override
+  String get quickPasteLink => 'Paste link';
+
+  @override
+  String get voiceUnavailable => 'No voice input on this device';
+
+  @override
+  String trackersThisWeek(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count trackers blocked this week',
+      one: '1 tracker blocked this week',
+      zero: 'No trackers blocked this week yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get editFavourites => 'Arrange favourites';
+
+  @override
+  String get moveFavouriteHint => 'Drag to move';
 }

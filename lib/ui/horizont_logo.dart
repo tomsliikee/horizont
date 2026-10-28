@@ -50,26 +50,32 @@ class HorizontLogo extends StatelessWidget {
     this.size = 96,
     this.colors = LogoColors.brand,
     this.shape = const CircleBorder(),
+    this.rise = 1,
   });
 
   final double size;
   final LogoColors colors;
   final ShapeBorder shape;
 
+  /// How far the sun is up, 0 (behind the ground) to 1; the reflection
+  /// grows with it.
+  final double rise;
+
   @override
   Widget build(BuildContext context) => SizedBox.square(
     dimension: size,
     child: ClipPath(
       clipper: ShapeBorderClipper(shape: shape),
-      child: CustomPaint(painter: HorizontLogoPainter(colors)),
+      child: CustomPaint(painter: HorizontLogoPainter(colors, rise: rise)),
     ),
   );
 }
 
 class HorizontLogoPainter extends CustomPainter {
-  HorizontLogoPainter(this.colors);
+  HorizontLogoPainter(this.colors, {this.rise = 1});
 
   final LogoColors colors;
+  final double rise;
 
   static Path _polygon(List<(double, double)> points) {
     final path = Path()..moveTo(points.first.$1, points.first.$2);
@@ -106,8 +112,13 @@ class HorizontLogoPainter extends CustomPainter {
       const Rect.fromLTWH(0, 0, LogoGeometry.size, LogoGeometry.size),
       fill..color = colors.sky,
     );
+    // Only the full logo has ground to hide a sun that is not up yet.
+    final sink = colors.monochrome
+        ? 0.0
+        : (1 - rise) * (LogoGeometry.sunRadius * 2 + 4);
     canvas.drawPath(
-      _polygon(LogoGeometry.sun(upperHalf: colors.monochrome)),
+      _polygon(LogoGeometry.sun(upperHalf: colors.monochrome))
+          .shift(Offset(0, sink)),
       fill..color = colors.sun,
     );
     if (!colors.monochrome) {
@@ -122,7 +133,9 @@ class HorizontLogoPainter extends CustomPainter {
         ..color = colors.line
         ..strokeWidth = LogoGeometry.horizonStroke,
     );
-    for (final (y, half) in LogoGeometry.reflections) {
+    for (final (y, full) in LogoGeometry.reflections) {
+      final half = full * (colors.monochrome ? 1 : rise.clamp(0.0, 1.0));
+      if (half <= 0) continue;
       canvas.drawLine(
         Offset(LogoGeometry.size / 2 - half, y),
         Offset(LogoGeometry.size / 2 + half, y),
@@ -135,5 +148,6 @@ class HorizontLogoPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(HorizontLogoPainter old) => old.colors != colors;
+  bool shouldRepaint(HorizontLogoPainter old) =>
+      old.colors != colors || old.rise != rise;
 }

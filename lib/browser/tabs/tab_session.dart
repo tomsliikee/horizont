@@ -10,6 +10,7 @@ import '../browser_providers.dart';
 import '../tab_pool.dart';
 import '../web_engine.dart';
 import 'browser_tab.dart';
+import 'closed_tabs.dart';
 import 'tabs_notifier.dart';
 import 'thumbnail_store.dart';
 
@@ -50,10 +51,20 @@ class TabSession with WidgetsBindingObserver {
       previous,
       next,
     ) {
+      final closed = {for (final c in _ref.read(closedTabsProvider)) c.id};
       for (final id in (previous ?? const <String>{}).difference(next)) {
         pool.drop(id);
-        MemoryThumbnails.remove(id);
-        unawaited(_ref.read(thumbnailStoreProvider).delete(id));
+        // A closed tab keeps its picture while it can still be reopened.
+        if (!closed.contains(id)) _dropThumbnail(id);
+      }
+    });
+    _ref.listen(closedTabsProvider, (previous, next) {
+      final open = {for (final t in _ref.read(tabsProvider).tabs) t.id};
+      final kept = {for (final c in next) c.id};
+      for (final c in previous ?? const <ClosedTab>[]) {
+        if (!kept.contains(c.id) && !open.contains(c.id)) {
+          _dropThumbnail(c.id);
+        }
       }
     });
     // The last private tab closed: its profile is emptied and the next
@@ -74,6 +85,11 @@ class TabSession with WidgetsBindingObserver {
         }
       },
     );
+  }
+
+  void _dropThumbnail(String id) {
+    MemoryThumbnails.remove(id);
+    unawaited(_ref.read(thumbnailStoreProvider).delete(id));
   }
 
   static const thumbnailWidth = 400;

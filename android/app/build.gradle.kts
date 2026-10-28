@@ -52,4 +52,7 @@ dependencies {
     // The version webview_flutter_android already depends on; the app needs it
     // on its own compile classpath to call the profile and feature APIs.
     implementation("androidx.webkit:webkit:1.15.0")
+    // The QR scanner of Play services for the start page: its own screen, so
+    // the app needs no camera permission (approved 2026-10-28).
+    implementation("com.google.android.gms:play-services-code-scanner:16.1.0")
 }

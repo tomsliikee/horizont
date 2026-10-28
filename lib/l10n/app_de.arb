@@ -318,5 +318,30 @@
   "liftOverPageBars": "Über Seitenleisten ausweichen",
   "liftOverPageBarsSub": "Hat eine Seite unten eine eigene Leiste (Instagram, X), rückt die Leiste darüber",
   "barRaise": "Höhe der Leiste",
-  "barRaiseSub": "Wie weit die untere Leiste über ihrem Platz sitzt"
+  "barRaiseSub": "Wie weit die untere Leiste über ihrem Platz sitzt",
+  "openAndClosedTabs": "Offene und geschlossene Tabs",
+  "recentlyClosed": "Zuletzt geschlossen",
+  "reopenTab": "Wieder öffnen: {title}",
+  "@reopenTab": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "quickPrivate": "Privat",
+  "quickScan": "QR-Code",
+  "quickVoice": "Sprechen",
+  "quickPasteLink": "Link einfügen",
+  "voiceUnavailable": "Keine Spracheingabe auf diesem Gerät",
+  "trackersThisWeek": "{count, plural, =0{Diese Woche noch kein Tracker blockiert} =1{1 Tracker diese Woche blockiert} other{{count} Tracker diese Woche blockiert}}",
+  "@trackersThisWeek": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "editFavourites": "Favoriten anordnen",
+  "moveFavouriteHint": "Ziehen zum Verschieben"
 }

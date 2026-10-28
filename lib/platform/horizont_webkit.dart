@@ -78,6 +78,11 @@ class LiveActionEvent extends BridgeEvent {
 /// the native `WebView` of a controller by the identifier the plugin exposes.
 /// Every call answers a harmless default where the bridge is missing (tests,
 /// other platforms).
+/// The device has no speech recognition to search with.
+class VoiceUnavailable implements Exception {
+  const VoiceUnavailable();
+}
+
 abstract final class HorizontWebKit {
   static const _channel = MethodChannel('at.haiden.horizont/webkit');
   static final _events = StreamController<BridgeEvent>.broadcast();
@@ -299,6 +304,29 @@ abstract final class HorizontWebKit {
   /// Vibrates for [kind] (a `Haptic` name); [strong] composes it harder.
   static Future<void> haptic(String kind, {required bool strong}) =>
       _call<void>('haptic', {'kind': kind, 'strong': strong});
+
+  /// Scans a QR code with the Play services scanner; its text, or null.
+  static Future<String?> scanQr() => _call<String>('scanQr');
+
+  /// Asks the system's speech recognition for a search; the words, or null
+  /// when cancelled. Throws [VoiceUnavailable] when the device has none.
+  static Future<String?> voiceSearch() async {
+    try {
+      return await _channel.invokeMethod<String>('voiceSearch');
+    } on MissingPluginException {
+      return null;
+    } on PlatformException catch (e) {
+      if (e.code == 'unavailable') throw const VoiceUnavailable();
+      return null;
+    }
+  }
+
+  /// Whether the clipboard holds a link, without reading it.
+  static Future<bool> clipHasLink() async =>
+      await _call<bool>('clipHasLink') ?? false;
+
+  /// The clipboard's text; Android tells the user it was read.
+  static Future<String?> clipText() => _call<String>('clipText');
 
   /// The address the app was started with by another app, once.
   static Future<String?> initialUrl() => _call<String>('initialUrl');

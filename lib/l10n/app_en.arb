@@ -597,5 +597,30 @@
   "liftOverPageBars": "Move above page bars",
   "liftOverPageBarsSub": "When a page has its own bar at the bottom (Instagram, X), the bar moves above it",
   "barRaise": "Bar height",
-  "barRaiseSub": "How far the bottom bar sits above its usual place"
+  "barRaiseSub": "How far the bottom bar sits above its usual place",
+  "openAndClosedTabs": "Open and closed tabs",
+  "recentlyClosed": "Recently closed",
+  "reopenTab": "Reopen: {title}",
+  "@reopenTab": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "quickPrivate": "Private",
+  "quickScan": "QR code",
+  "quickVoice": "Speak",
+  "quickPasteLink": "Paste link",
+  "voiceUnavailable": "No voice input on this device",
+  "trackersThisWeek": "{count, plural, =0{No trackers blocked this week yet} =1{1 tracker blocked this week} other{{count} trackers blocked this week}}",
+  "@trackersThisWeek": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "editFavourites": "Arrange favourites",
+  "moveFavouriteHint": "Drag to move"
 }

@@ -7,6 +7,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../app/page_actions.dart';
 import '../../app/routes.dart';
 import '../../app/system_ui.dart';
+import '../../browser/tabs/closed_tabs.dart';
 import '../../browser/tabs/tabs_notifier.dart';
 import '../../data/library.dart';
 import '../../data/library_providers.dart';
@@ -283,7 +284,9 @@ class _LibraryPageState extends ConsumerState<LibraryPage> {
                   body: l10n.clearHistoryBody,
                   action: l10n.delete,
                 );
-                if (ok) await ref.read(libraryProvider).clearHistory();
+                if (!ok) return;
+                await ref.read(libraryProvider).clearHistory();
+                ref.read(closedTabsProvider.notifier).clear();
               },
             ),
           ),

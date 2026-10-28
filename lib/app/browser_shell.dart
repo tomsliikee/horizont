@@ -128,13 +128,15 @@ class _BrowserShellState extends ConsumerState<BrowserShell>
 
   PageActions get _actions => PageActions(ref, ScaffoldMessenger.of(context));
 
-  Future<void> _search({String? initial}) async {
+  /// Opens the search, growing out of [origin] (the address bar when
+  /// null), with [initial] in its field.
+  Future<void> _search({Rect? origin, String? initial}) async {
     final engine = ref.read(webEngineProvider);
     final page = ref.read(pageStateProvider);
     setState(() => _searching = true);
     final uri = await showSearchScreen(
       context,
-      origin: rectOf(_addressKey),
+      origin: origin ?? rectOf(_addressKey),
       initial: initial ?? page.url?.toString() ?? '',
     );
     if (mounted) setState(() => _searching = false);
@@ -533,7 +535,8 @@ class _BrowserShellState extends ConsumerState<BrowserShell>
           : StartPage(
               topPadding: reserve,
               onOpen: _open,
-              onSearch: () => unawaited(_search()),
+              onSearch: ({origin, initial}) =>
+                  unawaited(_search(origin: origin, initial: initial)),
               onOpenInNewTab: (uri) =>
                   ref.read(tabsProvider.notifier).open(url: uri),
             );

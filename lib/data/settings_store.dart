@@ -88,4 +88,26 @@ class SettingsStore {
     if (json == _prefs.getString(_snapshotKey)) return;
     await _prefs.setString(_snapshotKey, json);
   }
+
+  static const _closedKey = 'closedTabs';
+
+  /// The recently closed tabs as written by [saveClosedTabs]; empty when
+  /// missing or unreadable.
+  List<Map<String, dynamic>> get closedTabs {
+    final raw = _prefs.getString(_closedKey);
+    if (raw == null) return const [];
+    try {
+      final list = jsonDecode(raw);
+      if (list is! List) return const [];
+      return [
+        for (final e in list)
+          if (e is Map<String, dynamic>) e,
+      ];
+    } on FormatException {
+      return const [];
+    }
+  }
+
+  Future<void> saveClosedTabs(List<Map<String, dynamic>> tabs) =>
+      _prefs.setString(_closedKey, jsonEncode(tabs));
 }

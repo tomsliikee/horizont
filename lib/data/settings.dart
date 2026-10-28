@@ -49,7 +49,7 @@ enum BarLayout { kompakt, zweireihig, expressiv, oben, karte, minimal }
 enum HapticLevel { off, normal, strong }
 
 /// The sections of the start page that can be switched off.
-enum StartSection { favourites, frequent, readingList, privacyReport }
+enum StartSection { favourites, frequent, readingList, privacyReport, tabs }
 
 /// All settings (PLAN 1.5). New keys are added with a default, so older stored
 /// objects stay readable without a version bump.
@@ -83,7 +83,7 @@ class Settings {
 
   /// Bumped when a stored value changes meaning; [fromJson] migrates older
   /// objects and ignores newer ones.
-  static const version = 1;
+  static const version = 2;
 
   final ThemeMode themeMode;
   final Colourway colourway;
@@ -263,7 +263,11 @@ class Settings {
       }
       final rawSections = map['startSections'];
       final sections = rawSections is List
-          ? {for (final s in rawSections) ?StartSection.values.asNameMap()[s]}
+          ? {
+              for (final s in rawSections) ?StartSection.values.asNameMap()[s],
+              // Version 2 added the row of tabs; older objects get it on.
+              if (v < 2) StartSection.tabs,
+            }
           : d.startSections;
       return Settings(
         themeMode: pick(ThemeMode.values, 'themeMode', d.themeMode),

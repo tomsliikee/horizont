@@ -2011,6 +2011,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'How far the bottom bar sits above its usual place'**
   String get barRaiseSub;
+
+  /// No description provided for @openAndClosedTabs.
+  ///
+  /// In en, this message translates to:
+  /// **'Open and closed tabs'**
+  String get openAndClosedTabs;
+
+  /// No description provided for @recentlyClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Recently closed'**
+  String get recentlyClosed;
+
+  /// No description provided for @reopenTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Reopen: {title}'**
+  String reopenTab(String title);
+
+  /// No description provided for @quickPrivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Private'**
+  String get quickPrivate;
+
+  /// No description provided for @quickScan.
+  ///
+  /// In en, this message translates to:
+  /// **'QR code'**
+  String get quickScan;
+
+  /// No description provided for @quickVoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Speak'**
+  String get quickVoice;
+
+  /// No description provided for @quickPasteLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste link'**
+  String get quickPasteLink;
+
+  /// No description provided for @voiceUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No voice input on this device'**
+  String get voiceUnavailable;
+
+  /// No description provided for @trackersThisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No trackers blocked this week yet} =1{1 tracker blocked this week} other{{count} trackers blocked this week}}'**
+  String trackersThisWeek(int count);
+
+  /// No description provided for @editFavourites.
+  ///
+  /// In en, this message translates to:
+  /// **'Arrange favourites'**
+  String get editFavourites;
+
+  /// No description provided for @moveFavouriteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag to move'**
+  String get moveFavouriteHint;
 }
 
 class _AppLocalizationsDelegate

@@ -148,6 +148,17 @@ void main() {
     expect(old.startSections, StartSection.values.toSet());
   });
 
+  test('sections stored before version 2 get the row of tabs', () {
+    final old = Settings.fromJson(
+      '{"version":1,"startSections":["favourites"]}',
+    );
+    expect(old.startSections, {StartSection.favourites, StartSection.tabs});
+    final now = Settings.fromJson(
+      const Settings(startSections: {StartSection.favourites}).toJson(),
+    );
+    expect(now.startSections, {StartSection.favourites});
+  });
+
   test('text sizes per host stay within 50 to 200 and 100 is not stored', () {
     var s = const Settings().withTextZoom('a.example', 250);
     expect(s.textZoomFor('a.example'), 200);

@@ -107,6 +107,7 @@ class StartSettingsPage extends ConsumerWidget {
             row(StartSection.favourites, HIcons.star, l10n.favourites),
             row(StartSection.frequent, HIcons.history, l10n.frequentlyVisited),
             row(StartSection.readingList, HIcons.eyeglasses, l10n.readingList),
+            row(StartSection.tabs, HIcons.tab, l10n.openAndClosedTabs),
           ],
         ),
         SectionHeader(l10n.homeAfterAway),

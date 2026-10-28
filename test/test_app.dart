@@ -17,6 +17,7 @@ import 'package:horizont/data/library.dart';
 import 'package:horizont/data/library_providers.dart';
 import 'package:horizont/data/settings.dart';
 import 'package:horizont/data/settings_store.dart';
+import 'package:horizont/features/start/living_backdrop.dart';
 import 'package:horizont/theme/color_schemes.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -103,6 +104,7 @@ Future<void> pumpAppWith(
         ),
         libraryProvider.overrideWithValue(library ?? MemoryLibrary()),
         clockProvider.overrideWithValue(() => testNow),
+        backdropMovesProvider.overrideWithValue(false),
         ...overrides,
       ],
       child: HorizontApp(home: home),

@@ -242,6 +242,9 @@ abstract interface class Library {
   Future<int> addBookmark(int folderId, Uri url, String title);
   Future<void> removeBookmark(int id);
 
+  /// Moves bookmark [id] to [index] among the bookmarks of its folder.
+  Future<void> moveBookmark(int id, int index);
+
   /// Bookmarks of [url] in any folder.
   Future<List<Bookmark>> bookmarksOf(Uri url);
   Future<List<Bookmark>> searchBookmarks(String query, {int limit});
@@ -440,6 +443,27 @@ class MemoryLibrary implements Library {
   @override
   Future<void> removeBookmark(int id) async {
     _bookmarks.remove(id);
+    _changed();
+  }
+
+  @override
+  Future<void> moveBookmark(int id, int index) async {
+    final moving = _bookmarks[id];
+    if (moving == null) return;
+    final list = await bookmarksIn(moving.folderId)
+      ..removeWhere((b) => b.id == id);
+    list.insert(index.clamp(0, list.length), moving);
+    for (var i = 0; i < list.length; i++) {
+      final b = list[i];
+      _bookmarks[b.id] = Bookmark(
+        id: b.id,
+        folderId: b.folderId,
+        url: b.url,
+        title: b.title,
+        position: i,
+        createdAt: b.createdAt,
+      );
+    }
     _changed();
   }
 

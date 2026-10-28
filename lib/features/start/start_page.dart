@@ -22,9 +22,19 @@ import '../../ui/squish.dart';
 import '../../ui/tiles.dart';
 import '../settings/privacy_page.dart';
 import '../settings/settings_page.dart';
+import 'favourites_grid.dart';
+import 'living_backdrop.dart';
+import 'quick_chips.dart';
+import 'start_header.dart';
+import 'tabs_row.dart';
 
-/// The start page (`P:60`–`P:128`): the privacy report, favourites, the
-/// most visited pages and the reading list, from the library.
+/// Opens the search, growing from [origin] when given, with [initial] text.
+typedef StartSearch = void Function({Rect? origin, String? initial});
+
+/// The start page (`P:60`–`P:128`): a head that shrinks into a bar, the
+/// search, quick actions, the other open and recently closed tabs,
+/// favourites, the most visited pages, the reading list and a small privacy
+/// line at the end, over slowly drifting shapes.
 class StartPage extends ConsumerWidget {
   const StartPage({
     super.key,
@@ -38,7 +48,7 @@ class StartPage extends ConsumerWidget {
   final ValueChanged<Uri>? onOpenInNewTab;
 
   /// Opens the search; the big search pill calls it.
-  final VoidCallback? onSearch;
+  final StartSearch? onSearch;
 
   /// Extra room for a bar at the top (layouts oben, expressiv).
   final double topPadding;
@@ -47,9 +57,10 @@ class StartPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    final top = MediaQuery.viewPaddingOf(context).top + 16 + topPadding;
+    final top = MediaQuery.viewPaddingOf(context).top + topPadding;
     final locale = Localizations.localeOf(context).toString();
-    final date = DateFormat.MMMMEEEEd(locale).format(ref.read(clockProvider)());
+    final now = ref.read(clockProvider)();
+    final date = DateFormat.MMMMEEEEd(locale).format(now);
     final sections = ref.watch(settingsProvider.select((s) => s.startSections));
     final favourites =
         ref.watch(favouritesProvider).value ?? const <Bookmark>[];
@@ -62,185 +73,128 @@ class StartPage extends ConsumerWidget {
     Widget stagger(Widget child) => StaggeredEntrance(index: i++, child: child);
 
     return Scaffold(
-      body: ListView(
-        padding: EdgeInsets.fromLTRB(16, top, 16, 150),
+      body: Stack(
         children: [
-          stagger(
-            Padding(
-              padding: const EdgeInsets.fromLTRB(4, 8, 4, 0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '${_greeting(l10n, ref.read(clockProvider)().hour)} · $date',
-                          style: HorizontType.subtitle.copyWith(
-                            color: scheme.onSurfaceVariant,
-                          ),
-                        ),
-                        Text(
-                          l10n.appName,
-                          style: HorizontType.brand.copyWith(
-                            color: scheme.onSurface,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  RoundButton(
-                    icon: HIcons.settings,
-                    semanticLabel: l10n.settings,
-                    look: ButtonLook.bright,
-                    onTap: () => unawaited(
-                      Navigator.of(context)
-                          .push(screenRoute<void>(const SettingsPage())),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-          stagger(
-            _SearchHero(label: l10n.searchOrEnterAddressLong, onTap: onSearch),
-          ),
-          if (sections.contains(StartSection.privacyReport)) ...[
-            const SizedBox(height: 20),
-            stagger(
-              _ReportCard(
-                report: report,
-                onTap: () => unawaited(
-                  Navigator.of(context)
-                      .push(screenRoute<void>(const PrivacyPage())),
-                ),
-              ),
-            ),
-          ],
-          if (sections.contains(StartSection.favourites) &&
-              favourites.isNotEmpty) ...[
-            SectionHeader(l10n.favourites),
-            stagger(
-              GridView.count(
-                crossAxisCount: 4,
-                // A GridView in a ListView would otherwise add the status bar
-                // inset as padding.
-                padding: EdgeInsets.zero,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: 16,
-                crossAxisSpacing: 8,
-                childAspectRatio: 0.92,
-                children: [
-                  for (var f = 0; f < favourites.length && f < 8; f++)
-                    _Favourite(
-                      bookmark: favourites[f],
-                      index: f,
-                      onTap: () => onOpen(favourites[f].url),
-                      onLongPress: () =>
-                          _favouriteActions(context, ref, favourites[f]),
-                    ),
-                ],
-              ),
-            ),
-          ],
-          if (sections.contains(StartSection.frequent) &&
-              frequent.isNotEmpty) ...[
-            SectionHeader(l10n.frequentlyVisited),
-            stagger(
-              ListGroup(
-                rows: [
-                  for (final p in frequent)
-                    ListRow(
-                      leading: Monogram(
-                        _letter(p.title.isEmpty ? _host(p.url) : p.title),
-                      ),
-                      title: p.title.isEmpty ? _host(p.url) : p.title,
-                      subtitle: _host(p.url),
-                      trailing: SymbolIcon(
-                        HIcons.northWest,
-                        size: 20,
-                        color: scheme.onSurfaceVariant,
-                      ),
-                      onTap: () => onOpen(p.url),
-                    ),
-                ],
-              ),
-            ),
-          ],
-          if (sections.contains(StartSection.readingList) &&
-              reading.isNotEmpty) ...[
-            SectionHeader(l10n.readingList),
-            stagger(
-              SizedBox(
-                height: 196,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  clipBehavior: Clip.none,
-                  padding: EdgeInsets.zero,
-                  itemCount: reading.length,
-                  separatorBuilder: (_, _) => const SizedBox(width: 12),
-                  itemBuilder: (context, r) => _ReadingCard(
-                    band: [
-                      scheme.secondaryContainer,
-                      scheme.tertiaryContainer,
-                      scheme.primaryContainer,
-                    ][r % 3],
-                    item: reading[r],
-                    onTap: () => onOpen(reading[r].url),
+          const Positioned.fill(child: LivingBackdrop()),
+          CustomScrollView(
+            slivers: [
+              SliverPersistentHeader(
+                pinned: true,
+                delegate: StartHeaderDelegate(
+                  top: top,
+                  greeting: '${_greeting(l10n, now.hour)} · $date',
+                  title: l10n.appName,
+                  settingsLabel: l10n.settings,
+                  onSettings: () => unawaited(
+                    Navigator.of(context)
+                        .push(screenRoute<void>(const SettingsPage())),
                   ),
                 ),
               ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Future<void> _favouriteActions(
-    BuildContext context,
-    WidgetRef ref,
-    Bookmark b,
-  ) async {
-    final l10n = AppLocalizations.of(context);
-    final action = await showModalBottomSheet<String>(
-      context: context,
-      builder: (context) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const DragHandle(),
-              ListGroup(
-                rows: [
-                  if (onOpenInNewTab != null)
-                    ListRow(
-                      leading: const IconWell(icon: HIcons.add),
-                      title: l10n.newTab,
-                      minHeight: 56,
-                      onTap: () => Navigator.of(context).pop('tab'),
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 150),
+                sliver: SliverList.list(
+                  children: [
+                    stagger(
+                      _SearchHero(
+                        label: l10n.searchOrEnterAddressLong,
+                        onTap: onSearch == null
+                            ? null
+                            : (origin) => onSearch!(origin: origin),
+                      ),
                     ),
-                  ListRow(
-                    leading: const IconWell(icon: HIcons.deleteIcon),
-                    title: l10n.remove,
-                    minHeight: 56,
-                    onTap: () => Navigator.of(context).pop('remove'),
-                  ),
-                ],
+                    const SizedBox(height: 14),
+                    stagger(
+                      QuickChips(
+                        onPrivate: () =>
+                            ref.read(tabsProvider.notifier).enterPrivate(),
+                        onOpen: onOpen,
+                        onSearch: (text) => onSearch?.call(initial: text),
+                      ),
+                    ),
+                    if (sections.contains(StartSection.tabs))
+                      stagger(const TabsSection()),
+                    if (sections.contains(StartSection.favourites) &&
+                        favourites.isNotEmpty)
+                      stagger(
+                        FavouritesGrid(
+                          favourites: favourites,
+                          onOpen: onOpen,
+                          onOpenInNewTab: onOpenInNewTab,
+                        ),
+                      ),
+                    if (sections.contains(StartSection.frequent) &&
+                        frequent.isNotEmpty) ...[
+                      SectionHeader(l10n.frequentlyVisited),
+                      stagger(
+                        ListGroup(
+                          rows: [
+                            for (final p in frequent)
+                              ListRow(
+                                leading: Monogram(
+                                  _letter(
+                                    p.title.isEmpty ? _host(p.url) : p.title,
+                                  ),
+                                ),
+                                title: p.title.isEmpty ? _host(p.url) : p.title,
+                                subtitle: _host(p.url),
+                                trailing: SymbolIcon(
+                                  HIcons.northWest,
+                                  size: 20,
+                                  color: scheme.onSurfaceVariant,
+                                ),
+                                onTap: () => onOpen(p.url),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
+                    if (sections.contains(StartSection.readingList) &&
+                        reading.isNotEmpty) ...[
+                      SectionHeader(l10n.readingList),
+                      stagger(
+                        SizedBox(
+                          height: 196,
+                          child: ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            clipBehavior: Clip.none,
+                            padding: EdgeInsets.zero,
+                            itemCount: reading.length,
+                            separatorBuilder: (_, _) =>
+                                const SizedBox(width: 12),
+                            itemBuilder: (context, r) => _ReadingCard(
+                              band: [
+                                scheme.secondaryContainer,
+                                scheme.tertiaryContainer,
+                                scheme.primaryContainer,
+                              ][r % 3],
+                              item: reading[r],
+                              onTap: () => onOpen(reading[r].url),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                    if (sections.contains(StartSection.privacyReport)) ...[
+                      const SizedBox(height: 28),
+                      stagger(
+                        _ReportRow(
+                          report: report,
+                          onTap: () => unawaited(
+                            Navigator.of(context)
+                                .push(screenRoute<void>(const PrivacyPage())),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
               ),
             ],
           ),
-        ),
+        ],
       ),
     );
-    if (action == 'tab') onOpenInNewTab?.call(b.url);
-    if (action == 'remove') {
-      await ref.read(libraryProvider).removeBookmark(b.id);
-    }
   }
 
   static String _greeting(AppLocalizations l10n, int hour) => switch (hour) {
@@ -257,10 +211,10 @@ class StartPage extends ConsumerWidget {
       text.trim().isEmpty ? '·' : text.trim().characters.first.toUpperCase();
 }
 
-/// The privacy report hero (`P:70`): the count morphs its shape and counts
-/// up when it changes.
-class _ReportCard extends StatelessWidget {
-  const _ReportCard({required this.report, required this.onTap});
+/// The privacy report as one quiet line at the end: the count on a small
+/// shape that morphs and counts up when it changes.
+class _ReportRow extends StatelessWidget {
+  const _ReportRow({required this.report, required this.onTap});
 
   final TrackerReport report;
   final VoidCallback onTap;
@@ -269,115 +223,47 @@ class _ReportCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    final ink = scheme.onPrimaryContainer;
     return Squish(
       onTap: onTap,
       pressedScale: 0.97,
-      semanticLabel: '${l10n.trackersBlocked}, ${report.week}',
+      semanticLabel: l10n.trackersThisWeek(report.week),
       child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: scheme.primaryContainer,
-          borderRadius: BorderRadius.circular(32),
+        padding: const EdgeInsets.fromLTRB(8, 8, 16, 8),
+        decoration: ShapeDecoration(
+          color: scheme.surfaceBright.withValues(alpha: 0.85),
+          shape: const StadiumBorder(),
         ),
         child: Row(
-          spacing: 20,
+          spacing: 12,
           children: [
             MorphingMaterialBadge(
               shape: report.week == 0
                   ? MaterialShapes.cookie9Sided
                   : reportShape(report.week),
-              size: 116,
-              color: scheme.primary,
-              child: CountUp(
-                value: report.week,
-                style: HorizontType.badgeNumber.copyWith(
-                  color: scheme.onPrimary,
-                ),
+              size: 40,
+              color: scheme.primaryContainer,
+              child: SymbolIcon(
+                HIcons.shield,
+                size: 20,
+                color: scheme.onPrimaryContainer,
               ),
             ),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 4,
-                children: [
-                  Text(
-                    l10n.privacyReportLabel,
-                    style: HorizontType.label.copyWith(color: ink),
-                  ),
-                  Text(
-                    l10n.trackersBlocked,
-                    style: HorizontType.title.copyWith(color: ink),
-                  ),
-                  Text(
-                    trackerComparison(l10n, report),
-                    style: HorizontType.bodyStrong.copyWith(color: ink),
-                  ),
-                  Text(
-                    l10n.countedOnDevice,
-                    style: HorizontType.aside.copyWith(color: ink),
-                  ),
-                ],
+              child: CountUp(
+                value: report.week,
+                format: l10n.trackersThisWeek,
+                style: HorizontType.bodyStrong.copyWith(
+                  color: scheme.onSurface,
+                ),
               ),
+            ),
+            SymbolIcon(
+              HIcons.chevronRight,
+              size: 20,
+              color: scheme.onSurfaceVariant,
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-/// A favourite: a letter on a shape; it squishes and turns a little on press
-/// (PLAN 6.2, Shapes).
-class _Favourite extends StatelessWidget {
-  const _Favourite({
-    required this.bookmark,
-    required this.index,
-    required this.onTap,
-    required this.onLongPress,
-  });
-
-  final Bookmark bookmark;
-  final int index;
-  final VoidCallback onTap;
-  final VoidCallback onLongPress;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final title = bookmark.title.isEmpty ? bookmark.url.host : bookmark.title;
-    return Squish(
-      semanticLabel: title,
-      onTap: onTap,
-      onLongPress: onLongPress,
-      morph: (context, pressed) => Column(
-        spacing: 6,
-        children: [
-          MaterialShapeBadge(
-            shape: materialFavourite(index),
-            pressedShape: MaterialShapes.circle,
-            pressed: pressed,
-            size: 68,
-            color: [
-              scheme.primaryContainer,
-              scheme.tertiaryContainer,
-              scheme.secondaryContainer,
-              scheme.surfaceBright,
-            ][index % 4],
-            child: Text(
-              title.characters.first.toUpperCase(),
-              style: HorizontType.monogramLarge.copyWith(
-                color: scheme.onSurface,
-              ),
-            ),
-          ),
-          Text(
-            title,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: HorizontType.label.copyWith(color: scheme.onSurfaceVariant),
-          ),
-        ],
       ),
     );
   }
@@ -455,21 +341,31 @@ class _ReadingCard extends StatelessWidget {
   }
 }
 
-/// The big search pill under the header: tapping it opens the search.
-class _SearchHero extends StatelessWidget {
+/// The big search pill under the head: tapping it opens the search, which
+/// grows out of the pill.
+class _SearchHero extends StatefulWidget {
   const _SearchHero({required this.label, required this.onTap});
 
   final String label;
-  final VoidCallback? onTap;
+  final ValueChanged<Rect?>? onTap;
+
+  @override
+  State<_SearchHero> createState() => _SearchHeroState();
+}
+
+class _SearchHeroState extends State<_SearchHero> {
+  final _key = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final onTap = widget.onTap;
     return Squish(
-      onTap: onTap,
+      onTap: onTap == null ? null : () => onTap(rectOf(_key)),
       pressedScale: 0.97,
-      semanticLabel: label,
+      semanticLabel: widget.label,
       child: Container(
+        key: _key,
         height: 60,
         padding: const EdgeInsets.symmetric(horizontal: 22),
         decoration: ShapeDecoration(
@@ -482,7 +378,7 @@ class _SearchHero extends StatelessWidget {
             SymbolIcon(HIcons.search, size: 24, color: scheme.primary),
             Expanded(
               child: Text(
-                label,
+                widget.label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: HorizontType.bodyStrong.copyWith(

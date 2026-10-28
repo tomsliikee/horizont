@@ -17,6 +17,7 @@ import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
+import android.speech.RecognizerIntent
 import android.webkit.CookieManager
 import android.webkit.WebView
 import androidx.webkit.ProfileStore
@@ -44,7 +45,8 @@ class HorizontWebKitPlugin :
     MethodChannel.MethodCallHandler,
     ActivityAware,
     PluginRegistry.NewIntentListener,
-    PluginRegistry.RequestPermissionsResultListener {
+    PluginRegistry.RequestPermissionsResultListener,
+    PluginRegistry.ActivityResultListener {
     private var binding: FlutterPlugin.FlutterPluginBinding? = null
     private var channel: MethodChannel? = null
     private var activity: ActivityPluginBinding? = null
@@ -52,6 +54,7 @@ class HorizontWebKitPlugin :
     private val background = Executors.newSingleThreadExecutor()
     private val clients = mutableMapOf<Long, HorizontWebViewClient>()
     private var pendingPermissions: MethodChannel.Result? = null
+    private var pendingVoice: MethodChannel.Result? = null
     private var initialUrl: String? = null
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
@@ -77,6 +80,7 @@ class HorizontWebKitPlugin :
         activity = binding
         binding.addOnNewIntentListener(this)
         binding.addRequestPermissionsResultListener(this)
+        binding.addActivityResultListener(this)
         initialUrl = viewUrl(binding.activity.intent)
     }
 
@@ -88,6 +92,7 @@ class HorizontWebKitPlugin :
     override fun onDetachedFromActivity() {
         activity?.removeOnNewIntentListener(this)
         activity?.removeRequestPermissionsResultListener(this)
+        activity?.removeActivityResultListener(this)
         activity = null
     }
 
@@ -388,12 +393,56 @@ class HorizontWebKitPlugin :
                 }
                 result.success(null)
             }
+            "scanQr" -> {
+                val activity = activity?.activity
+                if (activity == null) {
+                    result.success(null)
+                    return
+                }
+                QuickActions.scanQr(activity) { main.post { result.success(it) } }
+            }
+            "voiceSearch" -> {
+                val activity = activity?.activity
+                if (activity == null) {
+                    result.success(null)
+                    return
+                }
+                val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+                    .putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH)
+                    .putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
+                try {
+                    pendingVoice?.success(null)
+                    pendingVoice = result
+                    activity.startActivityForResult(intent, VOICE_REQUEST)
+                } catch (e: ActivityNotFoundException) {
+                    pendingVoice = null
+                    result.error("unavailable", "No speech recognition", null)
+                }
+            }
+            "clipHasLink" -> {
+                result.success(binding?.applicationContext?.let { QuickActions.clipHasLink(it) } == true)
+            }
+            "clipText" -> {
+                result.success(activity?.activity?.let { QuickActions.clipText(it) })
+            }
             "initialUrl" -> {
                 result.success(initialUrl)
                 initialUrl = null
             }
             else -> result.notImplemented()
         }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
+        if (requestCode != VOICE_REQUEST) return false
+        val text = if (resultCode == Activity.RESULT_OK) {
+            data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull()
+        } else {
+            null
+        }
+        pendingVoice?.success(text)
+        pendingVoice = null
+        return true
     }
 
     override fun onRequestPermissionsResult(
@@ -538,6 +587,7 @@ class HorizontWebKitPlugin :
 
     companion object {
         private const val PERMISSION_REQUEST = 0x4857
+        private const val VOICE_REQUEST = 0x4858
         private const val TOP_COLUMNS = 32
     }
 }

@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:horizont/app/providers.dart';
 import 'package:horizont/browser/tabs/browser_tab.dart';
+import 'package:horizont/browser/tabs/closed_tabs.dart';
 import 'package:horizont/browser/tabs/tabs_notifier.dart';
 import 'package:horizont/data/repositories/tabs_repository.dart';
 import 'package:horizont/data/settings.dart';
@@ -439,6 +440,69 @@ void main() {
       expect(stored.where((t) => t.isPrivate), isEmpty);
       expect(stored.where((t) => t.url?.host == 'secret.example'), isEmpty);
       expect(stored, hasLength(1));
+    });
+  });
+
+  group('recently closed', () {
+    test('a closed page is remembered, a start page and private not', () async {
+      final c = await container();
+      final n = c.read(tabsProvider.notifier);
+      final empty = c.read(tabsProvider).active;
+      final page = n.open(url: Uri.parse('https://a.example'));
+      n.updatePage(page.id, title: 'A', scrollY: 120);
+      final secret = n.open(url: Uri.parse('https://b.example'), private: true);
+      n
+        ..close(secret.id)
+        ..close(page.id)
+        ..close(empty.id);
+      final closed = c.read(closedTabsProvider);
+      expect(closed.map((t) => t.id), [page.id]);
+      expect(closed.single.title, 'A');
+    });
+
+    test('keeps the ten newest, newest first', () async {
+      final c = await container();
+      final n = c.read(tabsProvider.notifier);
+      final ids = [
+        for (var i = 0; i < 12; i++)
+          n.open(url: Uri.parse('https://$i.example')).id,
+      ];
+      for (final id in ids) {
+        n.close(id);
+      }
+      final closed = c.read(closedTabsProvider);
+      expect(closed, hasLength(ClosedTabsNotifier.limit));
+      expect(closed.first.id, ids.last);
+    });
+
+    test('reopen brings the same tab back in front with its scroll', () async {
+      final c = await container();
+      final n = c.read(tabsProvider.notifier);
+      final page = n.open(url: Uri.parse('https://a.example'));
+      n
+        ..updatePage(page.id, scrollY: 300)
+        ..close(page.id)
+        ..reopenClosed(page.id);
+      final state = c.read(tabsProvider);
+      expect(state.activeId, page.id);
+      expect(state.active.url, Uri.parse('https://a.example'));
+      expect(state.active.scrollY, 300);
+      expect(c.read(closedTabsProvider), isEmpty);
+      await n.flush();
+      expect((await repository.loadAll()).map((t) => t.id), contains(page.id));
+    });
+
+    test('survive a restart', () async {
+      final c = await container();
+      final n = c.read(tabsProvider.notifier);
+      final page = n.open(url: Uri.parse('https://a.example'));
+      n.close(page.id);
+      await Future<void>.delayed(Duration.zero);
+      final again = ProviderContainer(
+        overrides: [settingsStoreProvider.overrideWithValue(store)],
+      );
+      addTearDown(again.dispose);
+      expect(again.read(closedTabsProvider).single.url.host, 'a.example');
     });
   });
 }

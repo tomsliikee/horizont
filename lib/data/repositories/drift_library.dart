@@ -153,6 +153,24 @@ class DriftLibrary implements Library {
   }
 
   @override
+  Future<void> moveBookmark(int id, int index) async {
+    final row = await (_db.select(
+      _db.bookmarks,
+    )..where((b) => b.id.equals(id))).getSingleOrNull();
+    if (row == null) return;
+    final list = await bookmarksIn(row.folderId)
+      ..removeWhere((b) => b.id == id);
+    list.insert(index.clamp(0, list.length), _bookmark(row));
+    await _db.transaction(() async {
+      for (var i = 0; i < list.length; i++) {
+        await (_db.update(_db.bookmarks)..where((b) => b.id.equals(list[i].id)))
+            .write(BookmarksCompanion(position: Value(i)));
+      }
+    });
+    _changed();
+  }
+
+  @override
   Future<List<Bookmark>> bookmarksOf(Uri url) async {
     final rows = await (_db.select(
       _db.bookmarks,

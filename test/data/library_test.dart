@@ -25,6 +25,19 @@ void main() {
         expect((await l.favourites()).first.title, 'Wikipedia');
       });
 
+      test('a moved favourite keeps its new place', () async {
+        final before = await l.favourites();
+        await l.moveBookmark(before[3].id, 0);
+        final after = await l.favourites();
+        expect(after.first.id, before[3].id);
+        expect(after.skip(1).map((b) => b.id), [
+          for (final b in before)
+            if (b.id != before[3].id) b.id,
+        ]);
+        await l.moveBookmark(after.first.id, 99);
+        expect((await l.favourites()).last.id, before[3].id);
+      });
+
       test('a deleted folder takes its bookmarks; favourites stay', () async {
         final id = await l.createFolder('Reisen');
         await l.addBookmark(id, Uri.parse('https://a.example/'), 'A');
