@@ -96,9 +96,7 @@ class _BrowserShellState extends ConsumerState<BrowserShell>
     _bridge = HorizontWebKit.events.listen((event) {
       if (event is OpenUrlEvent) {
         final uri = Uri.tryParse(event.url);
-        if (uri != null) {
-          ref.read(tabsProvider.notifier).open(url: uri, private: false);
-        }
+        if (uri != null) ref.read(tabsProvider.notifier).openLink(uri);
       }
     });
   }
@@ -354,26 +352,32 @@ class _BrowserShellState extends ConsumerState<BrowserShell>
       menuKey: _menuKey,
     );
 
-    // Back: find, then the reader, then the page's history, then the tab
-    // this one was opened from (closing it), then the start page, then the
-    // app.
+    // Back: find, then the reader, then the page's history, then (a tab a
+    // link from another app opened) closing it and returning to that app,
+    // then the tab this one was opened from (closing it), then the start
+    // page, then the app. The start page ends the history: `goToStart` adds
+    // about:blank, so `canGoBack` is true behind it and must not count.
     final openerId = tabs.openerId;
     final hasOpener = openerId != null;
+    final external = ref.read(tabsProvider.notifier).isExternal(tabs.activeId);
     return PopScope(
       canPop:
           !_finding &&
           !page.reader &&
           page.url == null &&
-          !page.canGoBack &&
-          !hasOpener,
+          !hasOpener &&
+          !external,
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) return;
         if (_finding) {
           setState(() => _finding = false);
         } else if (page.reader) {
           unawaited(_actions.setReader(context, false));
-        } else if (page.canGoBack) {
+        } else if (page.url != null && page.canGoBack) {
           unawaited(engine.goBack());
+        } else if (external) {
+          ref.read(tabsProvider.notifier).close(tabs.activeId);
+          unawaited(SystemNavigator.pop());
         } else if (hasOpener) {
           final notifier = ref.read(tabsProvider.notifier);
           notifier.activate(openerId);

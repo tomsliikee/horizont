@@ -66,6 +66,14 @@ class OpenUrlEvent extends BridgeEvent {
   final String url;
 }
 
+/// A button of an ongoing notification was tapped.
+class LiveActionEvent extends BridgeEvent {
+  const LiveActionEvent(this.id, this.action, this.payload) : super(null);
+  final int id;
+  final String action;
+  final String payload;
+}
+
 /// Dart side of the Kotlin bridge (`HorizontWebKitPlugin`, PLAN 4.5). It finds
 /// the native `WebView` of a controller by the identifier the plugin exposes.
 /// Every call answers a harmless default where the bridge is missing (tests,
@@ -116,6 +124,11 @@ abstract final class HorizontWebKit {
       }),
       'onRenderGone' => RenderGoneEvent(id),
       'onOpenUrl' => OpenUrlEvent(args['url'] as String? ?? ''),
+      'onLiveAction' => LiveActionEvent(
+        (args['id'] as num?)?.toInt() ?? 0,
+        args['action'] as String? ?? '',
+        args['payload'] as String? ?? '',
+      ),
       _ => null,
     };
     if (event != null) _events.add(event);
@@ -285,4 +298,30 @@ abstract final class HorizontWebKit {
 
   /// The address the app was started with by another app, once.
   static Future<String?> initialUrl() => _call<String>('initialUrl');
+
+  /// Shows or updates an ongoing notification with progress (a Live Update on
+  /// Android 16 and newer). [progress] is 0 to 100, negative while unknown;
+  /// [actions] are (label, action name) pairs reported as [LiveActionEvent].
+  static Future<void> liveShow({
+    required int id,
+    required String title,
+    required String text,
+    required int progress,
+    String? chip,
+    List<(String, String)> actions = const [],
+    String payload = '',
+  }) => _call<bool>('liveShow', {
+    'id': id,
+    'title': title,
+    'text': text,
+    'progress': progress,
+    'chip': chip,
+    'actions': [
+      for (final (label, action) in actions) [label, action],
+    ],
+    'payload': payload,
+  });
+
+  static Future<void> liveCancel(int id) =>
+      _call<void>('liveCancel', {'id': id});
 }

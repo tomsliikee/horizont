@@ -122,7 +122,10 @@ void main() {
     expect(engine.state.value.url?.queryParameters['q'], 'wetter wien');
   });
 
-  testWidgets('home shows the start page; system back returns', (tester) async {
+  testWidgets('home shows the start page; system back leaves the app', (
+    tester,
+  ) async {
+    final exits = _recordExits(tester);
     await pump(tester);
     await engine.load(Uri.parse('https://a.example'));
     await tester.pumpAndSettle();
@@ -134,9 +137,12 @@ void main() {
     expect(engine.state.value.url, isNull);
     expect(find.byType(StartPage), findsOneWidget);
 
+    // about:blank sits in the history behind the start page; back must not
+    // walk into the page again (that was a loop with no way out).
     await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
-    expect(engine.state.value.url, Uri.parse('https://a.example'));
+    expect(exits.value, 1);
+    expect(engine.state.value.url, isNull);
   });
 
   testWidgets('system back: history, then start page, then the app', (
@@ -155,6 +161,61 @@ void main() {
     await tester.pumpAndSettle();
     expect(engine.state.value.url, isNull);
     expect(find.byType(StartPage), findsOneWidget);
+  });
+
+  testWidgets('a link from another app: back closes its tab and leaves', (
+    tester,
+  ) async {
+    final exits = _recordExits(tester);
+    await pump(tester);
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(BrowserShell)),
+    );
+    final notifier = container.read(tabsProvider.notifier);
+    notifier.open(url: Uri.parse('https://kept.example'));
+    await tester.pumpAndSettle();
+    final before = container.read(tabsProvider).tabs.length;
+
+    notifier.openLink(Uri.parse('https://from-mail.example'));
+    await tester.pumpAndSettle();
+    final linkTab = container.read(tabsProvider).activeId;
+    expect(notifier.isExternal(linkTab), isTrue);
+    await engine.load(Uri.parse('https://from-mail.example'));
+    await tester.pumpAndSettle();
+
+    // The fake engine is shared by all tabs, so its history also holds the
+    // page of the tab opened before; a real tab starts with its own. Back
+    // goes through that history first, as it should.
+    while (exits.value == 0 && engine.state.value.canGoBack) {
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+    }
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(exits.value, 1);
+    expect(container.read(tabsProvider).byId(linkTab), isNull);
+    expect(container.read(tabsProvider).tabs.length, before);
+    expect(notifier.isExternal(linkTab), isFalse);
+  });
+
+  testWidgets('a link from another app: history comes first', (tester) async {
+    final exits = _recordExits(tester);
+    await pump(tester);
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(BrowserShell)),
+    );
+    final notifier = container.read(tabsProvider.notifier);
+    notifier.open(url: Uri.parse('https://kept.example'));
+    notifier.openLink(Uri.parse('https://from-mail.example'));
+    await tester.pumpAndSettle();
+    await engine.load(Uri.parse('https://from-mail.example'));
+    await engine.load(Uri.parse('https://second.example'));
+    await tester.pumpAndSettle();
+
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(engine.state.value.url, Uri.parse('https://from-mail.example'));
+    expect(exits.value, 0);
   });
 
   testWidgets('the progress line shows only while loading', (tester) async {
@@ -232,4 +293,28 @@ class _SlowEngine extends FakeWebEngine {
   @override
   Future<void> load(Uri uri, {double scrollY = 0}) async =>
       loads.add((uri, scrollY));
+}
+
+class _Exits {
+  var value = 0;
+}
+
+/// Counts `SystemNavigator.pop` calls, which is how the app hands control
+/// back to the app that opened it.
+_Exits _recordExits(WidgetTester tester) {
+  final exits = _Exits();
+  tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+    SystemChannels.platform,
+    (call) async {
+      if (call.method == 'SystemNavigator.pop') exits.value++;
+      return null;
+    },
+  );
+  addTearDown(
+    () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      SystemChannels.platform,
+      null,
+    ),
+  );
+  return exits;
 }

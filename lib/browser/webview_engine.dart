@@ -325,7 +325,7 @@ class WebViewEngine implements WebEngine {
         _events.add(TrackersBlockedEvent(pageHost ?? '', event.total));
       case RenderGoneEvent():
         _events.add(const PageCrashedEvent());
-      case OpenUrlEvent():
+      case OpenUrlEvent() || LiveActionEvent():
         break;
     }
   }

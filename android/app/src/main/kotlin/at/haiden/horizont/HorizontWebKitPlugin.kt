@@ -59,11 +59,15 @@ class HorizontWebKitPlugin :
         channel = MethodChannel(binding.binaryMessenger, "at.haiden.horizont/webkit").also {
             it.setMethodCallHandler(this)
         }
+        LiveUpdates.onAction = { id, action, payload ->
+            send("onLiveAction", mapOf("id" to id, "action" to action, "payload" to payload))
+        }
         val path = binding.flutterAssets.getAssetFilePathByName("assets/blocklist/easyprivacy_domains.txt")
         background.execute { Blocklist.load(binding.applicationContext, path) }
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        LiveUpdates.onAction = null
         channel?.setMethodCallHandler(null)
         channel = null
         this.binding = null
@@ -346,6 +350,31 @@ class HorizontWebKitPlugin :
                 pendingPermissions?.success(emptyMap<String, Boolean>())
                 pendingPermissions = result
                 activity.requestPermissions(missing.toTypedArray(), PERMISSION_REQUEST)
+            }
+            "liveShow" -> {
+                val context = binding?.applicationContext
+                if (context == null) {
+                    result.success(false)
+                    return
+                }
+                val labels = call.argument<List<List<String>>>("actions") ?: emptyList()
+                LiveUpdates.show(
+                    context,
+                    call.argument<Number>("id")?.toInt() ?: 0,
+                    call.argument<String>("title") ?: "",
+                    call.argument<String>("text") ?: "",
+                    call.argument<Number>("progress")?.toInt() ?: -1,
+                    call.argument<String>("chip"),
+                    labels.map { it[0] to it[1] },
+                    call.argument<String>("payload") ?: "",
+                )
+                result.success(true)
+            }
+            "liveCancel" -> {
+                binding?.applicationContext?.let {
+                    LiveUpdates.cancel(it, call.argument<Number>("id")?.toInt() ?: 0)
+                }
+                result.success(null)
             }
             "initialUrl" -> {
                 result.success(initialUrl)

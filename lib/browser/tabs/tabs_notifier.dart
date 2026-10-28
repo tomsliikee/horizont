@@ -144,10 +144,17 @@ class TabsNotifier extends Notifier<TabsState> {
     final active = state.active;
     if (active.url == null && active.id != _snapshotId) {
       updatePage(active.id, url: url);
+      _external.add(active.id);
     } else {
-      open(url: url, private: false);
+      _external.add(open(url: url, private: false).id);
     }
   }
+
+  /// Tabs a link from another app opened, this run only. Back from the first
+  /// page of such a tab closes it and returns to that app.
+  final _external = <String>{};
+
+  bool isExternal(String id) => _external.contains(id);
 
   /// Closes the tabs not looked at for longer than the setting allows; never
   /// the one in front.
@@ -276,6 +283,7 @@ class TabsNotifier extends Notifier<TabsState> {
   void close(String id) {
     final closing = state.byId(id);
     if (closing == null) return;
+    _external.remove(id);
     final rest = [...state.tabs]..removeWhere((t) => t.id == id);
     _deleted.add(id);
     _dirty.remove(id);

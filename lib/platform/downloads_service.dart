@@ -122,6 +122,7 @@ class BackgroundDownloadsService implements DownloadsService {
   final _tasks = <String, DownloadTask>{};
   final _private = <String>{};
   StreamSubscription<TaskUpdate>? _sub;
+  StreamSubscription<BridgeEvent>? _actions;
   var _started = false;
 
   Library get _library => _ref.read(libraryProvider);
@@ -135,18 +136,18 @@ class BackgroundDownloadsService implements DownloadsService {
     if (_started) return;
     _started = true;
     final downloader = FileDownloader();
+    // Running and paused downloads get our own ongoing notification, which
+    // can be a Live Update (`LiveUpdates.kt`); the downloader's own would
+    // double it and cannot be promoted.
     downloader.configureNotification(
-      running: const TaskNotification(
-        '{filename}',
-        '{progress} · {networkSpeed}',
-      ),
       complete: const TaskNotification('{filename}', 'Download'),
       error: const TaskNotification('{filename}', '✕'),
-      paused: const TaskNotification('{filename}', '‖'),
-      progressBar: true,
       tapOpensFile: true,
     );
     _sub = downloader.updates.listen(_onUpdate);
+    _actions = HorizontWebKit.events.listen((event) {
+      if (event is LiveActionEvent) _onLiveAction(event);
+    });
     await downloader.start(autoCleanDatabase: true);
     // Downloads the list still shows as running but the downloader no longer
     // knows (the app was killed) are marked failed.
@@ -258,19 +259,63 @@ class BackgroundDownloadsService implements DownloadsService {
         :final timeRemaining,
       ):
         if (progress < 0) return;
-        _progress.value = {
-          ..._progress.value,
-          id: LiveProgress(
-            fraction: progress,
-            remaining: timeRemaining.isNegative ? null : timeRemaining,
-            expectedBytes: expectedFileSize > 0 ? expectedFileSize : null,
-          ),
-        };
+        final live = LiveProgress(
+          fraction: progress,
+          remaining: timeRemaining.isNegative ? null : timeRemaining,
+          expectedBytes: expectedFileSize > 0 ? expectedFileSize : null,
+        );
+        _progress.value = {..._progress.value, id: live};
+        _showLive(update.task, live, paused: false);
       case TaskStatusUpdate(:final status):
         if (status.isFinalState) {
           _progress.value = {..._progress.value}..remove(id);
+          unawaited(HorizontWebKit.liveCancel(liveNotificationId(id)));
+        } else if (status == TaskStatus.paused) {
+          _showLive(update.task, _progress.value[id], paused: true);
+        } else if (status == TaskStatus.running) {
+          _showLive(update.task, _progress.value[id], paused: false);
         }
         await _onStatus(update, status);
+    }
+  }
+
+  void _showLive(Task task, LiveProgress? live, {required bool paused}) {
+    final strings = LiveStrings.forLocale(
+      PlatformDispatcher.instance.locale.languageCode,
+    );
+    final id = task.taskId;
+    final percent = live == null || live.fraction < 0
+        ? -1
+        : (live.fraction * 100).round();
+    unawaited(
+      HorizontWebKit.liveShow(
+        id: liveNotificationId(id),
+        // A private download must not show its name on the lock screen.
+        title: _private.contains(id) ? strings.privateDownload : task.filename,
+        text: strings.text(percent, live?.remaining, paused: paused),
+        progress: percent,
+        chip: percent < 0 ? null : '$percent%',
+        actions: [
+          (
+            paused ? strings.resume : strings.pause,
+            paused ? 'resume' : 'pause',
+          ),
+          (strings.cancel, 'cancel'),
+        ],
+        payload: id,
+      ),
+    );
+  }
+
+  void _onLiveAction(LiveActionEvent event) {
+    final id = event.payload;
+    switch (event.action) {
+      case 'pause':
+        unawaited(pause(id));
+      case 'resume':
+        unawaited(resume(id));
+      case 'cancel':
+        unawaited(cancel(id));
     }
   }
 
@@ -352,5 +397,67 @@ class BackgroundDownloadsService implements DownloadsService {
     );
   }
 
-  void dispose() => unawaited(_sub?.cancel());
+  void dispose() {
+    unawaited(_sub?.cancel());
+    unawaited(_actions?.cancel());
+  }
+}
+
+/// The id of the notification for download [taskId]; positive, stable.
+@visibleForTesting
+int liveNotificationId(String taskId) => taskId.hashCode & 0x7fffffff;
+
+/// Words of the download notification. Plain strings because the service has
+/// no `BuildContext`; the app has two languages (en, de).
+@immutable
+class LiveStrings {
+  const LiveStrings({
+    required this.pause,
+    required this.resume,
+    required this.cancel,
+    required this.paused,
+    required this.privateDownload,
+    required this.left,
+  });
+
+  factory LiveStrings.forLocale(String language) => language == 'de'
+      ? const LiveStrings(
+          pause: 'Pause',
+          resume: 'Weiter',
+          cancel: 'Abbrechen',
+          paused: 'Pausiert',
+          privateDownload: 'Privater Download',
+          left: 'übrig',
+        )
+      : const LiveStrings(
+          pause: 'Pause',
+          resume: 'Resume',
+          cancel: 'Cancel',
+          paused: 'Paused',
+          privateDownload: 'Private download',
+          left: 'left',
+        );
+
+  final String pause;
+  final String resume;
+  final String cancel;
+  final String paused;
+  final String privateDownload;
+  final String left;
+
+  /// "42 % · 1 min left"; [percent] is negative while unknown.
+  String text(int percent, Duration? remaining, {required bool paused}) {
+    final parts = [
+      if (percent >= 0) '$percent %',
+      if (paused) this.paused,
+      if (!paused && remaining != null) '${_duration(remaining)} $left',
+    ];
+    return parts.join(' · ');
+  }
+
+  static String _duration(Duration d) {
+    if (d.inHours >= 1) return '${d.inHours} h ${d.inMinutes % 60} min';
+    if (d.inMinutes >= 1) return '${d.inMinutes} min';
+    return '${d.inSeconds.clamp(1, 59)} s';
+  }
 }
