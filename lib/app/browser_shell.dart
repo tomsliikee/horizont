@@ -30,6 +30,7 @@ import '../platform/horizont_webkit.dart';
 import '../theme/extensions.dart';
 import '../theme/horizont_theme.dart';
 import '../theme/motion.dart';
+import '../ui/haptics.dart';
 import '../ui/motion/presence.dart';
 import '../ui/motion/spring.dart';
 import 'engine_requests.dart';
@@ -88,6 +89,9 @@ class _BrowserShellState extends ConsumerState<BrowserShell>
   late final _swipeFade = AnimationController.unbounded(vsync: this, value: 1);
   ({String from, String? previous, String? next})? _swiping;
   var _crossed = false;
+
+  /// The swipe already said there is no tab that way.
+  var _rejected = false;
 
   @override
   void initState() {
@@ -202,6 +206,7 @@ class _BrowserShellState extends ConsumerState<BrowserShell>
         next: i >= 0 && i < visible.length - 1 ? visible[i + 1].id : null,
       );
       _crossed = false;
+      _rejected = false;
       _swipe.stop();
       _swipeFade.value = 1;
       unawaited(ref.read(tabSessionProvider).captureActive());
@@ -214,7 +219,11 @@ class _BrowserShellState extends ConsumerState<BrowserShell>
     final crossed = allowed && dx.abs() > width / 3;
     if (crossed != _crossed) {
       _crossed = crossed;
-      HapticFeedback.selectionClick();
+      Haptics.play(crossed ? Haptic.threshold : Haptic.release);
+    }
+    if (!allowed && dx.abs() > 60 && !_rejected) {
+      _rejected = true;
+      Haptics.play(Haptic.reject);
     }
   }
 
@@ -238,7 +247,7 @@ class _BrowserShellState extends ConsumerState<BrowserShell>
       if (mounted) setState(() => _swiping = null);
       return;
     }
-    unawaited(HapticFeedback.lightImpact());
+    Haptics.play(Haptic.tap);
     await _swipe.springTo(
       dir * width,
       motion: HorizontMotion.spatialFast,
@@ -325,6 +334,15 @@ class _BrowserShellState extends ConsumerState<BrowserShell>
       }
     }
     final barMode = ref.watch(barModeProvider);
+    // The chosen height, and above a bar the page keeps at the bottom; the
+    // web view fills the screen, so its fraction is of the screen height.
+    final (barRaise, liftOver) = ref.watch(
+      settingsProvider.select((s) => (s.barRaise, s.liftOverPageBars)),
+    );
+    final pageBar = liftOver && page.url != null
+        ? ref.watch(pageBottomBarProvider) * MediaQuery.sizeOf(context).height
+        : 0.0;
+    final raise = barRaise + pageBar;
     // Until a restored tab's page reports, the bar shows the tab's address.
     final restoring = page.url == null && tabs.activeUrl != null && !_homing;
     final barPage = restoring
@@ -460,7 +478,7 @@ class _BrowserShellState extends ConsumerState<BrowserShell>
                   onTapEdge: page.url == null
                       ? null
                       : () {
-                          HapticFeedback.selectionClick();
+                          Haptics.play(Haptic.tap);
                           unawaited(engine.scrollToTop());
                         },
                 ),
@@ -491,6 +509,7 @@ class _BrowserShellState extends ConsumerState<BrowserShell>
                             ref.read(barModeProvider.notifier).expand(),
                         onSwipeUpdate: _onSwipeUpdate,
                         onSwipeEnd: (v) => unawaited(_onSwipeEnd(v)),
+                        raise: keyboardUp ? 0 : raise,
                       ),
               ),
             ],

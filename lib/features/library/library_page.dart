@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:material_ui/material_ui.dart';
@@ -16,6 +15,7 @@ import '../../theme/type.dart';
 import '../../ui/buttons.dart';
 import '../../ui/cards.dart';
 import '../../ui/controls.dart';
+import '../../ui/haptics.dart';
 import '../../ui/lists.dart';
 import '../../ui/motion/flip.dart';
 import '../../ui/motion/staggered.dart';
@@ -64,7 +64,7 @@ class _LibraryPageState extends ConsumerState<LibraryPage> {
   }
 
   void _open(LibraryResult result) {
-    HapticFeedback.lightImpact();
+    Haptics.play(Haptic.tap);
     Navigator.of(context).pop(result);
   }
 
@@ -609,7 +609,7 @@ class _RemovableState extends State<_Removable> {
       },
       onUpdate: (details) {
         if (details.reached != details.previousReached) {
-          HapticFeedback.selectionClick();
+          Haptics.play(details.reached ? Haptic.threshold : Haptic.release);
         }
       },
       onDismissed: (_) {

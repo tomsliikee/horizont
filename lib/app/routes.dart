@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' show lerpDouble;
 
-import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../theme/extensions.dart';
 import '../theme/motion.dart';
+import '../ui/haptics.dart';
 import '../ui/motion/spring.dart';
 
 /// The global rect of the widget behind [key], or null before layout.
@@ -139,14 +139,14 @@ class _GrowSheetState extends State<_GrowSheet> with TickerProviderStateMixin {
     final past = next > _height * 0.25;
     if (past != _crossedThreshold) {
       _crossedThreshold = past;
-      HapticFeedback.selectionClick();
+      Haptics.play(past ? Haptic.threshold : Haptic.release);
     }
   }
 
   void _onDragEnd(DragEndDetails d) {
     final v = d.velocity.pixelsPerSecond.dy;
     if (v > 900 || (_drag.value > _height * 0.25 && v > -300)) {
-      HapticFeedback.lightImpact();
+      Haptics.play(Haptic.tap);
       unawaited(_close(null, v));
     } else {
       unawaited(_drag.springTo(0, motion: HorizontMotion.spatial, velocity: v));

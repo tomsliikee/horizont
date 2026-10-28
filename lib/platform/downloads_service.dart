@@ -10,6 +10,7 @@ import '../browser/tabs/tabs_notifier.dart';
 import '../browser/web_engine.dart';
 import '../data/library.dart';
 import '../data/library_providers.dart';
+import '../ui/haptics.dart';
 import 'horizont_webkit.dart';
 
 /// How far a running download is, for the downloads screen.
@@ -328,6 +329,8 @@ class BackgroundDownloadsService implements DownloadsService {
         update.task as DownloadTask,
         SharedStorage.downloads,
       );
+      // Felt only while the app is in front.
+      Haptics.play(Haptic.confirm);
     }
     if (private) {
       if (status.isFinalState) _private.remove(id);

@@ -1065,4 +1065,33 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get greetingNight => 'Gute Nacht';
+
+  @override
+  String get haptics => 'Haptik';
+
+  @override
+  String get hapticsSub =>
+      'Wie deutlich Horizont beim Tippen und Wischen vibriert. Die Vibrationseinstellung des Systems gilt weiter.';
+
+  @override
+  String get hapticsOff => 'Aus';
+
+  @override
+  String get hapticsNormal => 'Normal';
+
+  @override
+  String get hapticsStrong => 'Stark';
+
+  @override
+  String get liftOverPageBars => 'Über Seitenleisten ausweichen';
+
+  @override
+  String get liftOverPageBarsSub =>
+      'Hat eine Seite unten eine eigene Leiste (Instagram, X), rückt die Leiste darüber';
+
+  @override
+  String get barRaise => 'Höhe der Leiste';
+
+  @override
+  String get barRaiseSub => 'Wie weit die untere Leiste über ihrem Platz sitzt';
 }

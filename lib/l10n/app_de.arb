@@ -309,5 +309,14 @@
   "greetingMorning": "Guten Morgen",
   "greetingAfternoon": "Guten Tag",
   "greetingEvening": "Guten Abend",
-  "greetingNight": "Gute Nacht"
+  "greetingNight": "Gute Nacht",
+  "haptics": "Haptik",
+  "hapticsSub": "Wie deutlich Horizont beim Tippen und Wischen vibriert. Die Vibrationseinstellung des Systems gilt weiter.",
+  "hapticsOff": "Aus",
+  "hapticsNormal": "Normal",
+  "hapticsStrong": "Stark",
+  "liftOverPageBars": "Über Seitenleisten ausweichen",
+  "liftOverPageBarsSub": "Hat eine Seite unten eine eigene Leiste (Instagram, X), rückt die Leiste darüber",
+  "barRaise": "Höhe der Leiste",
+  "barRaiseSub": "Wie weit die untere Leiste über ihrem Platz sitzt"
 }

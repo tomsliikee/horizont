@@ -588,5 +588,14 @@
   "greetingMorning": "Good morning",
   "greetingAfternoon": "Good afternoon",
   "greetingEvening": "Good evening",
-  "greetingNight": "Good night"
+  "greetingNight": "Good night",
+  "haptics": "Haptics",
+  "hapticsSub": "How clearly Horizont vibrates when you tap and swipe. The system's vibration setting still applies.",
+  "hapticsOff": "Off",
+  "hapticsNormal": "Normal",
+  "hapticsStrong": "Strong",
+  "liftOverPageBars": "Move above page bars",
+  "liftOverPageBarsSub": "When a page has its own bar at the bottom (Instagram, X), the bar moves above it",
+  "barRaise": "Bar height",
+  "barRaiseSub": "How far the bottom bar sits above its usual place"
 }

@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' show lerpDouble;
 
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:motor/motor.dart';
@@ -17,6 +16,7 @@ import '../../theme/motion.dart';
 import '../../theme/type.dart';
 import '../../ui/buttons.dart';
 import '../../ui/floating_surface.dart';
+import '../../ui/haptics.dart';
 import '../../ui/motion/flip.dart';
 import '../../ui/motion/spring.dart';
 import '../../ui/tab_card.dart';
@@ -96,7 +96,7 @@ class _TabsPageState extends ConsumerState<TabsPage>
   Future<void> _openTab(String id) async {
     if (_leaving) return;
     _leaving = true;
-    unawaited(HapticFeedback.lightImpact());
+    Haptics.play(Haptic.tap);
     setState(() => _flying = id);
     final reduced = HorizontMotion.reduced(context);
     await _zoom.springTo(
@@ -112,7 +112,7 @@ class _TabsPageState extends ConsumerState<TabsPage>
     if (_leaving) return;
     final tab = ref.read(tabsProvider.notifier).open(activate: false);
     setState(() => _appearing = tab.id);
-    unawaited(HapticFeedback.mediumImpact());
+    Haptics.play(Haptic.confirm);
     // The new card pops out first, then it opens.
     await Future<void>.delayed(const Duration(milliseconds: 260));
     if (!mounted) return;
@@ -258,7 +258,7 @@ class _TabsPageState extends ConsumerState<TabsPage>
                                           onTap: () =>
                                               unawaited(_openTab(tab.id)),
                                           onClose: () {
-                                            HapticFeedback.lightImpact();
+                                            Haptics.play(Haptic.tick);
                                             notifier.close(tab.id);
                                           },
                                         ),
@@ -302,7 +302,7 @@ class _TabsPageState extends ConsumerState<TabsPage>
                               private: private,
                               onPrivate: () {
                                 if (private) return;
-                                HapticFeedback.selectionClick();
+                                Haptics.play(Haptic.tick);
                                 notifier.enterPrivate();
                                 // A new private tab has nothing to show yet.
                                 if (ref.read(tabsProvider).active.url == null) {
@@ -313,7 +313,7 @@ class _TabsPageState extends ConsumerState<TabsPage>
                               },
                               onNormal: () {
                                 if (!private) return;
-                                HapticFeedback.selectionClick();
+                                Haptics.play(Haptic.tick);
                                 notifier.showNormal();
                               },
                             ),
@@ -425,7 +425,7 @@ class _FlingCardState extends State<_FlingCard>
     final past = _dx.value.abs() > _width * 0.45;
     if (past != _past) {
       _past = past;
-      HapticFeedback.selectionClick();
+      Haptics.play(past ? Haptic.threshold : Haptic.release);
     }
   }
 

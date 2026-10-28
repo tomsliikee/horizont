@@ -15,6 +15,7 @@ import '../l10n/app_localizations.dart';
 import '../platform/horizont_webkit.dart';
 import '../theme/type.dart';
 import '../ui/buttons.dart';
+import '../ui/haptics.dart';
 import '../ui/lists.dart';
 import '../ui/tiles.dart';
 import 'providers.dart';
@@ -49,7 +50,7 @@ class PageActions {
     final url = _page.url;
     if (url == null) return;
     await Clipboard.setData(ClipboardData(text: url.toString()));
-    await HapticFeedback.mediumImpact();
+    Haptics.play(Haptic.confirm);
   }
 
   Future<void> share() async {
@@ -85,7 +86,7 @@ class PageActions {
     final folders = await _library.folders();
     final favourites = folders.firstWhere((f) => f.isFavorites);
     final id = await _library.addBookmark(favourites.id, url, _page.title);
-    unawaited(HapticFeedback.lightImpact());
+    Haptics.play(Haptic.confirm);
     if (!context.mounted) return;
     _say(
       l10n.bookmarkAdded(favourites.name),
@@ -117,7 +118,7 @@ class PageActions {
       ref.read(clockProvider)(),
       minutes: minutes,
     );
-    unawaited(HapticFeedback.lightImpact());
+    Haptics.play(Haptic.confirm);
     final dir = await getApplicationSupportDirectory();
     final offline = Directory('${dir.path}/offline');
     await offline.create(recursive: true);

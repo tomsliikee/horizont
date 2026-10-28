@@ -9,6 +9,7 @@ import '../../theme/color_schemes.dart';
 import '../../ui/buttons.dart';
 import '../../ui/cards.dart';
 import '../../ui/controls.dart';
+import '../../ui/haptics.dart';
 import '../../ui/lists.dart';
 import '../../ui/motion/staggered.dart';
 import '../../ui/tiles.dart';
@@ -204,6 +205,44 @@ class AppearancePage extends ConsumerWidget {
                               ),
                             ),
                           ),
+                          ListRow(
+                            title: l10n.liftOverPageBars,
+                            subtitle: l10n.liftOverPageBarsSub,
+                            minHeight: 72,
+                            trailing: HorizontSwitch(
+                              value: s.liftOverPageBars,
+                              semanticLabel: l10n.liftOverPageBars,
+                              onChanged: (v) => notifier.update(
+                                (s) => s.copyWith(liftOverPageBars: v),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SectionHeader(l10n.barRaise),
+                    stagger(
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Slider(
+                            value: s.barRaise,
+                            max: Settings.maxBarRaise,
+                            divisions: 6,
+                            label: '${s.barRaise.round()}',
+                            onChanged: (v) {
+                              if (v != s.barRaise) Haptics.play(Haptic.tick);
+                              notifier.update((s) => s.copyWith(barRaise: v));
+                            },
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: Text(
+                              l10n.barRaiseSub,
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: scheme.onSurfaceVariant),
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -230,6 +269,40 @@ class AppearancePage extends ConsumerWidget {
                             padding: const EdgeInsets.symmetric(horizontal: 8),
                             child: Text(
                               l10n.statusBarBlurSub,
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: scheme.onSurfaceVariant),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SectionHeader(l10n.haptics),
+                    stagger(
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: 8,
+                        children: [
+                          SegmentRow(
+                            labels: [
+                              l10n.hapticsOff,
+                              l10n.hapticsNormal,
+                              l10n.hapticsStrong,
+                            ],
+                            selected: s.haptics.index,
+                            onSelected: (i) {
+                              // A sample of the new level right away.
+                              Haptics.level = HapticLevel.values[i];
+                              Haptics.play(Haptic.confirm);
+                              notifier.update(
+                                (s) =>
+                                    s.copyWith(haptics: HapticLevel.values[i]),
+                              );
+                            },
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: Text(
+                              l10n.hapticsSub,
                               style: Theme.of(context).textTheme.bodySmall
                                   ?.copyWith(color: scheme.onSurfaceVariant),
                             ),

@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../browser_providers.dart';
@@ -98,6 +97,8 @@ class StatusBarNotifier extends Notifier<StatusBarInfo> {
         if (scrolled != state.scrolled) {
           state = state.copyWith(scrolled: scrolled);
         }
+      case BottomMessage():
+        break;
     }
   }
 

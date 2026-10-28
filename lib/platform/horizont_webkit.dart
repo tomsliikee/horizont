@@ -296,6 +296,10 @@ abstract final class HorizontWebKit {
     return {for (final p in permissions) p: r?[p] == true};
   }
 
+  /// Vibrates for [kind] (a `Haptic` name); [strong] composes it harder.
+  static Future<void> haptic(String kind, {required bool strong}) =>
+      _call<void>('haptic', {'kind': kind, 'strong': strong});
+
   /// The address the app was started with by another app, once.
   static Future<String?> initialUrl() => _call<String>('initialUrl');
 

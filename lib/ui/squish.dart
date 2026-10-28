@@ -1,8 +1,8 @@
-import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:motor/motor.dart';
 
 import '../theme/motion.dart';
+import 'haptics.dart';
 
 /// Shared press feedback: the child squeezes to about 0.92 on a spatial
 /// spring that overshoots a little on release. No ripple. Every tappable
@@ -63,13 +63,13 @@ class _SquishState extends State<Squish> {
         onTapCancel: enabled ? () => _set(false) : null,
         onTap: enabled
             ? () {
-                if (widget.haptic) HapticFeedback.selectionClick();
+                if (widget.haptic) Haptics.play(Haptic.tap);
                 widget.onTap!();
               }
             : null,
         onLongPress: enabled && widget.onLongPress != null
             ? () {
-                HapticFeedback.mediumImpact();
+                Haptics.play(Haptic.longPress);
                 widget.onLongPress!();
               }
             : null,

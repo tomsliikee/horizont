@@ -1,11 +1,11 @@
 import 'dart:ui' show lerpDouble;
 
-import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:motor/motor.dart';
 
 import '../theme/motion.dart';
 import '../theme/type.dart';
+import 'haptics.dart';
 import 'squish.dart';
 
 /// The switch of the prototype: a 52 by 32 track; the knob grows from 16 to
@@ -128,7 +128,7 @@ class SegmentRow extends StatelessWidget {
               pressedScale: 0.96,
               haptic: false,
               onTap: () {
-                if (i != selected) HapticFeedback.selectionClick();
+                if (i != selected) Haptics.play(Haptic.tick);
                 onSelected(i);
               },
               child: SingleMotionBuilder(

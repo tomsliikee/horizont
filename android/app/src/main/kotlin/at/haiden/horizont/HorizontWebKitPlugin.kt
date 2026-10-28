@@ -376,6 +376,18 @@ class HorizontWebKitPlugin :
                 }
                 result.success(null)
             }
+            "haptic" -> {
+                val activity = activity?.activity
+                if (activity != null) {
+                    Haptics.play(
+                        activity,
+                        activity.window?.decorView,
+                        call.argument<String>("kind") ?: "",
+                        call.argument<Boolean>("strong") == true,
+                    )
+                }
+                result.success(null)
+            }
             "initialUrl" -> {
                 result.success(initialUrl)
                 initialUrl = null

@@ -45,6 +45,9 @@ enum StatusBarBlur {
 /// The six bar layouts of Design & Farbe (PLAN 3).
 enum BarLayout { kompakt, zweireihig, expressiv, oben, karte, minimal }
 
+/// How strongly the app vibrates on touch.
+enum HapticLevel { off, normal, strong }
+
 /// The sections of the start page that can be switched off.
 enum StartSection { favourites, frequent, readingList, privacyReport }
 
@@ -73,6 +76,9 @@ class Settings {
     this.textZoomByHost = const {},
     this.startSections = const {...StartSection.values},
     this.homeAfterAway = HomeAfterAway.hour,
+    this.haptics = HapticLevel.normal,
+    this.barRaise = 0,
+    this.liftOverPageBars = true,
   });
 
   /// Bumped when a stored value changes meaning; [fromJson] migrates older
@@ -126,6 +132,18 @@ class Settings {
   /// "Startseite nach Abwesenheit".
   final HomeAfterAway homeAfterAway;
 
+  /// "Haptik".
+  final HapticLevel haptics;
+
+  /// "Höhe der Leiste": how far the bottom bar sits above its usual place,
+  /// in logical pixels (0 to [maxBarRaise]).
+  final double barRaise;
+  static const maxBarRaise = 48.0;
+
+  /// "Über Seitenleisten ausweichen": the bar moves above a bar the page
+  /// keeps at the bottom of the screen.
+  final bool liftOverPageBars;
+
   int textZoomFor(String host) => textZoomByHost[host] ?? 100;
 
   /// [textZoomByHost] with [host] set to [percent].
@@ -161,6 +179,9 @@ class Settings {
     Map<String, int>? textZoomByHost,
     Set<StartSection>? startSections,
     HomeAfterAway? homeAfterAway,
+    HapticLevel? haptics,
+    double? barRaise,
+    bool? liftOverPageBars,
   }) => Settings(
     themeMode: themeMode ?? this.themeMode,
     colourway: colourway ?? this.colourway,
@@ -183,6 +204,9 @@ class Settings {
     textZoomByHost: textZoomByHost ?? this.textZoomByHost,
     startSections: startSections ?? this.startSections,
     homeAfterAway: homeAfterAway ?? this.homeAfterAway,
+    haptics: haptics ?? this.haptics,
+    barRaise: barRaise ?? this.barRaise,
+    liftOverPageBars: liftOverPageBars ?? this.liftOverPageBars,
   );
 
   String toJson() => jsonEncode({
@@ -208,6 +232,9 @@ class Settings {
     'textZoomByHost': textZoomByHost,
     'startSections': [for (final s in startSections) s.name],
     'homeAfterAway': homeAfterAway.name,
+    'haptics': haptics.name,
+    'barRaise': barRaise,
+    'liftOverPageBars': liftOverPageBars,
   });
 
   /// Reads [source]; anything unreadable, or from a newer version, gives the
@@ -272,6 +299,11 @@ class Settings {
           'homeAfterAway',
           d.homeAfterAway,
         ),
+        haptics: pick(HapticLevel.values, 'haptics', d.haptics),
+        barRaise: map['barRaise'] is num
+            ? (map['barRaise'] as num).toDouble().clamp(0, maxBarRaise)
+            : d.barRaise,
+        liftOverPageBars: flag('liftOverPageBars', d.liftOverPageBars),
       );
     } on FormatException {
       return const Settings();

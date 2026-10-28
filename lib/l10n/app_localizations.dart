@@ -1957,6 +1957,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Good night'**
   String get greetingNight;
+
+  /// No description provided for @haptics.
+  ///
+  /// In en, this message translates to:
+  /// **'Haptics'**
+  String get haptics;
+
+  /// No description provided for @hapticsSub.
+  ///
+  /// In en, this message translates to:
+  /// **'How clearly Horizont vibrates when you tap and swipe. The system\'s vibration setting still applies.'**
+  String get hapticsSub;
+
+  /// No description provided for @hapticsOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get hapticsOff;
+
+  /// No description provided for @hapticsNormal.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal'**
+  String get hapticsNormal;
+
+  /// No description provided for @hapticsStrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Strong'**
+  String get hapticsStrong;
+
+  /// No description provided for @liftOverPageBars.
+  ///
+  /// In en, this message translates to:
+  /// **'Move above page bars'**
+  String get liftOverPageBars;
+
+  /// No description provided for @liftOverPageBarsSub.
+  ///
+  /// In en, this message translates to:
+  /// **'When a page has its own bar at the bottom (Instagram, X), the bar moves above it'**
+  String get liftOverPageBarsSub;
+
+  /// No description provided for @barRaise.
+  ///
+  /// In en, this message translates to:
+  /// **'Bar height'**
+  String get barRaise;
+
+  /// No description provided for @barRaiseSub.
+  ///
+  /// In en, this message translates to:
+  /// **'How far the bottom bar sits above its usual place'**
+  String get barRaiseSub;
 }
 
 class _AppLocalizationsDelegate

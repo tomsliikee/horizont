@@ -45,6 +45,10 @@ sealed class PageMessage {
           end,
           down: dir == 'down',
         );
+      case 'bottom':
+        final f = map['f'];
+        if (f is! num || !f.isFinite) return null;
+        return BottomMessage(f.toDouble().clamp(0, 0.4));
     }
     return null;
   }
@@ -71,4 +75,11 @@ class ScrollMessage extends PageMessage {
 /// top of it again to see what colours are there now.
 class RestMessage extends PageMessage {
   const RestMessage();
+}
+
+/// A bar the page keeps at the bottom of the screen takes [fraction] of the
+/// view's height (0 when there is none); the app's bar moves above it.
+class BottomMessage extends PageMessage {
+  const BottomMessage(this.fraction);
+  final double fraction;
 }

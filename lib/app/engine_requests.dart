@@ -17,6 +17,7 @@ import '../platform/horizont_webkit.dart';
 import '../theme/extensions.dart';
 import '../theme/type.dart';
 import '../ui/buttons.dart';
+import '../ui/haptics.dart';
 import '../ui/lists.dart';
 import '../ui/tiles.dart';
 import 'providers.dart';
@@ -126,7 +127,7 @@ class EngineRequests {
     }
     await ref.read(downloadsServiceProvider).download(event, private: private);
     if (!context.mounted) return;
-    unawaited(HapticFeedback.lightImpact());
+    Haptics.play(Haptic.confirm);
     _say(
       _l10n.downloadStarted,
       action: private

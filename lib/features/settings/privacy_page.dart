@@ -1,6 +1,3 @@
-import 'dart:async';
-
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -16,6 +13,7 @@ import '../../theme/type.dart';
 import '../../ui/buttons.dart';
 import '../../ui/cards.dart';
 import '../../ui/controls.dart';
+import '../../ui/haptics.dart';
 import '../../ui/lists.dart';
 import '../../ui/motion/count_up.dart';
 import '../../ui/motion/staggered.dart';
@@ -200,7 +198,7 @@ class PrivacyPage extends ConsumerWidget {
                           await library.clearHistory();
                           await library.clearPermissions();
                           await HorizontWebKit.clearAllData(null);
-                          unawaited(HapticFeedback.mediumImpact());
+                          Haptics.play(Haptic.confirm);
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text(l10n.cleared)),

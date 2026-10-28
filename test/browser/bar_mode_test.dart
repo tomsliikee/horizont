@@ -45,4 +45,12 @@ void main() {
     );
     expect((up! as ScrollMessage).down, isFalse);
   });
+
+  test('a bar the page keeps at the bottom is reported, capped', () {
+    final m = PageMessage.parse('{"type":"bottom","f":0.07}');
+    expect(m, isA<BottomMessage>().having((b) => b.fraction, 'f', 0.07));
+    final big = PageMessage.parse('{"type":"bottom","f":0.9}');
+    expect((big! as BottomMessage).fraction, 0.4);
+    expect(PageMessage.parse('{"type":"bottom","f":"x"}'), isNull);
+  });
 }

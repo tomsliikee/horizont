@@ -2,13 +2,14 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' show lerpDouble;
 
-import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:motor/motor.dart';
 
 import '../../data/settings.dart';
 import '../../theme/extensions.dart';
 import '../../theme/motion.dart';
 import '../../ui/floating_surface.dart';
+import '../../ui/haptics.dart';
 import '../../ui/motion/spring.dart';
 import '../browser_providers.dart';
 import '../web_engine.dart';
@@ -42,6 +43,7 @@ class BrowserBars extends StatefulWidget {
     required this.onExpand,
     this.onSwipeUpdate,
     this.onSwipeEnd,
+    this.raise = 0,
   });
 
   final BarLayout layout;
@@ -57,6 +59,9 @@ class BrowserBars extends StatefulWidget {
 
   /// The finger let go, with its velocity in pixels per second.
   final ValueChanged<double>? onSwipeEnd;
+
+  /// How far above its usual place the bottom bar sits; it springs there.
+  final double raise;
 
   @override
   State<BrowserBars> createState() => _BrowserBarsState();
@@ -338,89 +343,93 @@ class _BrowserBarsState extends State<BrowserBars>
               left: 0,
               right: 0,
               bottom: lift,
-              child: GestureDetector(
-                behavior: HitTestBehavior.deferToChild,
-                onHorizontalDragStart: (_) {
-                  _horizontal = widget.onSwipeUpdate != null;
-                  _drag = 0;
-                },
-                onHorizontalDragUpdate: _dragUpdate,
-                onHorizontalDragEnd: _dragEnd,
-                onVerticalDragEnd: (d) {
-                  if (d.velocity.pixelsPerSecond.dy < -600) {
-                    HapticFeedback.mediumImpact();
-                    widget.actions.tabs();
-                  }
-                },
-                child: RepaintBoundary(
-                  child: Stack(
-                    key: _stack,
-                    alignment: Alignment.bottomCenter,
-                    children: [
-                      if (previous != null) bottomOf(previous, 1 - swap),
-                      if (surface != null && s > 0.001)
-                        Positioned(
-                          left: surface.left,
-                          bottom: -surface.bottom,
-                          width: surface.width,
-                          height: surface.height,
-                          child: IgnorePointer(
-                            child: Opacity(
-                              // Under the full bar at first, so its pieces
-                              // seem to flow together.
-                              opacity: ((m * 6).clamp(0.0, 1.0) * shown).clamp(
-                                0.0,
-                                1.0,
-                              ),
-                              child: Transform.translate(
-                                offset: Offset(0, hiddenShift),
-                                child: FloatingSurface(
-                                  key: barSurfaceKey,
-                                  borderRadius: BorderRadius.circular(
-                                    math.min(radius, surface.shortestSide / 2),
+              child: _Raise(
+                raise: widget.raise,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.deferToChild,
+                  onHorizontalDragStart: (_) {
+                    _horizontal = widget.onSwipeUpdate != null;
+                    _drag = 0;
+                  },
+                  onHorizontalDragUpdate: _dragUpdate,
+                  onHorizontalDragEnd: _dragEnd,
+                  onVerticalDragEnd: (d) {
+                    if (d.velocity.pixelsPerSecond.dy < -600) {
+                      Haptics.play(Haptic.threshold);
+                      widget.actions.tabs();
+                    }
+                  },
+                  child: RepaintBoundary(
+                    child: Stack(
+                      key: _stack,
+                      alignment: Alignment.bottomCenter,
+                      children: [
+                        if (previous != null) bottomOf(previous, 1 - swap),
+                        if (surface != null && s > 0.001)
+                          Positioned(
+                            left: surface.left,
+                            bottom: -surface.bottom,
+                            width: surface.width,
+                            height: surface.height,
+                            child: IgnorePointer(
+                              child: Opacity(
+                                // Under the full bar at first, so its pieces
+                                // seem to flow together.
+                                opacity: ((m * 6).clamp(0.0, 1.0) * shown)
+                                    .clamp(0.0, 1.0),
+                                child: Transform.translate(
+                                  offset: Offset(0, hiddenShift),
+                                  child: FloatingSurface(
+                                    key: barSurfaceKey,
+                                    borderRadius: BorderRadius.circular(
+                                      math.min(
+                                        radius,
+                                        surface.shortestSide / 2,
+                                      ),
+                                    ),
+                                    shadows: BoxShadow.lerpList(
+                                      shadows.floating,
+                                      shadows.button,
+                                      m.clamp(0, 1),
+                                    ),
+                                    child: const SizedBox.expand(),
                                   ),
-                                  shadows: BoxShadow.lerpList(
-                                    shadows.floating,
-                                    shadows.button,
-                                    m.clamp(0, 1),
-                                  ),
-                                  child: const SizedBox.expand(),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      // Both forms stay laid out, so their places are known
-                      // when the bar starts to shrink; the one not seen is
-                      // offstage.
-                      Offstage(
-                        offstage: s >= 0.999,
-                        child: bottomOf(current, swap, key: _full),
-                      ),
-                      if (minimal != null)
+                        // Both forms stay laid out, so their places are known
+                        // when the bar starts to shrink; the one not seen is
+                        // offstage.
                         Offstage(
-                          offstage: s <= 0.001,
-                          child: Padding(
-                            padding: minimal.bottomPadding,
-                            child: Opacity(
-                              opacity: ((morph ? pillFade : m) * shown).clamp(
-                                0.0,
-                                1.0,
-                              ),
-                              child: Transform.translate(
-                                offset: Offset(0, hiddenShift) + follow(pill),
-                                child: IgnorePointer(
-                                  ignoring: s < 0.5 || h > 0.5,
-                                  child: KeyedSubtree(
-                                    key: _pillContent,
-                                    child: minimal.bottom,
+                          offstage: s >= 0.999,
+                          child: bottomOf(current, swap, key: _full),
+                        ),
+                        if (minimal != null)
+                          Offstage(
+                            offstage: s <= 0.001,
+                            child: Padding(
+                              padding: minimal.bottomPadding,
+                              child: Opacity(
+                                opacity: ((morph ? pillFade : m) * shown).clamp(
+                                  0.0,
+                                  1.0,
+                                ),
+                                child: Transform.translate(
+                                  offset: Offset(0, hiddenShift) + follow(pill),
+                                  child: IgnorePointer(
+                                    ignoring: s < 0.5 || h > 0.5,
+                                    child: KeyedSubtree(
+                                      key: _pillContent,
+                                      child: minimal.bottom,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -432,4 +441,21 @@ class _BrowserBarsState extends State<BrowserBars>
     // The same widgets either way, so nothing in the bars is made anew.
     return NoGlassBlur(off: widget.page.url != null, child: bars);
   }
+}
+
+/// Moves the bottom bar up by [raise] on a spatial spring.
+class _Raise extends StatelessWidget {
+  const _Raise({required this.raise, required this.child});
+
+  final double raise;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => SingleMotionBuilder(
+    value: raise,
+    motion: HorizontMotion.spatialFor(context),
+    child: child,
+    builder: (context, value, child) =>
+        Transform.translate(offset: Offset(0, -value), child: child),
+  );
 }

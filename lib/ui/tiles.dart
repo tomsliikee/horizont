@@ -1,12 +1,12 @@
 import 'dart:ui' show lerpDouble;
 
-import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:motor/motor.dart';
 
 import '../theme/motion.dart';
 import '../theme/type.dart';
 import 'buttons.dart';
+import 'haptics.dart';
 import 'squish.dart';
 
 /// 84 high, radius 24, icon over a 12/600 label (`P:274`); the first tile of
@@ -674,7 +674,7 @@ class RadioRow extends StatelessWidget {
       inMutuallyExclusiveGroup: true,
       child: Squish(
         onTap: () {
-          if (!selected) HapticFeedback.selectionClick();
+          if (!selected) Haptics.play(Haptic.tick);
           onTap();
         },
         haptic: false,

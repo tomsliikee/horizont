@@ -6,6 +6,7 @@ import 'package:material_ui/material_ui.dart';
 import '../l10n/app_localizations.dart';
 import '../platform/horizont_webkit.dart';
 import '../theme/horizont_theme.dart';
+import '../ui/haptics.dart';
 import 'browser_shell.dart';
 import 'providers.dart';
 import 'system_ui.dart';
@@ -29,6 +30,11 @@ class _HorizontAppState extends ConsumerState<HorizontApp> {
     ref.listenManual(
       settingsProvider.select((s) => s.themeMode),
       (_, mode) => unawaited(HorizontWebKit.setNightMode(mode.name)),
+      fireImmediately: true,
+    );
+    ref.listenManual(
+      settingsProvider.select((s) => s.haptics),
+      (_, level) => Haptics.level = level,
       fireImmediately: true,
     );
   }

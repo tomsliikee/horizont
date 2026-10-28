@@ -1069,4 +1069,33 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get greetingNight => 'Good night';
+
+  @override
+  String get haptics => 'Haptics';
+
+  @override
+  String get hapticsSub =>
+      'How clearly Horizont vibrates when you tap and swipe. The system\'s vibration setting still applies.';
+
+  @override
+  String get hapticsOff => 'Off';
+
+  @override
+  String get hapticsNormal => 'Normal';
+
+  @override
+  String get hapticsStrong => 'Strong';
+
+  @override
+  String get liftOverPageBars => 'Move above page bars';
+
+  @override
+  String get liftOverPageBarsSub =>
+      'When a page has its own bar at the bottom (Instagram, X), the bar moves above it';
+
+  @override
+  String get barRaise => 'Bar height';
+
+  @override
+  String get barRaiseSub => 'How far the bottom bar sits above its usual place';
 }

@@ -1,13 +1,12 @@
 import 'dart:async';
 
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:material_ui/material_ui.dart';
 
 import '../../app/providers.dart';
-import '../../browser/tabs/tabs_notifier.dart';
 import '../../app/routes.dart';
+import '../../browser/tabs/tabs_notifier.dart';
 import '../../data/library.dart';
 import '../../data/library_providers.dart';
 import '../../data/settings.dart';
@@ -207,7 +206,6 @@ class StartPage extends ConsumerWidget {
     Bookmark b,
   ) async {
     final l10n = AppLocalizations.of(context);
-    unawaited(HapticFeedback.mediumImpact());
     final action = await showModalBottomSheet<String>(
       context: context,
       builder: (context) => SafeArea(

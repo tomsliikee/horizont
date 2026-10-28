@@ -126,6 +126,11 @@
     clearTimeout(timers[key]);
     timers[key] = setTimeout(fn, ms);
   }
+  // Like later, but a steady stream of calls still runs fn every [ms].
+  function atMost(key, ms, fn) {
+    if (timers[key]) return;
+    timers[key] = setTimeout(function () { timers[key] = 0; fn(); }, ms);
+  }
 
   // The page came to rest: the app captures its top again, which shows the
   // colours the page really has there.
@@ -145,6 +150,37 @@
       return { y: scroller.scrollTop, end: scroller.scrollTop + scroller.clientHeight >= contentHeight - 2 };
     }
     return { y: window.scrollY, end: window.scrollY + window.innerHeight >= contentHeight - 2 };
+  }
+
+  // A bar the page keeps at the bottom of the screen (Instagram, X): how
+  // much of the screen height it takes, so the app can lift its own bar
+  // above it. Three points along the bottom edge, at least two must agree.
+  var lastBottom = -1;
+  function pageBarTop(x, h, w) {
+    var el = document.elementFromPoint(x, h - 4);
+    while (el && el !== document.body && el !== document.documentElement) {
+      var style = getComputedStyle(el);
+      if (style.position === 'fixed' || style.position === 'sticky') {
+        var r = el.getBoundingClientRect();
+        var shown = style.visibility !== 'hidden' && parseFloat(style.opacity) > 0.1;
+        if (shown && r.bottom >= h - 2 && r.width >= w * 0.5 && r.height > 0 && r.height < h * 0.4) return r.top;
+        return null;
+      }
+      el = el.parentElement;
+    }
+    return null;
+  }
+  function reportBottom() {
+    var h = window.innerHeight, w = window.innerWidth;
+    if (!h || !w) return;
+    var tops = [pageBarTop(w * 0.2, h, w), pageBarTop(w * 0.5, h, w), pageBarTop(w * 0.8, h, w)]
+      .filter(function (t) { return t !== null; });
+    var f = 0;
+    if (tops.length >= 2) f = (h - Math.min.apply(null, tops)) / h;
+    f = Math.round(f * 200) / 200;
+    if (f === lastBottom) return;
+    lastBottom = f;
+    send({ type: 'bottom', f: f });
   }
 
   var frame = 0;
@@ -179,6 +215,7 @@
       });
     }
     later('height', 250, function () { readContentHeight(); });
+    later('bottom', 300, reportBottom);
     // The colour at the top can change as the page scrolls.
     rest();
     if (source !== 'meta') {
@@ -217,13 +254,18 @@
 
   function whenReady() {
     report();
+    later('bottom', 300, reportBottom);
+    // Banners and app bars often appear after the load.
+    new MutationObserver(function () { atMost('bottomDom', 500, reportBottom); })
+      .observe(document.body || document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class', 'hidden'] });
     var head = document.head || document.documentElement;
     new MutationObserver(function () { later('meta', 100, report); })
       .observe(head, { childList: true, subtree: true, attributes: true, attributeFilter: ['content', 'name', 'media'] });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', whenReady);
   else whenReady();
-  window.addEventListener('load', function () { report(); rest(); });
+  window.addEventListener('load', function () { report(); rest(); later('bottom', 300, reportBottom); });
+  window.addEventListener('resize', function () { later('bottom', 300, reportBottom); });
 
   try {
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function () { later('scheme', 100, report); });
@@ -235,6 +277,7 @@
     history[name] = function () {
       var result = original.apply(this, arguments);
       later('route', 300, report);
+      later('bottom', 600, reportBottom);
       return result;
     };
   });

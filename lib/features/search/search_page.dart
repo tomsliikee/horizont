@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' show lerpDouble;
 
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:material_ui/material_ui.dart';
@@ -18,6 +17,7 @@ import '../../l10n/app_localizations.dart';
 import '../../theme/motion.dart';
 import '../../theme/type.dart';
 import '../../ui/buttons.dart';
+import '../../ui/haptics.dart';
 import '../../ui/lists.dart';
 import '../../ui/motion/spring.dart';
 import '../../ui/motion/staggered.dart';
@@ -126,7 +126,7 @@ class _SearchPageState extends ConsumerState<SearchPage>
   }
 
   void _go(Uri uri) {
-    HapticFeedback.lightImpact();
+    Haptics.play(Haptic.tap);
     unawaited(_close(uri));
   }
 

@@ -86,6 +86,27 @@ class BarModeNotifier extends Notifier<BarMode> {
   void expand() => state = BarMode.full;
 }
 
+/// How much of the view's height a bar the page keeps at the bottom takes
+/// (0 to 0.4); the app's bar moves above it. 0 on every new page.
+final pageBottomBarProvider = NotifierProvider<PageBottomBarNotifier, double>(
+  PageBottomBarNotifier.new,
+);
+
+class PageBottomBarNotifier extends Notifier<double> {
+  @override
+  double build() {
+    final engine = ref.watch(webEngineProvider);
+    final sub = engine.messages.listen((message) {
+      if (message is BottomMessage) state = message.fraction;
+    });
+    ref.onDispose(sub.cancel);
+    ref.listen(pageStateProvider.select((p) => p.url), (previous, next) {
+      if (previous != next) state = 0;
+    });
+    return 0;
+  }
+}
+
 /// The bar for a scroll report: full near the top and while scrolling up,
 /// shrunk while reading down, hidden at the end where the setting asks.
 BarMode barModeFor(
